@@ -10,7 +10,8 @@ Input Events ---> Event Processor ---> Response/Action
 [ ] Evaluate Influxdb.  Cluster Setup.  Replacing cluster node.
 [ ] Evalute Esper.  Change query.  Does it hold states in the case of process restart or server crash?
 [X] Cassandra with timeseries.  Works good.  Already use inhouse
-[ ] Define use case
+[X] Define use case
+[ ] Define function
 [ ] Build phase 1 prototype with Influxdb
     [X] Rule design
     [ ] UDP, AMQP, Http input
@@ -67,6 +68,26 @@ AMQP
 Http (params, json)
 Kafka
 
+####### Function, Webservice
+
+```
+
+#asychronzied function
+
+#add event to system, return a key that can be used to check data
+function string addevent(event) 
+POST /event?evtname=&parm1=&param2=..
+
+# check data, either entire event can be pass in which or the key
+function bool check(event)
+function bool check(key)
+GET /event?evtname=&parm1=&param2=.. or just pass id=
+
+#same above with result=true mean to wait for result.
+function bool add_and_check(event)
+POST /event?evtname=&parm1=&param2=..&result=true
+
+```
 ###### Continuous Query
 One method of doing incremental computation is by using Continuous query.  Continuous query operates on streaming dataset/timeseries and recompute incrementally on each new sample data.  
 
