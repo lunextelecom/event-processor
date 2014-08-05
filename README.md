@@ -57,7 +57,7 @@ and some time later...
 
 ##Summary
 ````
-           [    event-processor              ]
+           [    event-processor                            ]
 Events --> Input --> Timeseries--> Continuous Query --> Rule --> Response/action
 ````
 
