@@ -15,9 +15,12 @@ Input Events ---> Event Processor ---> Response/Action
 [ ] Build phase 1 prototype with Influxdb
     [X] Rule design
     [ ] UDP, AMQP, Http input
-    [ ] Continuous Query - already have this feature, incorp rules
-    [ ] Backfilled - already have this feature
+    [ ] Continuous Query, backfill, storage - influxdb already have this feature, incorp rules
     [ ] grafana - already works with
+[ ] Build phase 2 Final
+    [ ] Cassandra + storage + query
+    [ ] Continous Query(library or use esper)
+    [ ] Backfill
 ```
 
 ## Implementation Consideration
