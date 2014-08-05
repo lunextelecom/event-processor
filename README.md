@@ -3,7 +3,7 @@ Event-Processor
 Analyze stream of data events(json, keyvalue, maps) and trigger an action when conditions are met.
 Analyze is doing via aggregation, and time series.  Storage is provide via Cassandra.  Trigger can be new event to socket
 
-Input Events ---> Event Processor ---> Action
+Input Events ---> Event Processor ---> Response/Action
 
 ## Task
 ```
@@ -56,7 +56,8 @@ and some time later...
 
 ##Summary
 ````
-Events --> Input --> Continuos Query --> Rule --> Response
+           [    event-processor              ]
+Events --> Input --> Timeseries--> Continuous Query --> Rule --> Response/action
 ````
 
 ####### Input
@@ -67,7 +68,7 @@ Http (params, json)
 Kafka
 
 ###### Continuous Query
-One method of doing incremental computation is by using continous query.  Continous query operates on streaming dataset/timeseries and recompute incrementally on each new sample data.  
+One method of doing incremental computation is by using Continuous query.  Continuous query operates on streaming dataset/timeseries and recompute incrementally on each new sample data.  
 
 ```
 SELECT [Fields] FROM [Data] WHERE [Conditions] GroupBy [AggregateField]
