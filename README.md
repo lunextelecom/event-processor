@@ -8,7 +8,6 @@ Input Events ---> Event Processor ---> Response/Action
 ## Task
 ```
 [ ] Evaluate Influxdb.  Cluster Setup.  Replacing cluster node.
-[ ] Evalute Esper.  Change query.  Does it hold states in the case of process restart or server crash?
 [X] Cassandra with timeseries.  Works good.  Already use inhouse
 [X] Define use case
 [ ] Define function
@@ -18,6 +17,10 @@ Input Events ---> Event Processor ---> Response/Action
     [ ] Continuous Query, backfill, storage - influxdb already have this feature, incorp rules
     [ ] grafana - already works with
 [ ] Build phase 2 Final
+    [ ] Evalute Esper.  Change query.  Does it hold states in the case of process restart or server crash?
+    [ ] Storm
+        [ ] Bolt (input)
+        [ ] Sprout (Rule, Continuous query, write to storage)
     [ ] Cassandra + storage + query
     [ ] Continous Query(library or use esper)
     [ ] Backfill
@@ -25,9 +28,8 @@ Input Events ---> Event Processor ---> Response/Action
 
 ## Implementation Consideration
 1. InfluxDb - already have continuous query, timeseries storage.  For this reason, it is reality quick to build a prototype using this.(Phase 1)
-2. Cassandra with Esper - continuous query via esper.
-3. Cassandra with custom library 
-4. Cassandra + Storm + custom library (distributed computing)  
+2. Cassandra with Continuous query.
+3. Cassandra + Storm + Continuous query (Phase 2 distributed computing)  
 
 ##Performance
 ###### Incremental computation
