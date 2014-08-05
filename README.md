@@ -73,7 +73,8 @@ One method of doing incremental computation is by using continous query.  Contin
 SELECT [Fields] FROM [Data] WHERE [Conditions] GroupBy [AggregateField]
 
 Data: raw incoming data or genearted time series 
-AggregateField: this organized the data for aggregation function. Fields that are used to build aggregation of data.  time units can be truncate into time series.  eg. time(5min) means group the Data into 5 mins time series.
+AggregateField: Fields that are used to build aggregation of data.
+  Timeseries is a special function here to group data into timeseries.
 Condition: conditions to filter data. =, !=, >=, <=, >, <, and, or 
 Field: field1, field2, or * for all
 Field func: sum, max, min, first, last, avg, timeseries(timefield, size1, size2[optional])
