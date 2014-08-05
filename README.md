@@ -1,7 +1,7 @@
 Event-Processor
 ===============
 Analyze stream of data events(json, keyvalue, maps) and trigger an action when conditions are met.
-Analyze is doing via aggregation, and time series.  Storage is provide via Cassandra.  Trigger can be new event to socket
+Analyze is doing via aggregation, and time series.  Storage is provide via Cassandra.
 
 Input Events ---> Event Processor ---> Response/Action
 
