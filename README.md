@@ -97,14 +97,16 @@ POST /event?evtname=&parm1=&param2=..&result=true
 One method of doing incremental computation is by using Continuous query.  Continuous query operates on streaming dataset/timeseries and recompute incrementally on each new sample data.  
 
 ```
-SELECT [Fields] FROM [Data] WHERE [Conditions] GroupBy [AggregateField]
+SELECT [Fields] FROM [Data] WHERE [Filter] GroupBy [AggregateField]
+CHECK [Condition]
 
 Data: raw incoming data or genearted time series 
 AggregateField: Fields that are used to build aggregation of data.
   Timeseries is a special function here to group data into timeseries.
-Condition: conditions to filter data. =, !=, >=, <=, >, <, and, or 
+Filter: conditions to filter data. =, !=, >=, <=, >, <, and, or 
 Field: field1, field2, or * for all
 Field func: sum, max, min, first, last, avg, timeseries(timefield, size1, size2[optional])
+Condition: when this condition is met, check will return true.  Also, it can be set to write an event to rabbitmq.
 ```
 
 
@@ -137,15 +139,18 @@ Allow only $10000 sales daily for any seller
 
 ###### Flow
 Synchronized used case.
+```
 1. ClientApp send request check(evt=neworder, amount=10, seller=usedcardealer) to EventProcessor(blocked)
 2. EventProcessor check by building a key from the input data.  It then do incremental computing base on the new data.
 3. ClientApp recieve response(finished)
-
+```
 ######
 Asynchronized use case(make sense only if the condition dealing with larger number of events, because we can potentially missed by 1 event)
+```
 1. ClientApp send request addEvent(evt=neworder, amount=10..) to EventProcessor.(Non blocking)
 2. EventProcessor update internal data, recompute incrementally.
 3. ClientApp send request check(evt=neworder, amount=10, seller=usedcardealer) to EventProcessor(blocked)
 4. EventProcessor return already computed result.
 5. ClientApp recieve response(finished)
+```
 
