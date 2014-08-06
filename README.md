@@ -3,7 +3,24 @@ Event-Processor
 Analyze stream of data events(json, keyvalue, maps) and trigger an action when conditions are met.
 Analyze is doing via aggregation, and time series.  Storage is provide via Cassandra.
 
+
+##Summary
+````
 Input Events ---> Event Processor ---> Response/Action
+
+
+Event Processor is consist of the following
+
+REST Webservice: Allow client to manually call check or input event data via webservice.  
+Input Processor: Take raw data and match and execute the appropriate rule.
+Timeseries: functions and storage in cassandra
+Continuous Query: declarative way to build incremental computing timeseries.
+Rule: define the query, condition, and output.
+Output Handler : logfile out, or rabbitmq
+Graphing: Handle by grafana via graphite or opentsdb protocol
+
+````
+
 
 ## Task
 ```
@@ -12,7 +29,7 @@ Input Events ---> Event Processor ---> Response/Action
 [X] Define use case
 [ ] Define function
 [ ] Build phase 1 prototype with Influxdb
-    [X] Rule design
+    [ ] Rule design
     [ ] UDP, AMQP, Http input
     [ ] Continuous Query, backfill, storage - influxdb already have this feature, incorp rules
     [ ] grafana - already works with
@@ -60,20 +77,16 @@ and some time later...
 [      60min          ][      60min            ]
 ```
 
-##Summary
-````
-           [    event-processor                            ]
-Events --> Input --> Timeseries--> Continuous Query --> Rule --> Response/action
-````
 
-####### Input
+
+###### Input
 * Asynchronized input where response are not needed
 UDP
 AMQP
 Http (params, json)
 Kafka
 
-####### Function, Webservice
+###### Function, Webservice
 
 ```
 
@@ -98,7 +111,7 @@ One method of doing incremental computation is by using Continuous query.  Conti
 
 ```
 SELECT [Fields] FROM [Data] WHERE [Filter] GroupBy [AggregateField]
-CHECK [Condition]
+CHECK [Condition] OUTPUT [CONSOLE | LOG | QUEUE]
 
 Data: raw incoming data or genearted time series 
 AggregateField: Fields that are used to build aggregation of data.
@@ -154,17 +167,35 @@ Allow only $10000 sales daily for any seller
 ###### Flow
 Synchronized used case.
 ```
-1. ClientApp send request check(evt=neworder, amount=10, seller=usedcardealer) to EventProcessor(blocked)
-2. EventProcessor check by building a key from the input data.  It then do incremental computing base on the new data.
+1. ClientApp send request add_and_check(evt=neworder, amount=10, seller=usedcardealer) to EventProcessor(blocked)
+2. EventProcessor add the new event, incremental computing base on the new data, and return the result.
 3. ClientApp recieve response(finished)
+
+or on high volume deployment
+
+1. ClientApp send request add_and_check(evt=neworder, amount=10, seller=usedcardealer) to EventProcessor(blocked)
+2. EventProcessor add event to queue and lookup already computed result.
+3. ClientApp recieve response(finished)
+
 ```
 ######
-Asynchronized use case(make sense only if the condition dealing with larger number of events, because we can potentially missed by 1 event)
+Asynchronized use case(make sense only if the condition dealing with larger number of events, because we can potentially some event that are not process yet)
 ```
-1. ClientApp send request addEvent(evt=neworder, amount=10..) to EventProcessor.(Non blocking)
+1. Many ClientApp send UDP event (evt=neworder, amount=10..) to EventProcessor.(Non blocking)
 2. EventProcessor update internal data, recompute incrementally.
-3. ClientApp send request check(evt=neworder, amount=10, seller=usedcardealer) to EventProcessor(blocked)
+3. ClientApp send request check_only(evt=neworder, amount=10, seller=usedcardealer) to EventProcessor(blocked)
 4. EventProcessor return already computed result.
 5. ClientApp recieve response(finished)
+```
+######
+Custom trigger for condition that happen.
+```
+Prerequisite:
+Make sure rule is configure and that there is a Check condition matches and that output is set to queue
+
+Setup:
+1. Have program or script subscript the that rabbitmq topic
+2. When event are match, rabbitmq will publish the topic, the program will then receive, evtname, rulename, the condition that cause the match.
+Note: the data is feed by other applications.
 ```
 
