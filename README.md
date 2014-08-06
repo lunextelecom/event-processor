@@ -47,8 +47,8 @@ Example: let say we are interested in the last order total in the last 60 mins. 
 Example:  Want to know the avg value for the last 60 mins with 10 sec granularity.  In there we will build 2 series. First one is bucket of 1 sec while the larger one is 1 min.
 
 at time 0
-[bucket0]...[bucket359]  #Times series1 @ 10 sec
-[      60min          ]  #Times series2 @ 60 mins. 
+[bucket0]...[bucket359]  #Times series1 @ 10 sec (this can be graph)
+[      60min          ]  #Times series2 @ 60 mins. (do not graph this as it mutate)
 
 at time 10sec, bucket360 is added.  bucket0-359 is already computed, so no waste cpu.  bucket360 is incremental added.  To find out the avg value of the last 60 mins, we can just minus bucket0 and add bucket360
 
@@ -109,11 +109,10 @@ Field func: sum, max, min, first, last, avg, timeseries(timefield, size1, size2[
 Condition: when this condition is met, check will return true.  Also, it can be set to write an event to rabbitmq.
 ```
 
-
 Example query:
 ```
 let's say raw data is 
-{time, symbol, price}
+{time, symbol, price, size}
 
 1.
 #truncate raw data into 5 mins
@@ -127,11 +126,26 @@ last30min@5min = select start(time), symbol, price from raw group by timeseries(
 last30min@5min = select start(time), symbol, price from raw group by timeseries(time,5min, 30min), symbol
 ```
 
+Example query and check:
+```
+Allow only 5 failed login within 10 mins
+{username, code, time}
+SELECT count FROM login_event(10sec, 10mins) WHERE login_event.code < 0 GROUP BY username
+
+#the condition for check. This also generate an event.
+CHECK count >= 5 
+
+```
+
+
 ###### Backfill
 In the situation where the query is changed, we should rerun the query up the the largest timeseries size in the query.  Optionally, can specific how far to go back.
 
+###### Graphing
+Graph will be handle by grafana.  Both the immuntable timeseries and event will be stored and graphed.  
+
 ###### Rule
-Compose of query and threshold value to allow or disallow. Using queries, a result timeseries can be generated.  from that a numberic threshold value can be compared.
+Compose of query and check condition. Using queries, a result timeseries can be generated.  from that a numberic threshold value can be compared.
 
 ###### UseCase
 Allow only 100 order per mins for seller=usedcardealer
