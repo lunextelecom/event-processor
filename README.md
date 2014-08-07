@@ -11,13 +11,13 @@ Input Events ---> Event Processor ---> Response/Action
 
 Event Processor is consist of the following
 
-REST Webservice: Allow client to manually call check or input event data via webservice.  
-Input Processor: Take raw data and match and execute the appropriate rule.
+REST Webservice: Allow client to manually call check or input event data via webservice
+Input Processor: Take raw data and match and execute the appropriate rule
 Timeseries: functions and storage in cassandra
-Continuous Query: declarative way to build incremental computing timeseries.
-Rule: define the query, condition, and output.
-Output Handler : logfile out, or rabbitmq
-Graphing: Handle by grafana via graphite or opentsdb protocol
+Continuous Query: declarative way and functional to build incremental computing timeseries
+Rule: define the query, condition, and output
+Output: console, logfile, or rabbitmq
+Graph: Handle by grafana via graphite or opentsdb protocol
 
 ````
 
@@ -35,11 +35,11 @@ Graphing: Handle by grafana via graphite or opentsdb protocol
     [ ] grafana - already works with
 [ ] Build phase 2 Final
     [ ] Evalute Esper.  Change query.  Does it hold states in the case of process restart or server crash?
+    [ ] Continous Query(library or use esper)
     [ ] Storm
         [ ] Bolt (input)
         [ ] Sprout (Rule, Continuous query, write to storage)
     [ ] Cassandra + storage + query
-    [ ] Continous Query(library or use esper)
     [ ] Backfill
 ```
 
@@ -54,10 +54,16 @@ Computation should be incremental to reduce CPU and IO.  This means intermediate
 
 Example: let say we are interested in the last order total in the last 60 mins.  It would be inefficient to query the last 60 mins of order each time if we have order coming in at 100/min since on this mean we might be adding up 6000 records 100 times per min.  Instead we can save use a times series of 10 seconds.  So that means we are just adding 60 record 6x per min.  That is a drop from 6000x100 = 600,000 to 360 operation per min.
 
+###### Downsample using timeseries
+By downsample raw data into time series, it is alot easier to visualized and run function on the data.
+
+
 ###### Drawback
 1. Well there is no free lunch, there is some extra work require to build the time series.  Also, with time series we dealing with a data granual of 10 sec although 1 sec can be use.
 
 2. Backfilling.  When conditions are change, recomputing old data is required.  How far to to backfill will depend in the logic and query.  In the above example, we would need to recompute the last 60 mins.
+
+3. Granularity lost with timeseries
 
 ###### Using multiple timeseries together to have better response and granularity.
 ```
@@ -77,8 +83,6 @@ and some time later...
 [      60min          ][      60min            ]
 ```
 
-
-
 ###### Input
 * Asynchronized input where response are not needed
 UDP
@@ -86,12 +90,9 @@ AMQP
 Http (params, json)
 Kafka
 
-###### Function, Webservice
+###### REST Webservice
 
 ```
-
-#asychronzied function
-
 #add event to system, return a key that can be used to check data
 function string addevent(event) 
 POST /event?evtname=&parm1=&param2=..
@@ -150,9 +151,12 @@ CHECK count >= 5
 
 ```
 
-
 ###### Backfill
 In the situation where the query is changed, we should rerun the query up the the largest timeseries size in the query.  Optionally, can specific how far to go back.
+
+###### Output
+In some case the application that want to receive events of pattern match might not be the one sending the data.  To recieve notification of those event, clients can subscript to AMQP topic.
+
 
 ###### Graphing
 Graph will be handle by grafana.  Both the immuntable timeseries and event will be stored and graphed.  
@@ -160,7 +164,7 @@ Graph will be handle by grafana.  Both the immuntable timeseries and event will 
 ###### Rule
 Compose of query and check condition. Using queries, a result timeseries can be generated.  from that a numberic threshold value can be compared.
 
-###### UseCase
+## UseCase
 Allow only 100 order per mins for seller=usedcardealer
 Allow only $10000 sales daily for any seller
 
