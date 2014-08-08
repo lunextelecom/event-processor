@@ -85,10 +85,10 @@ and some time later...
 
 ###### Interaction with system
 * client send event only.  it does not care about result, so it also don't need to know about rule.  
-  Should use UDP or AMQP input.
-* client that want to check on a condition but does not send data (must pass in rule identifier)
-  Should use REST API 
-* client send data and also want to check (must pass in rule identifier)
+  Should use UDP or AMQP input
+* client that want to check on a condition but does not send data (must pass in rule identifier).
+  Should use REST API
+* client send data and also want to check (must pass in rule identifier).
   Should use REST API
 
 ###### Input
