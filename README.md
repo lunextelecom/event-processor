@@ -90,6 +90,8 @@ and some time later...
   Should use REST API
 * client send data and also want to check (must pass in rule identifier).
   Should use REST API
+* client that want to react to an event.  Use any of the output handler, eg AMQP.
+* client that want to import alot of event/result . Use Kakfa output(up to 1 week old) or read straight from cassandra.
 
 ###### Input
 * Asynchronized input where response are not needed
