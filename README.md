@@ -12,10 +12,11 @@ Input Events ---> Event Processor ---> Response/Action
 Event Processor is consist of the following
 
 REST Webservice: Allow client to manually call check or input event data via webservice
-Input Processor: Take raw data and match and execute the appropriate rule
-Timeseries: functions and storage in cassandra
-Continuous Query: declarative way and functional to build incremental computing timeseries
-Rule: define the query, condition, and output
+Input Processor: Multi protocol support, buffering/queuing
+Storage: storage of raw data, result, timeseries, rules
+Event Processor: the engine where raw data feeds in and computing starts here.
+    Continuous Query: declarative way and functional to build incremental computing timeseries
+    Rule: define the query, condition, and output
 Output: console, logfile, or rabbitmq
 Graph: Handle by grafana via graphite or opentsdb protocol
 
