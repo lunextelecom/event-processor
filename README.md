@@ -17,7 +17,7 @@ Storage: storage of raw data, result, timeseries, rules
 Event Processor: the engine where raw data feeds in and computing starts here.
     Continuous Query: declarative way and functional to build incremental computing timeseries
     Rule: define the query, condition, and output
-Output: console, logfile, or rabbitmq
+    Output Handler: console, kafka, or rabbitmq
 Graph: Handle by grafana via graphite or opentsdb protocol
 
 ````
