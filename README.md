@@ -12,9 +12,10 @@ Input Events ---> Event Processor ---> Response/Action
 Event Processor is consist of the following
 
 REST Webservice: Allow client to manually call check or input event data via webservice
-Input Processor: Multi protocol support, buffering/queuing
+Input: Multi protocol support, buffering/queuing
 Storage: storage of raw data, result, timeseries, rules
 Event Processor: the engine where raw data feeds in and computing starts here.
+    Event Handler: entry point for event. do work such as determine rules, coordinate with output.
     Continuous Query: declarative way and functional to build incremental computing timeseries
     Rule: define the query, condition, and output
     Output Handler: console, kafka, or rabbitmq
