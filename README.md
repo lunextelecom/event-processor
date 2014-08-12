@@ -6,7 +6,7 @@ Computation is done via aggregation, and time series analysis in Storm.  Storage
 
 ##Summary
 
-[Diagram](https://www.draw.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Flunextelecom%2Fevent-processor%2Fmaster%2Feventprocessor.xml)
+[Diagram of Architecture](https://www.draw.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Flunextelecom%2Fevent-processor%2Fmaster%2Feventprocessor.xml)
 
 ````
 Input Events ---> Event Processor ---> Response/Action
@@ -59,8 +59,8 @@ Graph: Handle by grafana via graphite or opentsdb protocol
 * InfluxDB Poller/Callback/Stream is used to handle output of influxdb to our our event-processor component(Condition, Output). 
 * Need to implement Input, InfluxDB Poller/Callback/Stream, Condition, Output
 * Question:
-1. How to get callback/hook/streaming from InfluxDB when a new timeseries element is inserted?  Our app need to get trigger by this event to process threshold and insert data and result for check.  If not possible, maybe we just have to poll.  
-2. Can InfluxDB save raw event, rules, results?
+: 1. How to get callback/hook/streaming from InfluxDB when a new timeseries element is inserted?  Our app need to get trigger by this event to process threshold and insert data and result for check.  If not possible, maybe we just have to poll.  
+: 2. Can InfluxDB save raw event, rules, results?
 
 ```
 [    Input                                              ]
