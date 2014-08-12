@@ -59,10 +59,10 @@ Graph: Handle by grafana via graphite or opentsdb protocol
 * InfluxDB Poller/Callback/Stream is used to handle output of influxdb to our our event-processor component(Condition, Output). 
 * Need to implement 
 
-  Input: Accept async UDP, Http and write to Kafka topic.  Kafka will then write result into InfluxDB.  
-  InfluxDB Poller/Callback/Stream: Adapter to extract output from InfluxDB.  
-  Condition, Output  
-  REST API(Dropwizard)
+  Input: Accept async UDP, Http and write to InfluxDB.  In phase 2, this is almost similar but writes to Kafka Topic
+  InfluxDB Poller/Callback/Stream: Adapter to extract output from InfluxDB.  This script does not exist in phase 2.
+  Condition, Output.  Phase 2 will add continuous query here.  
+  REST API(Dropwizard).  Same in phase 2
   
 * Question
 
@@ -70,13 +70,10 @@ Graph: Handle by grafana via graphite or opentsdb protocol
   Can InfluxDB save raw event, rules, results?
 
 ```
-Flow of Events
+Flow of Events Phase 1
 [    Input                                                  ]
-UDP/Http(async) ->  Netty(EventDriven)  ->  Kafka(Buffering)   -> InfluxDB -> InfluxDB Poller/Callback/Stream -> Condition,Output
-AMQP                                    -> 
-Kafka                                   ->
+UDP/Http(async) ->  Netty(EventDriven)  -> InfluxDB -> InfluxDB Poller/Callback/Stream -> Condition,Output
 ```
-
 
 ##Performance
 ###### Incremental computation
