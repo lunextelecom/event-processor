@@ -189,8 +189,11 @@ In the situation where the query is changed, we should rerun the query up the th
 In some case the application that want to receive events of pattern match might not be the one sending the data.  To recieve notification of those event, clients can subscript to AMQP topic.
 
 Output Filter: filter result before process by Output handle
+
 Example:
+
 Save exception in Storage {action: verified, entity: A, rule: 'rule1', expireddate: '08/14/2014'}
+
 After processed in "Event processor box", entity A is violated, check exception for A --> output result
 
 ###### Graphing
