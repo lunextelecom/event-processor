@@ -20,8 +20,8 @@ Storage: storage of raw data, result, timeseries, rules
 Event Processor: the engine where raw data feeds in and computing starts here.
     Event Handler: entry point for event. do work such as determine rules, coordinate with output.
     Continuous Query: declarative way and functional to build incremental computing timeseries
+    Output filter: filter rule which apply for event
     Rule: define the query, condition, and output
-    Output filter: filter result for output after checking rule
     Output Handler: console, kafka, or rabbitmq
 Graph: Handle by grafana via graphite or opentsdb protocol
 
@@ -191,13 +191,12 @@ In the situation where the query is changed, we should rerun the query up the th
 ###### Output
 In some case the application that want to receive events of pattern match might not be the one sending the data.  To recieve notification of those event, clients can subscript to AMQP topic.
 
-Output Filter: filter result before process by Output handle
-
 Example:
+Output Filter: filter rule which apply for event to create filtered result
 
-Save exception in Storage {action: verified, entity: A, rule: 'rule1', expireddate: '08/14/2014'}
+Save exception in Storage {action: verified, entity: A, rule: 'rule1', expireddate: '08/14/2014'} as a Output Filter
 
-After processed in "Event processor box", entity A is violated, check exception for A --> output result
+So, rule 1 is not applied for event of entity A from now to 08/14/2014, and result after filtered will be processed by output handle and saved in storage
 
 ###### Graphing
 Graph will be handle by grafana.  Both the immuntable timeseries and event will be stored and graphed.  
