@@ -54,13 +54,14 @@ Graph: Handle by grafana via graphite or opentsdb protocol
 2. Cassandra + Storm + Continuous query (Phase 2 distributed computing)  
 
 ###### Phase 1
-* InfluxDB will be primary storage for all data
-* InfluxDB will be handling raw event(event handler), continuous query of rules.  
-* InfluxDB Poller/Callback/Stream is used to handle output of influxdb to our our event-processor component(Condition, Output). 
-* Need to implement Input, InfluxDB Poller/Callback/Stream, Condition, Output
-* Question:
-: 1. How to get callback/hook/streaming from InfluxDB when a new timeseries element is inserted?  Our app need to get trigger by this event to process threshold and insert data and result for check.  If not possible, maybe we just have to poll.  
-: 2. Can InfluxDB save raw event, rules, results?
+1. InfluxDB will be primary storage for all data
+2. InfluxDB will be handling raw event(event handler), continuous query of rules.  
+3. InfluxDB Poller/Callback/Stream is used to handle output of influxdb to our our event-processor component(Condition, Output). 
+4. Need to implement Input, InfluxDB Poller/Callback/Stream, Condition, Output
+
+Question
+: How to get callback/hook/streaming from InfluxDB when a new timeseries element is inserted?  Our app need to get trigger by this event to process threshold and insert data and result for check.  If not possible, maybe we just have to poll.  
+: Can InfluxDB save raw event, rules, results?
 
 ```
 [    Input                                              ]
