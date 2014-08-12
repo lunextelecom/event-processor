@@ -1,7 +1,7 @@
 Event-Processor
 ===============
 Analyze stream of data events(json, keyvalue, maps) and trigger an action when conditions are met.
-Analyze is doing via aggregation, and time series.  Storage is provide via Cassandra.
+Computation is done via aggregation, and time series analysis in Storm.  Storage is provide via Cassandra.
 
 
 ##Summary
@@ -47,8 +47,24 @@ Graph: Handle by grafana via graphite or opentsdb protocol
 
 ## Implementation Consideration
 1. InfluxDb - already have continuous query, timeseries storage.  For this reason, it is reality quick to build a prototype using this.(Phase 1)
-2. Cassandra with Continuous query.
-3. Cassandra + Storm + Continuous query (Phase 2 distributed computing)  
+2. Cassandra + Storm + Continuous query (Phase 2 distributed computing)  
+
+###### Phase 1
+* InfluxDB will be primary storage for all data
+* InfluxDB will be handling raw event(event handler), continuous query of rules.  
+* InfluxDB Poller/Callback/Stream is used to handle output of influxdb to our our event-processor component(Condition, Output). 
+* Need to implement Input, InfluxDB Poller/Callback/Stream, Condition, Output
+* Question:
+1. How to get callback/hook/streaming from InfluxDB when a new timeseries element is inserted?  Our app need to get trigger by this event to process threshold and insert data and result for check.  If not possible, maybe we just have to poll.  
+2. Can InfluxDB save raw event, rules, results?
+
+```
+[    Input                                              ]
+UDP/Http(async) ->  Netty(EventDriven)  ->  Kafka(Buffering)   -> InfluxDB -> InfluxDB Poller/Callback/Stream -> Condition, Output
+AMQP                                    -> 
+Kafka                                   ->
+```
+
 
 ##Performance
 ###### Incremental computation
