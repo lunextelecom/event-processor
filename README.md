@@ -5,6 +5,9 @@ Computation is done via aggregation, and time series analysis in Storm.  Storage
 
 
 ##Summary
+
+[Diagram](https://www.draw.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Flunextelecom%2Fevent-processor%2Fmaster%2Feventprocessor.xml)
+
 ````
 Input Events ---> Event Processor ---> Response/Action
 
