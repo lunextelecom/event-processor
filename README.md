@@ -22,7 +22,7 @@ Event Processor: the engine where raw data feeds in and computing starts here.
     Continuous Query: declarative way and functional to build incremental computing timeseries
     Output filter: filter rule which apply for event
     Rule: define the query, condition, and output
-    Output Handler: console, kafka, or rabbitmq
+    Output Handler: console, kafka, display data(kariosdb phase 2 only)
 Graph: Handle by grafana via graphite or opentsdb protocol
 
 ````
@@ -36,7 +36,7 @@ Graph: Handle by grafana via graphite or opentsdb protocol
 [ ] Define function
 [ ] Build phase 1 prototype with Influxdb
     [ ] Rule design
-    [ ] UDP, AMQP, Http input
+    [ ] UDP, Http input (Netty)
     [ ] Continuous Query, backfill, storage - influxdb already have this feature, incorp rules
     [ ] grafana - already works with
 [ ] Build phase 2 Final
@@ -107,12 +107,15 @@ at time 10sec, bucket360 is added.  bucket0-359 is already computed, so no waste
 
 and some time later...
 [bucket2]...[bucket361][bucket362]...[bucket721]
-[      60min          ][      60min            ]
+[  old 60min discard  ][      60min            ] #the old 60min can be discard.  Only need to keep the latest 60mins
+
+*Note, the 60min bucket might not be possible to do within the continuos query of influxdb.  We have to manually compute that. 
+
 ```
 
 ###### Interaction with system
 * client send event only.  it does not care about result, so it also don't need to know about rule.  
-  Should use UDP or AMQP input
+  Should use UDP or HTTP input
 * client that want to check on a condition but does not send data (must pass in rule identifier).
   Should use REST API
 * client send data and also want to check (must pass in rule identifier).
@@ -123,7 +126,6 @@ and some time later...
 ###### Input
 * Asynchronized input where response are not needed
 UDP - 
-AMQP
 Http (params, json) - Clients 
 Kafka
 
@@ -194,7 +196,10 @@ CHECK count >= 5
 In the situation where the query is changed, we should rerun the query up the the largest timeseries size in the query.  Optionally, can specific how far to go back.
 
 ###### Output
-In some case the application that want to receive events of pattern match might not be the one sending the data.  To recieve notification of those event, clients can subscript to AMQP topic.
+In some case the application that want to receive events of pattern match might not be the one sending the data.  To recieve notification of those event, clients can subscript to Kafka topic.
+
+Output handler will be responsible for converting the computation timeseries(eg. 10sec) into the display data in KairosDB format(10sec, 1min, 5 min, 1 hour).
+
 
 Example:
 Output Filter: filter rule which apply for event to create filtered result
@@ -205,6 +210,8 @@ So, rule 1 is not applied for event of entity A from now to 08/14/2014, and resu
 
 ###### Graphing
 Graph will be handle by grafana.  Both the immuntable timeseries and event will be stored and graphed.  
+Grafana will need data in 10sec, 1min, 5min, 1 hour bucket size depending on the date range set on the display.  For this reason, the timeseries used for computation and display are different.  The display data are in kairosdb format stored in cassandra and it is also RRD. 
+
 
 ###### Rule
 Compose of query and check condition. Using queries, a result timeseries can be generated.  from that a numberic threshold value can be compared.
