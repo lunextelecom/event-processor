@@ -5,6 +5,9 @@ Computation is done via aggregation, and time series analysis in Storm.  Storage
 
 
 ##Summary
+
+[Diagram of Architecture](https://www.draw.io/?url=https%3A%2F%2Fraw.githubusercontent.com%2Flunextelecom%2Fevent-processor%2Fmaster%2Feventprocessor.xml)
+
 ````
 Input Events ---> Event Processor ---> Response/Action
 
@@ -17,6 +20,7 @@ Storage: storage of raw data, result, timeseries, rules
 Event Processor: the engine where raw data feeds in and computing starts here.
     Event Handler: entry point for event. do work such as determine rules, coordinate with output.
     Continuous Query: declarative way and functional to build incremental computing timeseries
+    Output filter: filter rule which apply for event
     Rule: define the query, condition, and output
     Output Handler: console, kafka, or rabbitmq
 Graph: Handle by grafana via graphite or opentsdb protocol
@@ -53,18 +57,23 @@ Graph: Handle by grafana via graphite or opentsdb protocol
 * InfluxDB will be primary storage for all data
 * InfluxDB will be handling raw event(event handler), continuous query of rules.  
 * InfluxDB Poller/Callback/Stream is used to handle output of influxdb to our our event-processor component(Condition, Output). 
-* Need to implement Input, InfluxDB Poller/Callback/Stream, Condition, Output
-* Question:
-1. How to get callback/hook/streaming from InfluxDB when a new timeseries element is inserted?  Our app need to get trigger by this event to process threshold and insert data and result for check.  If not possible, maybe we just have to poll.  
-2. Can InfluxDB save raw event, rules, results?
+* Need to implement 
+
+  Input: Accept async UDP, Http and write to InfluxDB.  In phase 2, this is almost similar but writes to Kafka Topic
+  InfluxDB Poller/Callback/Stream: Adapter to extract output from InfluxDB.  This script does not exist in phase 2.
+  Condition, Output.  Phase 2 will add continuous query here.  
+  REST API(Dropwizard).  Same in phase 2
+  
+* Question
+
+  How to get callback/hook/streaming from InfluxDB when a new timeseries element is inserted?  Our app need to get trigger by this event to process threshold and insert data and result for check.  If not possible, maybe we just have to poll.  
+  Can InfluxDB save raw event, rules, results?
 
 ```
-[    Input                                              ]
-UDP/Http(async) ->  Netty(EventDriven)  ->  Kafka(Buffering)   -> InfluxDB -> InfluxDB Poller/Callback/Stream -> Condition, Output
-AMQP                                    -> 
-Kafka                                   ->
+Flow of Events Phase 1
+[    Input                                                  ]
+UDP/Http(async) ->  Netty(EventDriven)  -> InfluxDB -> InfluxDB Poller/Callback/Stream -> Condition,Output
 ```
-
 
 ##Performance
 ###### Incremental computation
@@ -187,6 +196,12 @@ In the situation where the query is changed, we should rerun the query up the th
 ###### Output
 In some case the application that want to receive events of pattern match might not be the one sending the data.  To recieve notification of those event, clients can subscript to AMQP topic.
 
+Example:
+Output Filter: filter rule which apply for event to create filtered result
+
+Save exception in Storage {action: verified, entity: A, rule: 'rule1', expireddate: '08/14/2014'} as a Output Filter
+
+So, rule 1 is not applied for event of entity A from now to 08/14/2014, and result after filtered will be processed by output handle and saved in storage
 
 ###### Graphing
 Graph will be handle by grafana.  Both the immuntable timeseries and event will be stored and graphed.  
