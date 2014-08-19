@@ -97,8 +97,8 @@ By downsample raw data into time series, it is alot easier to visualized and run
 Example:  Want to know the avg value for the last 60 mins with 10 sec granularity.  In there we will build 2 series. First one is bucket of 1 sec while the larger one is 1 min.
 
 at time 0
-[bucket0]...[bucket359]  #Times series1 @ 10 sec (this can be graph)
-[      60min          ]  #Times series2 @ 60 mins. (do not graph this as it mutate)
+[bucket0]...[bucket359]  #Granular bucket.  Times series1 @ 10 sec (this can be graph)
+[      60min          ]  #Custom bucket Times series2 @ 60 mins. (do not graph this as it mutate)
 
 at time 10sec, bucket360 is added.  bucket0-359 is already computed, so no waste cpu.  bucket360 is incremental added.  To find out the avg value of the last 60 mins, we can just minus bucket0 and add bucket360
 
@@ -107,7 +107,7 @@ at time 10sec, bucket360 is added.  bucket0-359 is already computed, so no waste
 
 and some time later...
 [bucket2]...[bucket361][bucket362]...[bucket721]
-[  old 60min discard  ][      60min            ] #the old 60min can be discard.  Only need to keep the latest 60mins
+            [      60min            ] #notice always only 1 bucket
 
 *Note, the 60min bucket might not be possible to do within the continuos query of influxdb.  We have to manually compute that. 
 
