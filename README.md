@@ -15,15 +15,13 @@ Input Events ---> Event Processor ---> Response/Action
 Event Processor is consist of the following
 
 REST Webservice: Allow client to manually call check or input event data via webservice
-Input: Multi protocol support, buffering/queuing
-Storage: storage of raw data, result, timeseries, rules
-Event Processor: the engine where raw data feeds in and computing starts here.
-    Event Handler: entry point for event. do work such as determine rules, coordinate with output.
-    Continuous Query: declarative way and functional to build incremental computing timeseries. Will use Esper.
-    Output filter: filter rule which apply for event.  
-    Rule: define the query, condition, and output, output filter
-    Output Handler: console, kafka, display data(kariosdb phase 2 only)
-Graph: Handle by grafana via kairosdb protocol
+InputBuffer: Multi protocol support, buffering/queuing
+Data: storage of raw data, result, timeseries, rules
+Handler: the engine where raw data feeds in and computing starts here.    	 	
+    Continuous Query: declarative way and functional to build incremental computing timeseries. Will use Esper.    
+    Output Handler: console, kafka, display data
+    	Output filter: filter rule which apply for event.      
+Display: Handle by grafana via kairosdb protocol
 
 ````
 
@@ -47,15 +45,17 @@ Graph: Handle by grafana via kairosdb protocol
       Benchmark using basic rule
     [ ] Components
         [S] Input Buffer - Netty
-        [ ] Processor
+        [ ] Handler
             [ ] Continous Query(library or use esper)
-            [ ] Output Handler
+            [ ] Output Handler            
         [ ] Data
             [ ] Rule
             [ ] Kairos
             [ ] Input, Result, Filter Result
         [ ] Display - Grafana ploting timeseries(kairosdb), Results(Annotation)
-        [ ] Web Service
+        [ ] Web Service - api to access system
+        	[ ] Admin for Rule, Output Filter
+            [ ] check, add event(proxy to handler)
     [ ] Backfill logic
 
     [X] Storm (Moved to Phase 3).  Use storm as load distributor across multiple server.    
