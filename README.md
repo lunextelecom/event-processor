@@ -21,7 +21,7 @@ Event Processor: the engine where raw data feeds in and computing starts here.
     Event Handler: entry point for event. do work such as determine rules, coordinate with output.
     Continuous Query: declarative way and functional to build incremental computing timeseries. Will use Esper.
     Output filter: filter rule which apply for event.  
-    Rule: define the query, condition, and output
+    Rule: define the query, condition, and output, output filter
     Output Handler: console, kafka, display data(kariosdb phase 2 only)
 Graph: Handle by grafana via kairosdb protocol
 
@@ -47,11 +47,15 @@ Graph: Handle by grafana via kairosdb protocol
       Benchmark using basic rule
     [ ] Components
         [S] Input Buffer - Netty
-        [ ] Event Processor
-        [ ] Storage (event(raw), timeseries(Kairos), results, rules)        
-        [ ] Continous Query(library or use esper)
-        [ ] Grafana ploting timeseries(kairosdb), Results(Annotation)
-    
+        [ ] Processor
+            [ ] Continous Query(library or use esper)
+            [ ] Output Handler
+        [ ] Data
+            [ ] Rule
+            [ ] Kairos
+            [ ] Input, Result, Filter Result
+        [ ] Display - Grafana ploting timeseries(kairosdb), Results(Annotation)
+        [ ] Web Service
     [ ] Backfill logic
 
     [X] Storm (Moved to Phase 3).  Use storm as load distributor across multiple server.    
@@ -62,8 +66,8 @@ Graph: Handle by grafana via kairosdb protocol
 
 ```
 Flow of Events Phase 2
-[    Input                                                  ]
-UDP/Http(async) ->  InputBuffer(Netty)  -> Event Processor -> Result
+
+Client Produce Data --UDP/Http-->  InputBuffer  -> Event Processor -Result, TimeSeries-> Storage
 ```
 
 ##Performance
