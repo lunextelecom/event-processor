@@ -19,60 +19,51 @@ Input: Multi protocol support, buffering/queuing
 Storage: storage of raw data, result, timeseries, rules
 Event Processor: the engine where raw data feeds in and computing starts here.
     Event Handler: entry point for event. do work such as determine rules, coordinate with output.
-    Continuous Query: declarative way and functional to build incremental computing timeseries
-    Output filter: filter rule which apply for event
+    Continuous Query: declarative way and functional to build incremental computing timeseries. Will use Esper.
+    Output filter: filter rule which apply for event.  
     Rule: define the query, condition, and output
     Output Handler: console, kafka, display data(kariosdb phase 2 only)
-Graph: Handle by grafana via graphite or opentsdb protocol
+Graph: Handle by grafana via kairosdb protocol
 
 ````
 
 
 ## Task
 ```
-[ ] Evaluate Influxdb.  Cluster Setup.  Replacing cluster node.
+[ ] = Not done yet
+[S] = Specification, not yet implemented
+[X] = Complete
+
+[X] Evaluate Influxdb.  Cluster Setup.  Replacing cluster node.
 [X] Cassandra with timeseries.  Works good.  Already use inhouse
 [X] Define use case
-[ ] Define function
-[ ] Build phase 1 prototype with Influxdb
-    [ ] Rule design
-    [ ] UDP, Http input (Netty)
-    [ ] Continuous Query, backfill, storage - influxdb already have this feature, incorp rules
-    [ ] grafana - already works with
-[ ] Build phase 2 Final
-    [ ] Evalute Esper.  Change query.  Does it hold states in the case of process restart or server crash?
-    [ ] Continous Query(library or use esper)
-    [ ] Storm
-        [ ] Bolt (input)
-        [ ] Sprout (Rule, Continuous query, write to storage)
-    [ ] Cassandra + storage + query
-    [ ] Backfill
+[X] Build phase 1 prototype with Influxdb
+    [X] Rule design
+    [X] UDP, Http input (Netty)
+    [X] Continuous Query, backfill, storage - influxdb already have this feature, incorp rules    
+[ ] Build phase 2 Final    
+    [ ] Evalute Esper.  
+      Change query.  Does it hold states in the case of process restart or server crash?
+      Benchmark using basic rule
+    [ ] Components
+        [S] Input Buffer - Netty
+        [ ] Event Processor
+        [ ] Storage (event(raw), timeseries(Kairos), results, rules)        
+        [ ] Continous Query(library or use esper)
+        [ ] Grafana ploting timeseries(kairosdb), Results(Annotation)
+    
+    [ ] Backfill logic
+
+    [X] Storm (Moved to Phase 3).  Use storm as load distributor across multiple server.    
+[ ] Phase 3
+    [ ] Storm Integration
+    [ ] More customized chart
 ```
 
-## Implementation Consideration
-1. InfluxDb - already have continuous query, timeseries storage.  For this reason, it is reality quick to build a prototype using this.(Phase 1)
-2. Cassandra + Storm + Continuous query (Phase 2 distributed computing)  
-
-###### Phase 1
-* InfluxDB will be primary storage for all data
-* InfluxDB will be handling raw event(event handler), continuous query of rules.  
-* InfluxDB Poller/Callback/Stream is used to handle output of influxdb to our our event-processor component(Condition, Output). 
-* Need to implement 
-
-  Input: Accept async UDP, Http and write to InfluxDB.  In phase 2, this is almost similar but writes to Kafka Topic
-  InfluxDB Poller/Callback/Stream: Adapter to extract output from InfluxDB.  This script does not exist in phase 2.
-  Condition, Output.  Phase 2 will add continuous query here.  
-  REST API(Dropwizard).  Same in phase 2
-  
-* Question
-
-  How to get callback/hook/streaming from InfluxDB when a new timeseries element is inserted?  Our app need to get trigger by this event to process threshold and insert data and result for check.  If not possible, maybe we just have to poll.  
-  Can InfluxDB save raw event, rules, results?
-
 ```
-Flow of Events Phase 1
+Flow of Events Phase 2
 [    Input                                                  ]
-UDP/Http(async) ->  Netty(EventDriven)  -> InfluxDB -> InfluxDB Poller/Callback/Stream -> Condition,Output
+UDP/Http(async) ->  InputBuffer(Netty)  -> Event Processor -> Result
 ```
 
 ##Performance
@@ -83,7 +74,6 @@ Example: let say we are interested in the last order total in the last 60 mins. 
 
 ###### Downsample using timeseries
 By downsample raw data into time series, it is alot easier to visualized and run function on the data.
-
 
 ###### Drawback
 1. Well there is no free lunch, there is some extra work require to build the time series.  Also, with time series we dealing with a data granual of 10 sec although 1 sec can be use.
