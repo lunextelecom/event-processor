@@ -12,6 +12,7 @@
         <module>event-processor-handler</module>
         <module>event-processor-data</module>
         <module>event-processor-web</module>
+        <module>event-processor-input</module>
     </modules>
 
 
