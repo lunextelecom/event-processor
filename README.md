@@ -123,7 +123,7 @@ function bool add_and_check(event)
 POST /event?evtname=&parm1=&param2=..&result=true
 ```
 ### Handler
-Handler will handle the actual work of computing result, saving display data.
+Handler will handle the actual work of computing result, saving display data.  Handler is a standalone process.
 
 Life Cycle
 1. Startup, read rules from database, load into esper runtime
@@ -139,7 +139,7 @@ Note:  If rule is change, update esper runtime and make sure no event are skip.
 ###### Backfill
 In the situation where the query is changed, we should rerun the query up the the largest timeseries size in the query.  Optionally, can specific how far to go back.
 
-### Rule
+### Rule 
 Compose of query and check condition. Using queries, a result timeseries can be generated.  from that a numberic threshold value can be compared.
 
 ###### Continuous Query - Esper/Complex Event Processing
@@ -170,20 +170,20 @@ Example:
 Save exception in Storage {action: verified, entity: A, rule: 'rule1', expireddate: '08/14/2014'} as a Output Filter
 So, rule 1 is not applied for event of entity A from now to 08/14/2014, and result after filtered will be processed by output handle and saved in storage
 ```
-###### Output (Java Code)
+###### Output 
 Output specfic where the computed result of Condition should go.  By default all output should be saved to database.
 
 In some case the application that want to receive events of pattern match might not be the one sending the data.  To recieve notification of those event, clients can subscript to Kafka topic.
 
-### Data (Java Code)
-Abstract Data access
+### Data 
+Library to abstract Data access
 Store the following
 1. Raw Input Event
 2. Timeseries(KairosDb)
 3. Result, Filtered Result. Some of these might need to be copied to KairosDB.
 4. Rule(Query Parts, Condition, Filtered Condition, Output)
 
-### Display (Javascript, Browser)
+### Display
 Graph will be handle by grafana.  Data for the graphie will be consist of timeseries data and result which are stored in KairosDB.  Timeseries will be graphic as chart, while the result as annotation in the chart.
 
 ## Use Case
