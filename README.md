@@ -127,10 +127,12 @@ Handler will handle the actual work of computing result, saving display data.
 
 Life Cycle
 1. Startup, read rules from database, load into esper runtime
-2. Read rule from Kafka Topic
+2. Read event from Kafka Topic
 3. Process rule for each incoming event that assign to that rule.
-5. Write result to output
-6. Write display data
+  - Esper Filter event  
+  - Check Condition  
+4. Write result to output
+5. Write display data
 
 Note:  If rule is change, update esper runtime and make sure no event are skip.  
 
@@ -141,7 +143,7 @@ In the situation where the query is changed, we should rerun the query up the th
 Compose of query and check condition. Using queries, a result timeseries can be generated.  from that a numberic threshold value can be compared.
 
 ###### Continuous Query - Esper/Complex Event Processing
-Incremental computation can be accomplish using continuous query.  The implement is done via Esper library.
+Incremental computation can be accomplish using continuous query.  The implement is done via Esper library.  Esper allow us to filter and aggegrate moving data or stream of events.
 
 Query should be saved in database not as query, but as Data, Filter, Field, AggregateField.  At runtime, it can be converted to EPL runtime for processing.
 
@@ -162,24 +164,26 @@ Condition is code executed base on the data output from the continuous query.  I
 When this condition is met, check will return true.
 
 Condition Exception: There will also be special case where the regular condition should not be applied. 
-Example:
+
+Example:  
+```
 Save exception in Storage {action: verified, entity: A, rule: 'rule1', expireddate: '08/14/2014'} as a Output Filter
 So, rule 1 is not applied for event of entity A from now to 08/14/2014, and result after filtered will be processed by output handle and saved in storage
-
-###### Output
+```
+###### Output (Java Code)
 Output specfic where the computed result of Condition should go.  By default all output should be saved to database.
 
 In some case the application that want to receive events of pattern match might not be the one sending the data.  To recieve notification of those event, clients can subscript to Kafka topic.
 
-### Data (Library)
+### Data (Java Code)
 Abstract Data access
 Store the following
 1. Raw Input Event
 2. Timeseries(KairosDb)
-3. Result, Filtered Result
+3. Result, Filtered Result. Some of these might need to be copied to KairosDB.
 4. Rule(Query Parts, Condition, Filtered Condition, Output)
 
-###### Display
+### Display (Javascript, Browser)
 Graph will be handle by grafana.  Data for the graphie will be consist of timeseries data and result which are stored in KairosDB.  Timeseries will be graphic as chart, while the result as annotation in the chart.
 
 ## Use Case
