@@ -10,7 +10,7 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>event-processor-handler</module>
-        <module>event-processor-data</module>
+        <module>event-processor-core</module>
         <module>event-processor-web</module>
         <module>event-processor-input</module>
     </modules>
