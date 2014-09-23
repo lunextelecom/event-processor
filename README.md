@@ -15,11 +15,9 @@ Input Events ---> Event Processor ---> Response/Action
 Event Processor is consist of the following
 
 REST Webservice: Allow client to manually call check or input event data via webservice
-InputBuffer: Multi protocol support, buffering/queuing
+Input Buffer: Multi protocol support, buffering/queuing
 Data: storage of raw data, result, timeseries, rules
 Handler: the engine where raw data feeds in and computing starts here.    	 	
-    Continuous Query: declarative way and functional to build incremental computing timeseries. Will use Esper.    
-    Output Handler: console, kafka, display data    	
 Display: Handle by grafana via kairosdb protocol
 
 ````
@@ -44,14 +42,16 @@ Display: Handle by grafana via kairosdb protocol
       Benchmark using basic rule
     [ ] Components
         [S] Input Buffer - Netty
+        [ ] Core
+        	[ ] Rule			     
+            [ ] Data Access
+            	[ ] Rule            
+            	[ ] Input, Result
         [ ] Handler
             [ ] Continuous Query(library or use esper)
             [ ] Output Handler            
-        [ ] Data
-            [ ] Rule
-            [ ] Kairos
-            [ ] Input, Result, Result Filter
         [ ] Display - Grafana ploting timeseries(kairosdb), Results(Annotation)
+        	[ ] Kairos
         [ ] Web Service - api to access system
         	[ ] Admin for Rule
             [ ] check, add event(proxy to handler)
@@ -139,10 +139,16 @@ Note:  If rule is change, update esper runtime and make sure no event are skip.
 ###### Backfill
 In the situation where the query is changed, we should rerun the query up the the largest timeseries size in the query.  Optionally, can specific how far to go back.
 
-### Rule 
+### Core
+Core library and function.
+
+1. Rule 
+2. Data Access
+
+###### Rule 
 Compose of query and check condition. Using queries, a result timeseries can be generated.  from that a numberic threshold value can be compared.
 
-###### Continuous Query - Esper/Complex Event Processing
+* Continuous Query - Esper/Complex Event Processing
 Incremental computation can be accomplish using continuous query.  The implement is done via Esper library.  Esper allow us to filter and aggegrate moving data or stream of events.
 
 Query should be saved in database not as query, but as Data, Filter, Field, AggregateField.  At runtime, it can be converted to EPL runtime for processing.
@@ -159,7 +165,7 @@ Field: field1, field2, or * for all
 Field func: sum, max, min, first, last, avg, timeseries(timefield, size1, size2[optional])
 ```
 
-###### Condition
+* Condition
 Condition is code executed base on the data output from the continuous query.  It truncate the resulting data into a bool(Result)
 When this condition is met, check will return true.
 
@@ -170,14 +176,15 @@ Example:
 Save exception in Storage {action: verified, entity: A, rule: 'rule1', expireddate: '08/14/2014'} as a Output Filter
 So, rule 1 is not applied for event of entity A from now to 08/14/2014, and result after filtered will be processed by output handle and saved in storage
 ```
-###### Output 
+* Output 
 Output specfic where the computed result of Condition should go.  By default all output should be saved to database.
 
 In some case the application that want to receive events of pattern match might not be the one sending the data.  To recieve notification of those event, clients can subscript to Kafka topic.
 
-### Data 
-Library to abstract Data access
+###### Data Access
+It is very important to keep data storage consistent as in future, we can swap in Storm for load distribution.
 Store the following
+
 1. Raw Input Event
 2. Timeseries(KairosDb)
 3. Result, Filtered Result. Some of these might need to be copied to KairosDB.
