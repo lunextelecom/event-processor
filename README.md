@@ -19,8 +19,7 @@ InputBuffer: Multi protocol support, buffering/queuing
 Data: storage of raw data, result, timeseries, rules
 Handler: the engine where raw data feeds in and computing starts here.    	 	
     Continuous Query: declarative way and functional to build incremental computing timeseries. Will use Esper.    
-    Output Handler: console, kafka, display data
-    	Output filter: filter rule which apply for event.      
+    Output Handler: console, kafka, display data    	
 Display: Handle by grafana via kairosdb protocol
 
 ````
@@ -46,15 +45,15 @@ Display: Handle by grafana via kairosdb protocol
     [ ] Components
         [S] Input Buffer - Netty
         [ ] Handler
-            [ ] Continous Query(library or use esper)
+            [ ] Continuous Query(library or use esper)
             [ ] Output Handler            
         [ ] Data
             [ ] Rule
             [ ] Kairos
-            [ ] Input, Result, Filter Result
+            [ ] Input, Result, Result Filter
         [ ] Display - Grafana ploting timeseries(kairosdb), Results(Annotation)
         [ ] Web Service - api to access system
-        	[ ] Admin for Rule, Output Filter
+        	[ ] Admin for Rule
             [ ] check, add event(proxy to handler)
     [ ] Backfill logic
 
@@ -64,7 +63,7 @@ Display: Handle by grafana via kairosdb protocol
     [ ] More customized chart
 ```
 
-###### Interaction with system
+## Interaction with system
 * client send event only.  it does not care about result, so it also don't need to know about rule.  
   Should use UDP or HTTP input
 * client that want to check on a condition but does not send data (must pass in rule identifier).
@@ -82,12 +81,13 @@ Condition Check
 Client  	---Check()--> Rest Webservice
 			<--Response-- 
 ```
-
-###### Input Buffer - Asynchonrized Input
-Netty service (Standalone application) that read input data and write to kafka topic.
+## Components
+### Input Buffer - Asynchonrized Input
+Netty service (Standalone application) that read input data and write to kafka topic.  Do not do any serialization.
 * Multi-Protocol support UDP, Http
 * Buffering - Write result in Kakfa
 * Configuration
+
 ```
 #list of node of the kafka cluster to write to
 kafka_clusters: node1,node2,node3
@@ -98,9 +98,14 @@ topic_name: event-topic
   - evtname: name of event (use for possible load distribution
   - content-type: application/json(just this for now)
 
-###### REST Webservice - Provide as api access.
-
+### REST Webservice - Provide as api access.
+Dropwizard standalone web application.  Provide the following functionality
 * Admin api to update rules (proxy to data)
+
+```
+Programmer TODO
+```
+
 * App api to check, add event (proxy to handler)
 
 ```
@@ -116,82 +121,72 @@ GET /event?evtname=&parm1=&param2=.. or just pass id=
 #same above with result=true mean to wait for result.
 function bool add_and_check(event)
 POST /event?evtname=&parm1=&param2=..&result=true
+```
+### Handler
+Handler will handle the actual work of computing result, saving display data.
+
+Life Cycle
+1. Startup, read rules from database, load into esper runtime
+2. Read rule from Kafka Topic
+3. Process rule for each incoming event that assign to that rule.
+5. Write result to output
+6. Write display data
+
+Note:  If rule is change, update esper runtime and make sure no event are skip.  
+
+###### Backfill
+In the situation where the query is changed, we should rerun the query up the the largest timeseries size in the query.  Optionally, can specific how far to go back.
+
+### Rule
+Compose of query and check condition. Using queries, a result timeseries can be generated.  from that a numberic threshold value can be compared.
+
+###### Continuous Query - Esper/Complex Event Processing
+Incremental computation can be accomplish using continuous query.  The implement is done via Esper library.
+
+Query should be saved in database not as query, but as Data, Filter, Field, AggregateField.  At runtime, it can be converted to EPL runtime for processing.
 
 ```
-###### Continuous Query
-One method of doing incremental computation is by using Continuous query.  Continuous query operates on streaming dataset/timeseries and recompute incrementally on each new sample data.  
+SELECT [Fields] FROM [Data] WHERE [Filter] GROUP BY [AggregateField]
 
-```
-SELECT [Fields] FROM [Data] WHERE [Filter] GroupBy [AggregateField]
-CHECK [Condition] OUTPUT [CONSOLE | LOG | QUEUE]
-
-Data: raw incoming data or genearted time series 
+Query Parts
+Data: raw incoming data or generated time series 
 AggregateField: Fields that are used to build aggregation of data.
   Timeseries is a special function here to group data into timeseries.
 Filter: conditions to filter data. =, !=, >=, <=, >, <, and, or 
 Field: field1, field2, or * for all
 Field func: sum, max, min, first, last, avg, timeseries(timefield, size1, size2[optional])
-Condition: when this condition is met, check will return true.  Also, it can be set to write an event to rabbitmq.
 ```
 
-Example query:
-```
-let's say raw data is 
-{time, symbol, price, size}
+###### Condition
+Condition is code executed base on the data output from the continuous query.  It truncate the resulting data into a bool(Result)
+When this condition is met, check will return true.
 
-1.
-#truncate raw data into 5 mins
-series@5min = select start(time), symbol, price from raw group by timeseries(time, 5min), symbol
-last30min@5min = select * from series_5min(30min) 
-
-2.
-last30min@5min = select start(time), symbol, price from raw group by timeseries(time,5min, 30min), symbol
-
-3.
-last30min@5min = select start(time), symbol, price from raw group by timeseries(time,5min, 30min), symbol
-```
-
-Example query and check:
-```
-Allow only 5 failed login within 10 mins
-{username, code, time}
-SELECT count FROM login_event(10sec, 10mins) WHERE login_event.code < 0 GROUP BY username
-
-#the condition for check. This also generate an event.
-CHECK count >= 5 
-
-```
-
-###### Backfill
-In the situation where the query is changed, we should rerun the query up the the largest timeseries size in the query.  Optionally, can specific how far to go back.
-
-###### Output
-In some case the application that want to receive events of pattern match might not be the one sending the data.  To recieve notification of those event, clients can subscript to Kafka topic.
-
-Output handler will be responsible for converting the computation timeseries(eg. 10sec) into the display data in KairosDB format(10sec, 1min, 5 min, 1 hour).
-
-
+Condition Exception: There will also be special case where the regular condition should not be applied. 
 Example:
-Output Filter: filter rule which apply for event to create filtered result
-
 Save exception in Storage {action: verified, entity: A, rule: 'rule1', expireddate: '08/14/2014'} as a Output Filter
-
 So, rule 1 is not applied for event of entity A from now to 08/14/2014, and result after filtered will be processed by output handle and saved in storage
 
-###### Graphing
-Graph will be handle by grafana.  Both the immuntable timeseries and event will be stored and graphed.  
-Grafana will need data in 10sec, 1min, 5min, 1 hour bucket size depending on the date range set on the display.  For this reason, the timeseries used for computation and display are different.  The display data are in kairosdb format stored in cassandra and it is also RRD. 
+###### Output
+Output specfic where the computed result of Condition should go.  By default all output should be saved to database.
 
+In some case the application that want to receive events of pattern match might not be the one sending the data.  To recieve notification of those event, clients can subscript to Kafka topic.
 
-###### Rule
-Compose of query and check condition. Using queries, a result timeseries can be generated.  from that a numberic threshold value can be compared.
+### Data (Library)
+Abstract Data access
+Store the following
+1. Raw Input Event
+2. Timeseries(KairosDb)
+3. Result, Filtered Result
+4. Rule(Query Parts, Condition, Filtered Condition, Output)
 
-## UseCase
+###### Display
+Graph will be handle by grafana.  Data for the graphie will be consist of timeseries data and result which are stored in KairosDB.  Timeseries will be graphic as chart, while the result as annotation in the chart.
+
+## Use Case
 Allow only 100 order per mins for seller=usedcardealer
 Allow only $10000 sales daily for any seller
 
-###### Flow
-Synchronized used case.
+###### Synchronized
 ```
 1. ClientApp send request add_and_check(evt=neworder, amount=10, seller=usedcardealer) to EventProcessor(blocked)
 2. EventProcessor add the new event, incremental computing base on the new data, and return the result.
@@ -204,7 +199,7 @@ or on high volume deployment
 3. ClientApp recieve response(finished)
 
 ```
-######
+###### Asynchronized
 Asynchronized use case(make sense only if the condition dealing with larger number of events, because we can potentially some event that are not process yet)
 ```
 1. Many ClientApp send UDP event (evt=neworder, amount=10..) to EventProcessor.(Non blocking)
@@ -213,8 +208,7 @@ Asynchronized use case(make sense only if the condition dealing with larger numb
 4. EventProcessor return already computed result.
 5. ClientApp recieve response(finished)
 ```
-######
-Custom trigger for condition that happen.
+###### Custom handler
 ```
 Prerequisite:
 Make sure rule is configure and that there is a Check condition matches and that output is set to queue
