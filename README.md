@@ -176,8 +176,9 @@ Output specfic where the computed result of Condition should go.  By default all
 In some case the application that want to receive events of pattern match might not be the one sending the data.  To recieve notification of those event, clients can subscript to Kafka topic.
 
 ### Data 
-Library to abstract Data access
+Library to abstract Data access.  It is very important to keep data storage consistent as in future, we can swap in Storm for load distribution.
 Store the following
+
 1. Raw Input Event
 2. Timeseries(KairosDb)
 3. Result, Filtered Result. Some of these might need to be copied to KairosDB.
