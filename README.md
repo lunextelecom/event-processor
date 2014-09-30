@@ -37,9 +37,7 @@ Display: Handle by grafana via kairosdb protocol
     [X] UDP, Http input (Netty)
     [X] Continuous Query, backfill, storage - influxdb already have this feature, incorp rules    
 [ ] Build phase 2 Final    
-    [ ] Evalute Esper.  
-      Change query.  Does it hold states in the case of process restart or server crash?
-      Benchmark using basic rule
+    [X] Evalute Esper. Benchmark using basic rule
     [ ] Components
         [S] Input Buffer - Netty
         [ ] Core
