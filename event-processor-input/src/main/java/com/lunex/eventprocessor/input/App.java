@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.lunex.eventprocessor.input.kafka.HashCodePartitioner;
 import com.lunex.eventprocessor.input.kafka.KafkaProducer;
+import com.lunex.eventprocessor.input.kafka.Md5Partitioner;
 import com.lunex.eventprocessor.input.netty.NettyHttpSnoopServer;
 import com.lunex.eventprocessor.input.netty.NettyUDPServer;
 import com.lunex.eventprocessor.input.utils.Configuration;
@@ -51,7 +52,7 @@ public class App {
       // create kafka producer
       kafkaProducer =
           new KafkaProducer(Configuration.kafkaCluster, StringEncoder.class.getName(),
-              HashCodePartitioner.class.getName());
+              Md5Partitioner.class.getName());
     } catch (IOException ex) {
       logger.error(ex.getMessage());
     } catch (Exception e) {
