@@ -124,6 +124,7 @@ POST /event?evtname=&parm1=&param2=..&result=true
 Handler will handle the actual work of computing result, saving display data.  Handler is a standalone process.
 
 Life Cycle
+
 1. Startup, read rules from database, load into esper runtime
 2. Read event from Kafka Topic
 3. Process rule for each incoming event that assign to that rule.
