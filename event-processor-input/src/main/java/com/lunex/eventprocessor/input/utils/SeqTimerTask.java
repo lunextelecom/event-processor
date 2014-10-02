@@ -25,7 +25,7 @@ public class SeqTimerTask extends TimerTask {
 
   public void addSeq(Seq seq) {
     queueSeq.add(seq);
-    logger.info(queueSeq.toString());
+//    logger.info(queueSeq.toString());
   }
 
   public void start() {
