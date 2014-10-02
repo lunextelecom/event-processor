@@ -14,6 +14,9 @@ public enum EContentType {
   }
 
   public static EContentType getContentType(String verd) {
+    if (verd == null) {
+      return null;
+    }
     for (EContentType e : EContentType.values()) {
       if (verd.equalsIgnoreCase(e.contentType))
         return e;
