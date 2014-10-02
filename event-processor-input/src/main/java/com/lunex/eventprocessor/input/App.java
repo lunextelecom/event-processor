@@ -4,10 +4,14 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+import kafka.serializer.StringEncoder;
+
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.lunex.eventprocessor.input.kafka.HashCodePartitioner;
+import com.lunex.eventprocessor.input.kafka.KafkaProducer;
 import com.lunex.eventprocessor.input.netty.NettyHttpSnoopServer;
 import com.lunex.eventprocessor.input.netty.NettyUDPServer;
 import com.lunex.eventprocessor.input.utils.Configuration;
@@ -23,6 +27,7 @@ public class App {
   private static NettyHttpSnoopServer httpServer;
   private static NettyUDPServer udpServer;
   public static SeqTimerTask seqTimerTask;
+  public static KafkaProducer kafkaProducer;
 
   public static void main(String[] args) {
     logger.info("Hello event processor!");
@@ -43,6 +48,10 @@ public class App {
       App.seqTimerTask = new SeqTimerTask();
       App.seqTimerTask.start();
 
+      // create kafka producer
+      kafkaProducer =
+          new KafkaProducer(Configuration.kafkaCluster, StringEncoder.class.getName(),
+              HashCodePartitioner.class.getName());
     } catch (IOException ex) {
       logger.error(ex.getMessage());
     } catch (Exception e) {

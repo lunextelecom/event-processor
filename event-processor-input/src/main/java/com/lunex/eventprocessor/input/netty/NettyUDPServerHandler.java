@@ -146,11 +146,8 @@ public class NettyUDPServerHandler extends SimpleChannelInboundHandler<DatagramP
     App.seqTimerTask.addSeq(seqObj);
 
     // send kafka
-    KafkaProducer producer =
-        new KafkaProducer(Configuration.kafkaCluster, StringEncoder.class.getName(),
-            HashCodePartitioner.class.getName());
     try {
-      producer.sendData(Configuration.kafkaTopic, eventName, payLoad);
+      App.kafkaProducer.sendData(Configuration.kafkaTopic, eventName, payLoad);
     } catch (Exception ex) {
       isException = true;
       exception =

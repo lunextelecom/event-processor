@@ -188,11 +188,8 @@ public class NettyHttpSnoopServerHandler extends SimpleChannelInboundHandler<Htt
     App.seqTimerTask.addSeq(seqObj);
 
     // send kafka
-    KafkaProducer producer =
-        new KafkaProducer(Configuration.kafkaCluster, StringEncoder.class.getName(),
-            HashCodePartitioner.class.getName());
     try {
-      producer.sendData(Configuration.kafkaTopic, eventName, body);
+      App.kafkaProducer.sendData(Configuration.kafkaTopic, eventName, body);
     } catch (Exception ex) {
       isException = true;
       exception =
