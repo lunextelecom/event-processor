@@ -37,8 +37,14 @@ public class SeqTimerTask extends TimerTask {
   }
 
   public boolean contains(Seq seq) {
+    if (seq == null) {
+      return true;
+    }
     for (int i = 0; i < queueSeq.size(); i++) {
       Seq seqTemp = queueSeq.peek();
+      if (seqTemp == null) {
+        return false;
+      }
       if (seq.getEventName().equals(seqTemp.getEventName())
           && seq.getSeq().equals(seqTemp.getSeq())) {
         return true;
