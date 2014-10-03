@@ -8,8 +8,17 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * Class process String 
+ *
+ */
 public class StringUtils {
 
+  /**
+   * Check json string is valid
+   * @param test
+   * @return
+   */
   public static boolean isJSONValid(String test) {
     try {
       new JSONObject(test);
@@ -25,6 +34,12 @@ public class StringUtils {
     return true;
   }
 
+  /**
+   * Create md5 string
+   * 
+   * @param message
+   * @return
+   */
   public static String md5Java(String message) {
     String digest = null;
     try {

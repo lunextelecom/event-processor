@@ -19,6 +19,11 @@ import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
 import kafka.serializer.StringEncoder;
 
+/**
+ * 
+ * Class Kafka producer to send message to kafka 
+ *
+ */
 public class KafkaProducer {
 
   static final Logger logger = LoggerFactory.getLogger(KafkaProducer.class);

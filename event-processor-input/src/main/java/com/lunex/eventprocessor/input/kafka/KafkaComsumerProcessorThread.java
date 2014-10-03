@@ -23,7 +23,7 @@ public class KafkaComsumerProcessorThread implements Runnable {
   public void run() {
     ConsumerIterator<byte[], byte[]> it = kafkaStream.iterator();
     while (it.hasNext()) {
-      MessageAndMetadata<byte[], byte[]> a = it.next();
+      MessageAndMetadata<byte[], byte[]> message = it.next();
       // TODO somthing
     }
     System.out.println("Shutting down Thread: " + threadNumber);

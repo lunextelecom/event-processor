@@ -11,10 +11,14 @@ import org.slf4j.LoggerFactory;
 import com.lunex.eventprocessor.input.App;
 import com.lunex.eventprocessor.input.beans.Seq;
 
+/**
+ * Class handle seq of event
+ *
+ */
 public class SeqTimerTask extends TimerTask {
 
   static final Logger logger = LoggerFactory.getLogger(App.class);
-  
+
   private Queue<Seq> queueSeq;
   private Timer timer;
 
@@ -25,17 +29,29 @@ public class SeqTimerTask extends TimerTask {
 
   public void addSeq(Seq seq) {
     queueSeq.add(seq);
-//    logger.info(queueSeq.toString());
+    // logger.info(queueSeq.toString());
   }
 
-  public void start() {
-    timer.scheduleAtFixedRate(this, 0, 1 * 1000);
+  /**
+   * Start time task
+   */
+  public void start(int interval) {
+    timer.scheduleAtFixedRate(this, 0, interval * 1000);
   }
 
+  /**
+   * Stop time task
+   */
   public void stop() {
     timer.cancel();
   }
 
+  /**
+   * Check event with seq is existed in queue
+   * 
+   * @param seq
+   * @return
+   */
   public boolean contains(Seq seq) {
     if (seq == null) {
       return true;

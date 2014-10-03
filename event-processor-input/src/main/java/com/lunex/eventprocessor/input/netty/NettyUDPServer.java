@@ -12,6 +12,10 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 
+/**
+ * Netty UDP server 
+ *
+ */
 public class NettyUDPServer {
 
   Logger logger = LoggerFactory.getLogger(NettyUDPServer.class);

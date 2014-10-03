@@ -46,7 +46,7 @@ import com.lunex.eventprocessor.input.utils.Constant;
 import com.lunex.eventprocessor.input.utils.StringUtils;
 
 /**
- * Server handler for netty server
+ * Server handler for netty server http
  */
 public class NettyHttpSnoopServerHandler extends SimpleChannelInboundHandler<HttpObject> {
 

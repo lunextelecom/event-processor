@@ -11,6 +11,7 @@ public class Configuration {
   public static List<String> listZookeeper = new ArrayList<String>();
   public static List<String> kafkaCluster = new ArrayList<String>();
   public static String kafkaTopic;
+  public static int kafkaTopicNumPartition;
   public static boolean kafkaProducerAsync = true;
   
   public static int nettyHttpServerPort = 8085;
@@ -18,6 +19,7 @@ public class Configuration {
   public static int nettyNumThread = 100;
   
   public static int timeStoreSeq = 10; // by second
+  public static int timeIntervalCheckSeq = 1;// by second
 
   public static void getPropertiesValues(String propFileName) throws Exception {
     try {
@@ -43,11 +45,15 @@ public class Configuration {
       }
       kafkaTopic = prop.getProperty("kafka.topic.name");
       kafkaProducerAsync = Boolean.valueOf(prop.getProperty("kafka.producer.async"));
+      kafkaTopicNumPartition = Integer.valueOf(prop.getProperty("kafka.topic.count.partition"));
 
       // Netty configuration
       nettyHttpServerPort = Integer.valueOf(prop.getProperty("netty.http.server.port"));      
       nettyUdpServerPort = Integer.valueOf(prop.getProperty("netty.udp.server.port"));
       nettyNumThread = Integer.valueOf(prop.getProperty("netty.num.thread"));
+      
+      timeIntervalCheckSeq = Integer.valueOf(prop.getProperty("time.interval.seq"));
+      timeStoreSeq = Integer.valueOf(prop.getProperty("time.store.seq"));
       
     } catch (Exception e) {
       throw e;

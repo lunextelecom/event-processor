@@ -20,6 +20,10 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.CharsetUtil;
 
+/**
+ * Netty UDP server handler - process message 
+ *
+ */
 public class NettyUDPServerHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
   Logger logger = LoggerFactory.getLogger(NettyUDPServerHandler.class);

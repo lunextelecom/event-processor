@@ -26,6 +26,10 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Kafka simple consumer
+ *
+ */
 public class KafkaSimpleConsumer {
 
   static final Logger logger = LoggerFactory.getLogger(KafkaSimpleConsumer.class);
@@ -44,6 +48,14 @@ public class KafkaSimpleConsumer {
     this.maxError = maxError;
   }
 
+  /**
+   * Contructor
+   * 
+   * @param listBroker : list broker of kafka (192.168.3.3:9092, 192.168.3.4:9092, ...)
+   * @param topicName : topic name where message is sent to
+   * @param partitionIndex : index of partition of topic, where consumer need to read message
+   * @param maxReads: -1 is unlimit > -1 is limit to read message from partion of topic
+   */
   public KafkaSimpleConsumer(List<String> listBroker, String topicName, int partitionIndex,
       int maxReads) {
     this.replicaBrokersList = listBroker;
@@ -188,6 +200,16 @@ public class KafkaSimpleConsumer {
     return offsets[0];
   }
 
+  /**
+   * Find new leader of partion
+   * 
+   * @param oldLeader
+   * @param topicName
+   * @param partitionIndex
+   * @param port
+   * @return
+   * @throws Exception
+   */
   private String findNewLeader(String oldLeader, String topicName, int partitionIndex, int port)
       throws Exception {
     for (int i = 0; i < 3; i++) {
@@ -216,6 +238,14 @@ public class KafkaSimpleConsumer {
     throw new Exception("Unable to find new leader after Broker failure. Exiting");
   }
 
+  /**
+   * Find leader of partion
+   * 
+   * @param listBroker
+   * @param topicName
+   * @param partitionIndex
+   * @return
+   */
   private PartitionMetadata findLeader(List<String> listBroker, String topicName, int partitionIndex) {
     PartitionMetadata returnMetaData = null;
     loop: for (String seed : listBroker) {

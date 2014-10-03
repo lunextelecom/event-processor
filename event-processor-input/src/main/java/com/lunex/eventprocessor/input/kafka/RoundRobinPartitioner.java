@@ -5,6 +5,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import kafka.producer.Partitioner;
 import kafka.utils.VerifiableProperties;
 
+/**
+ * Partitioner by Round robin
+ *
+ */
 public class RoundRobinPartitioner implements Partitioner {
 
   private AtomicInteger currentPartition = new AtomicInteger(0);

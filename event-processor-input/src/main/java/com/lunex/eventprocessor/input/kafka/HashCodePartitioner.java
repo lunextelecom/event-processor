@@ -3,6 +3,10 @@ package com.lunex.eventprocessor.input.kafka;
 import kafka.producer.Partitioner;
 import kafka.utils.VerifiableProperties;
 
+/**
+ * Partitioner by hashcode
+ *
+ */
 public class HashCodePartitioner implements Partitioner {
 
   public HashCodePartitioner(VerifiableProperties props) {}

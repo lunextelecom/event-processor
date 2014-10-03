@@ -15,20 +15,31 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Kafka high level group consumer
+ *
+ */
 public class KafkaHighLevelConsumerGroup {
 
   static final Logger logger = LoggerFactory.getLogger(KafkaProducer.class);
 
   private final ConsumerConnector consumer;
-  private final String topic;
   private ExecutorService executor;
 
-  public KafkaHighLevelConsumerGroup(String zookeeper, String groupId, String topicName) {
+  /**
+   * Contructor
+   * 
+   * @param zookeeper
+   * @param groupId
+   */
+  public KafkaHighLevelConsumerGroup(String zookeeper, String groupId, int numThreads) {
     ConsumerConfig config = this.createConsumerConfig(zookeeper, groupId);
-    consumer = Consumer.createJavaConsumerConnector(config);
-    this.topic = topicName;
+    this.consumer = Consumer.createJavaConsumerConnector(config);
   }
 
+  /**
+   * Shutdown
+   */
   public void shutdown() {
     if (consumer != null) {
       consumer.shutdown();
@@ -38,15 +49,20 @@ public class KafkaHighLevelConsumerGroup {
     }
   }
 
-  public void run(int numThreads) {
+  /**
+   * Read message from topic
+   * 
+   * @param topicName
+   * @param numThreads : equal quantity of partition of topic
+   */
+  public void readMessage(String topicName, int numThreads) {
     Map<String, Integer> topicCountMap = new HashMap<String, Integer>();
-    topicCountMap.put(topic, new Integer(numThreads));
+    topicCountMap.put(topicName, new Integer(numThreads));
     Map<String, List<KafkaStream<byte[], byte[]>>> consumerMap =
         consumer.createMessageStreams(topicCountMap);
-    List<KafkaStream<byte[], byte[]>> streams = consumerMap.get(topic);
+    List<KafkaStream<byte[], byte[]>> streams = consumerMap.get(topicName);
 
     // now launch all the threads
-    //
     executor = Executors.newFixedThreadPool(numThreads);
 
     // now create an object to consume the messages
@@ -58,6 +74,13 @@ public class KafkaHighLevelConsumerGroup {
     }
   }
 
+  /**
+   * Create consumer config
+   * 
+   * @param zookeeper
+   * @param groupId
+   * @return
+   */
   private ConsumerConfig createConsumerConfig(String zookeeper, String groupId) {
     Properties props = new Properties();
     props.put("zookeeper.connect", zookeeper);
@@ -74,11 +97,12 @@ public class KafkaHighLevelConsumerGroup {
     String zooKeeper = "192.168.93.38:2181";
     String groupId = "testKafkaGroup";
     String topic = "testKafka";
-    int threads = 5;
+    int numThreads = 5;
 
-    KafkaHighLevelConsumerGroup example = new KafkaHighLevelConsumerGroup(zooKeeper, groupId, topic);
+    KafkaHighLevelConsumerGroup example =
+        new KafkaHighLevelConsumerGroup(zooKeeper, groupId, numThreads);
     System.out.println("Connected");
-    example.run(threads);
+    example.readMessage(topic, numThreads);
     System.out.println("Checked");
     try {
       Thread.sleep(100);

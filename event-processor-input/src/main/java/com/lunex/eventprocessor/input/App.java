@@ -46,7 +46,7 @@ public class App {
 
       // seqTimerTask
       App.seqTimerTask = new SeqTimerTask();
-      App.seqTimerTask.start();
+      App.seqTimerTask.start(Configuration.timeIntervalCheckSeq);
 
       // create kafka producer
       kafkaProducer =
@@ -55,8 +55,7 @@ public class App {
     } catch (IOException ex) {
       logger.error(ex.getMessage());
     } catch (Exception e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      logger.error(e.getMessage());
     }
   }
 

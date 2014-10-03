@@ -2,6 +2,10 @@ package com.lunex.eventprocessor.input.kafka;
 
 import kafka.admin.DeleteTopicCommand;
 
+/**
+ * Kafka command line remotely 
+ *
+ */
 public class KafkaCommand {
 //  public static void createTopic(String zookeeper, String numReplicant, String numPartition,
 //      String topicName) {

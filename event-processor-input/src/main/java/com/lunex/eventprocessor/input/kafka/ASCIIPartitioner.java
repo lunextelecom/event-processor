@@ -3,6 +3,10 @@ package com.lunex.eventprocessor.input.kafka;
 import kafka.producer.Partitioner;
 import kafka.utils.VerifiableProperties;
 
+/**
+ * Partitioner by ASCII 
+ *
+ */
 public class ASCIIPartitioner implements Partitioner {
   public ASCIIPartitioner(VerifiableProperties props) {}
 
