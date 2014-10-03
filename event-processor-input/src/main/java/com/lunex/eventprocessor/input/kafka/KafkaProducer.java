@@ -1,27 +1,28 @@
 package com.lunex.eventprocessor.input.kafka;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.util.CharsetUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Joiner;
 import com.lunex.eventprocessor.input.exception.InternalServerErrorException;
 import com.lunex.eventprocessor.input.utils.Constant;
 
 import kafka.javaapi.producer.Producer;
-import kafka.message.Message;
-import kafka.message.MessageAndMetadata;
-import kafka.message.MessageAndOffset;
 import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
 import kafka.serializer.StringEncoder;
 
 public class KafkaProducer {
 
+  static final Logger logger = LoggerFactory.getLogger(KafkaProducer.class);
+  
   private Producer<String, byte[]> producer;
 
   public KafkaProducer(List<String> listBroker, String serializerForKey, String partitionerClass,
@@ -52,6 +53,7 @@ public class KafkaProducer {
           new KeyedMessage<String, byte[]>(topicName, key, byteArray);
       producer.send(data);
     } catch (Exception ex) {
+      logger.error(ex.getMessage());
       throw ex;
     }
   }
@@ -65,6 +67,7 @@ public class KafkaProducer {
           new KeyedMessage<String, byte[]>(topicName, key, byteBuf.array());
       producer.send(data);
     } catch (Exception ex) {
+      logger.error(ex.getMessage());
       throw ex;
     }
   }
@@ -77,6 +80,7 @@ public class KafkaProducer {
       KeyedMessage<String, byte[]> data = new KeyedMessage<String, byte[]>(topicName, key, byteBuf);
       producer.send(data);
     } catch (Exception ex) {
+      logger.error(ex.getMessage());
       throw ex;
     }
   }
@@ -93,7 +97,7 @@ public class KafkaProducer {
         new KafkaProducer(a, StringEncoder.class.getName(), HashCodePartitioner.class.getName(),
             true);
     try {
-      producer.sendData("testKafka", "new-order", "abc");
+      producer.sendData("testKafka", "new-order", "asssbc");
     } catch (Exception e) {
       e.printStackTrace();
     }

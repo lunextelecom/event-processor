@@ -12,12 +12,18 @@ import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class KafkaConsumerGroup {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class KafkaHighLevelConsumerGroup {
+
+  static final Logger logger = LoggerFactory.getLogger(KafkaProducer.class);
+
   private final ConsumerConnector consumer;
   private final String topic;
   private ExecutorService executor;
 
-  public KafkaConsumerGroup(String zookeeper, String groupId, String topicName) {
+  public KafkaHighLevelConsumerGroup(String zookeeper, String groupId, String topicName) {
     ConsumerConfig config = this.createConsumerConfig(zookeeper, groupId);
     consumer = Consumer.createJavaConsumerConnector(config);
     this.topic = topicName;
@@ -70,7 +76,7 @@ public class KafkaConsumerGroup {
     String topic = "testKafka";
     int threads = 5;
 
-    KafkaConsumerGroup example = new KafkaConsumerGroup(zooKeeper, groupId, topic);
+    KafkaHighLevelConsumerGroup example = new KafkaHighLevelConsumerGroup(zooKeeper, groupId, topic);
     System.out.println("Connected");
     example.run(threads);
     System.out.println("Checked");

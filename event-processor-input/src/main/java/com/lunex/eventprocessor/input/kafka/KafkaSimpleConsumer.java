@@ -23,30 +23,33 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class KafkaSimpleConsumer {
 
-  private List<String> replicaBrokersList = new ArrayList<String>();
+  static final Logger logger = LoggerFactory.getLogger(KafkaSimpleConsumer.class);
 
-  public static void main(String args[]) {
-    KafkaSimpleConsumer example = new KafkaSimpleConsumer();
-    long maxReads = Long.parseLong("3");
-    String topic = "testKafka";
-    int partition = Integer.parseInt("4");
-    List<String> seeds = new ArrayList<String>();
-    seeds.add("192.168.93.38");
-    seeds.add("192.168.93.39");
-    int port = Integer.parseInt("9092");
-    try {
-      example.readKafka(maxReads, topic, partition, seeds, port,
-          kafka.api.OffsetRequest.LatestTime());
-    } catch (Exception e) {
-      System.out.println("Oops:" + e);
-      e.printStackTrace();
-    }
+  private List<String> replicaBrokersList = new ArrayList<String>();
+  private String topicName;
+  private int partitionIndex;
+  private int maxReads = -1; // -1 -> no limit
+  private int maxError = 5;
+
+  public int getMaxError() {
+    return maxError;
   }
 
-  public KafkaSimpleConsumer() {
-    replicaBrokersList = new ArrayList<String>();
+  public void setMaxError(int maxError) {
+    this.maxError = maxError;
+  }
+
+  public KafkaSimpleConsumer(List<String> listBroker, String topicName, int partitionIndex,
+      int maxReads) {
+    this.replicaBrokersList = listBroker;
+    this.topicName = topicName;
+    this.partitionIndex = partitionIndex;
+    this.maxReads = maxReads;
   }
 
   /**
@@ -60,21 +63,22 @@ public class KafkaSimpleConsumer {
    * @param whichTime : determine offset need to get message
    * @throws Exception
    */
-  public void readKafka(long maxReads, String topicName, int partitionIndex,
-      List<String> listBrokers, int port, long whichTime) throws Exception {
+  public void readKafka(long whichTime) throws Exception {
     // find the meta data about the topic and partition we are interested in
-    PartitionMetadata metadata = this.findLeader(listBrokers, port, topicName, partitionIndex);
+    PartitionMetadata metadata =
+        this.findLeader(this.replicaBrokersList, topicName, partitionIndex);
     if (metadata == null) {
-      System.out.println("Can't find metadata for Topic and Partition. Exiting");
+      logger.info("Can't find metadata for Topic and Partition. Exiting");
       return;
     }
     // check leader from metadata
     if (metadata.leader() == null) {
-      System.out.println("Can't find Leader for Topic and Partition. Exiting");
+      logger.info("Can't find Leader for Topic and Partition. Exiting");
       return;
     }
     // get leader Broker
     String leadHost = metadata.leader().host();
+    int port = metadata.leader().port();
     String clientName = "Client_" + topicName + "_" + partitionIndex;
 
     // create Simple consumer
@@ -83,25 +87,23 @@ public class KafkaSimpleConsumer {
         this.getLastOffset(consumer, topicName, partitionIndex, whichTime, clientName);
 
     int numErrors = 0;
-    while (maxReads > 0) {
+    boolean unlimit = maxReads == -1;
+    while (maxReads > 0 || unlimit) {
       if (consumer == null) {// create consumer again from new other leader if fetchResponse error
         consumer = new SimpleConsumer(leadHost, port, 100000, 64 * 1024, clientName);
       }
+      // Note: this fetchSize of 100000 might need to be increased if large batches are written to
+      // Kafka
       FetchRequest req =
           new FetchRequestBuilder().clientId(clientName)
-              .addFetch(topicName, partitionIndex, readOffset, 100000) // Note: this fetchSize of
-                                                                       // 100000
-              // might need to be increased if
-              // large batches are written to
-              // Kafka
-              .build();
+              .addFetch(topicName, partitionIndex, readOffset, 100000).build();
       FetchResponse fetchResponse = consumer.fetch(req);
 
       if (fetchResponse.hasError()) {
         numErrors++;
         // Something went wrong!
         short code = fetchResponse.errorCode(topicName, partitionIndex);
-        System.out.println("Error fetching data from the Broker:" + leadHost + " Reason: " + code);
+        logger.error("Error fetching data from the Broker:" + leadHost + " Reason: " + code);
         if (numErrors > 5)
           break;
         if (code == ErrorMapping.OffsetOutOfRangeCode()) {
@@ -130,17 +132,17 @@ public class KafkaSimpleConsumer {
         // get message
         Message message = messageAndOffset.message();
         // get attribute
-        int attribute = (int)message.attributes();        
+        int attribute = (int) message.attributes();
         // get content of payload
         ByteBuffer payload = message.payload();
         byte[] bytes = new byte[payload.limit()];
         payload.get(bytes);
         String content = new String(bytes, "UTF-8");
         System.out.println(String.valueOf(messageAndOffset.offset()) + ": " + content);
-        
+
         // TODO something with message
         //
-        
+
         numRead++;
         maxReads--;
       }
@@ -178,7 +180,7 @@ public class KafkaSimpleConsumer {
     OffsetResponse response = consumer.getOffsetsBefore(request);
 
     if (response.hasError()) {
-      System.out.println("Error fetching data Offset Data the Broker. Reason: "
+      logger.info("Error fetching data Offset Data the Broker. Reason: "
           + response.errorCode(topic, partitionIndex));
       return 0;
     }
@@ -190,8 +192,7 @@ public class KafkaSimpleConsumer {
       throws Exception {
     for (int i = 0; i < 3; i++) {
       boolean goToSleep = false;
-      PartitionMetadata metadata =
-          this.findLeader(replicaBrokersList, port, topicName, partitionIndex);
+      PartitionMetadata metadata = this.findLeader(replicaBrokersList, topicName, partitionIndex);
       if (metadata == null) {
         goToSleep = true;
       } else if (metadata.leader() == null) {
@@ -211,17 +212,18 @@ public class KafkaSimpleConsumer {
         }
       }
     }
-    System.out.println("Unable to find new leader after Broker failure. Exiting");
+    logger.error("Unable to find new leader after Broker failure. Exiting");
     throw new Exception("Unable to find new leader after Broker failure. Exiting");
   }
 
-  private PartitionMetadata findLeader(List<String> listBroker, int port, String topicName,
-      int partitionIndex) {
+  private PartitionMetadata findLeader(List<String> listBroker, String topicName, int partitionIndex) {
     PartitionMetadata returnMetaData = null;
     loop: for (String seed : listBroker) {
+      String[] temp = seed.split(":");
       SimpleConsumer consumer = null;
       try {
-        consumer = new SimpleConsumer(seed, port, 100000, 64 * 1024, "leaderLookup");
+        consumer =
+            new SimpleConsumer(temp[0], Integer.valueOf(temp[1]), 100000, 64 * 1024, "leaderLookup");
         List<String> topics = Collections.singletonList(topicName);
         TopicMetadataRequest req = new TopicMetadataRequest(topics);
         kafka.javaapi.TopicMetadataResponse resp = consumer.send(req);
@@ -236,7 +238,7 @@ public class KafkaSimpleConsumer {
           }
         }
       } catch (Exception e) {
-        System.out.println("Error communicating with Broker [" + seed + "] to find Leader for ["
+        logger.error("Error communicating with Broker [" + seed + "] to find Leader for ["
             + topicName + ", " + partitionIndex + "] Reason: " + e);
       } finally {
         if (consumer != null)
@@ -250,5 +252,19 @@ public class KafkaSimpleConsumer {
       }
     }
     return returnMetaData;
+  }
+
+  public static void main(String args[]) {
+    List<String> listBrokers = new ArrayList<String>();
+    listBrokers.add("192.168.93.38:9092");
+    listBrokers.add("192.168.93.39:9092");
+    KafkaSimpleConsumer example = new KafkaSimpleConsumer(listBrokers, "testKafka", 4, -1);
+
+    try {
+      example.readKafka(kafka.api.OffsetRequest.LatestTime());
+    } catch (Exception e) {
+      System.out.println("Oops:" + e);
+      e.printStackTrace();
+    }
   }
 }

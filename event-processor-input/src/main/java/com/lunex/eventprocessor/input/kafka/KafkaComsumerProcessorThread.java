@@ -1,11 +1,17 @@
 package com.lunex.eventprocessor.input.kafka;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import kafka.consumer.ConsumerIterator;
 import kafka.consumer.KafkaStream;
 import kafka.message.Message;
 import kafka.message.MessageAndMetadata;
 
 public class KafkaComsumerProcessorThread implements Runnable {
+  
+  static final Logger logger = LoggerFactory.getLogger(KafkaProducer.class);
+  
   private KafkaStream<byte[], byte[]> kafkaStream;
   private int threadNumber;
 
@@ -18,9 +24,7 @@ public class KafkaComsumerProcessorThread implements Runnable {
     ConsumerIterator<byte[], byte[]> it = kafkaStream.iterator();
     while (it.hasNext()) {
       MessageAndMetadata<byte[], byte[]> a = it.next();
-      Object k = a.productElement(0);
-      System.out.println("Thread " + threadNumber + ": key - " + new String(a.key()));
-      System.out.println("Thread " + threadNumber + ": content" + new String(a.message()));
+      // TODO somthing
     }
     System.out.println("Shutting down Thread: " + threadNumber);
   }
