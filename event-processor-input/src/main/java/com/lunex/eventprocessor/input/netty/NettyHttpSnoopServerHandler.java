@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import kafka.serializer.StringEncoder;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
@@ -42,8 +41,6 @@ import com.lunex.eventprocessor.input.enums.EContentType;
 import com.lunex.eventprocessor.input.exception.BadRequestException;
 import com.lunex.eventprocessor.input.exception.InternalServerErrorException;
 import com.lunex.eventprocessor.input.exception.MethodNotAllowedException;
-import com.lunex.eventprocessor.input.kafka.HashCodePartitioner;
-import com.lunex.eventprocessor.input.kafka.KafkaProducer;
 import com.lunex.eventprocessor.input.utils.Configuration;
 import com.lunex.eventprocessor.input.utils.Constant;
 import com.lunex.eventprocessor.input.utils.StringUtils;

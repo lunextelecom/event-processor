@@ -1,7 +1,5 @@
 package com.lunex.eventprocessor.input.netty;
 
-import kafka.serializer.StringEncoder;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,8 +9,6 @@ import com.lunex.eventprocessor.input.beans.UdpMessageObject;
 import com.lunex.eventprocessor.input.enums.EContentType;
 import com.lunex.eventprocessor.input.exception.BadRequestException;
 import com.lunex.eventprocessor.input.exception.InternalServerErrorException;
-import com.lunex.eventprocessor.input.kafka.HashCodePartitioner;
-import com.lunex.eventprocessor.input.kafka.KafkaProducer;
 import com.lunex.eventprocessor.input.utils.Configuration;
 import com.lunex.eventprocessor.input.utils.Constant;
 import com.lunex.eventprocessor.input.utils.StringUtils;
