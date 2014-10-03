@@ -6,8 +6,14 @@ import kafka.api.PartitionOffsetRequestInfo;
 import kafka.cluster.Broker;
 import kafka.common.ErrorMapping;
 import kafka.common.TopicAndPartition;
-import kafka.javaapi.*;
+import kafka.javaapi.FetchResponse;
+import kafka.javaapi.OffsetRequest;
+import kafka.javaapi.OffsetResponse;
+import kafka.javaapi.PartitionMetadata;
+import kafka.javaapi.TopicMetadata;
+import kafka.javaapi.TopicMetadataRequest;
 import kafka.javaapi.consumer.SimpleConsumer;
+import kafka.message.Message;
 import kafka.message.MessageAndOffset;
 
 import java.nio.ByteBuffer;
@@ -23,15 +29,16 @@ public class KafkaSimpleConsumer {
 
   public static void main(String args[]) {
     KafkaSimpleConsumer example = new KafkaSimpleConsumer();
-    long maxReads = Long.parseLong("1");
+    long maxReads = Long.parseLong("3");
     String topic = "testKafka";
-    int partition = Integer.parseInt("3");
+    int partition = Integer.parseInt("4");
     List<String> seeds = new ArrayList<String>();
     seeds.add("192.168.93.38");
     seeds.add("192.168.93.39");
     int port = Integer.parseInt("9092");
     try {
-      example.run(maxReads, topic, partition, seeds, port);
+      example.readKafka(maxReads, topic, partition, seeds, port,
+          kafka.api.OffsetRequest.LatestTime());
     } catch (Exception e) {
       System.out.println("Oops:" + e);
       e.printStackTrace();
@@ -42,8 +49,19 @@ public class KafkaSimpleConsumer {
     replicaBrokersList = new ArrayList<String>();
   }
 
-  public void run(long maxReads, String topicName, int partitionIndex, List<String> listBrokers,
-      int port) throws Exception {
+  /**
+   * Read message from Kafka
+   * 
+   * @param maxReads : max number message need to read
+   * @param topicName : Name of topic
+   * @param partitionIndex: index of partition
+   * @param listBrokers: list broker
+   * @param port: port to read
+   * @param whichTime : determine offset need to get message
+   * @throws Exception
+   */
+  public void readKafka(long maxReads, String topicName, int partitionIndex,
+      List<String> listBrokers, int port, long whichTime) throws Exception {
     // find the meta data about the topic and partition we are interested in
     PartitionMetadata metadata = this.findLeader(listBrokers, port, topicName, partitionIndex);
     if (metadata == null) {
@@ -62,8 +80,7 @@ public class KafkaSimpleConsumer {
     // create Simple consumer
     SimpleConsumer consumer = new SimpleConsumer(leadHost, port, 100000, 64 * 1024, clientName);
     long readOffset =
-        this.getLastOffset(consumer, topicName, partitionIndex,
-            kafka.api.OffsetRequest.EarliestTime(), clientName);
+        this.getLastOffset(consumer, topicName, partitionIndex, whichTime, clientName);
 
     int numErrors = 0;
     while (maxReads > 0) {
@@ -109,12 +126,21 @@ public class KafkaSimpleConsumer {
           continue;
         }
         readOffset = messageAndOffset.nextOffset();
-        ByteBuffer payload = messageAndOffset.message().payload();
 
+        // get message
+        Message message = messageAndOffset.message();
+        // get attribute
+        int attribute = (int)message.attributes();        
+        // get content of payload
+        ByteBuffer payload = message.payload();
         byte[] bytes = new byte[payload.limit()];
         payload.get(bytes);
         String content = new String(bytes, "UTF-8");
         System.out.println(String.valueOf(messageAndOffset.offset()) + ": " + content);
+        
+        // TODO something with message
+        //
+        
         numRead++;
         maxReads--;
       }
@@ -131,9 +157,19 @@ public class KafkaSimpleConsumer {
     }
   }
 
-  public long getLastOffset(SimpleConsumer consumer, String topic, int partition, long whichTime,
-      String clientName) {
-    TopicAndPartition topicAndPartition = new TopicAndPartition(topic, partition);
+  /**
+   * Get last of set by time
+   * 
+   * @param consumer
+   * @param topic
+   * @param partitionIndex
+   * @param whichTime
+   * @param clientName
+   * @return
+   */
+  public long getLastOffset(SimpleConsumer consumer, String topic, int partitionIndex,
+      long whichTime, String clientName) {
+    TopicAndPartition topicAndPartition = new TopicAndPartition(topic, partitionIndex);
     Map<TopicAndPartition, PartitionOffsetRequestInfo> requestInfo =
         new HashMap<TopicAndPartition, PartitionOffsetRequestInfo>();
     requestInfo.put(topicAndPartition, new PartitionOffsetRequestInfo(whichTime, 1));
@@ -143,10 +179,10 @@ public class KafkaSimpleConsumer {
 
     if (response.hasError()) {
       System.out.println("Error fetching data Offset Data the Broker. Reason: "
-          + response.errorCode(topic, partition));
+          + response.errorCode(topic, partitionIndex));
       return 0;
     }
-    long[] offsets = response.offsets(topic, partition);
+    long[] offsets = response.offsets(topic, partitionIndex);
     return offsets[0];
   }
 

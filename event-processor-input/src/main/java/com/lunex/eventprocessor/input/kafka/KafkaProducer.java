@@ -13,6 +13,9 @@ import com.lunex.eventprocessor.input.exception.InternalServerErrorException;
 import com.lunex.eventprocessor.input.utils.Constant;
 
 import kafka.javaapi.producer.Producer;
+import kafka.message.Message;
+import kafka.message.MessageAndMetadata;
+import kafka.message.MessageAndOffset;
 import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
 import kafka.serializer.StringEncoder;

@@ -72,14 +72,12 @@ public class KafkaConsumerGroup {
 
     KafkaConsumerGroup example = new KafkaConsumerGroup(zooKeeper, groupId, topic);
     System.out.println("Connected");
-    while (true) {
-      example.run(threads);
-      System.out.println("Checked");
-      try {
-        Thread.sleep(100);
-      } catch (InterruptedException ie) {
+    example.run(threads);
+    System.out.println("Checked");
+    try {
+      Thread.sleep(100);
+    } catch (InterruptedException ie) {
 
-      }
     }
     // example.shutdown();
   }

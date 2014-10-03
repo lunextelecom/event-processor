@@ -3,7 +3,7 @@ package com.lunex.eventprocessor.input.kafka;
 import kafka.producer.Partitioner;
 import kafka.utils.VerifiableProperties;
 
-public class ASCIIPartitioner implements Partitioner<Object> {
+public class ASCIIPartitioner implements Partitioner {
   public ASCIIPartitioner(VerifiableProperties props) {}
 
   public int partition(Object key, int countPartitions) {
