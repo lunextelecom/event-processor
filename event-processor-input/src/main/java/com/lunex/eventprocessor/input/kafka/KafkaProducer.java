@@ -47,8 +47,6 @@ public class KafkaProducer {
       byte[] byteArray = message.getBytes(CharsetUtil.UTF_8);
       KeyedMessage<String, byte[]> data =
           new KeyedMessage<String, byte[]>(topicName, key, byteArray);
-      data.message()[data.message().length - 5] = 1;
-      data.message()[data.message().length - 6] = 1;
       producer.send(data);
     } catch (Exception ex) {
       throw ex;
@@ -92,7 +90,7 @@ public class KafkaProducer {
         new KafkaProducer(a, StringEncoder.class.getName(), HashCodePartitioner.class.getName(),
             true);
     try {
-      producer.sendData("testKafka", "new-order", Unpooled.copiedBuffer("abc", CharsetUtil.UTF_8));
+      producer.sendData("testKafka", "new-order", "abc");
     } catch (Exception e) {
       e.printStackTrace();
     }
