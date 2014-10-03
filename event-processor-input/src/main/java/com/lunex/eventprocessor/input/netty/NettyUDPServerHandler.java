@@ -93,6 +93,10 @@ public class NettyUDPServerHandler extends SimpleChannelInboundHandler<DatagramP
     }
   }
 
+  /**
+   * Send message to kafka
+   * @param ctx
+   */
   private void sendKafka(ChannelHandlerContext ctx) {
     // Validate
     String eventName = this.messageObject.getEvtName();
@@ -161,7 +165,7 @@ public class NettyUDPServerHandler extends SimpleChannelInboundHandler<DatagramP
     if (isException) {
       exceptionCaught(ctx, exception);
     } else {
-      ctx.write(new DatagramPacket(Unpooled.copiedBuffer("Success", CharsetUtil.UTF_8), this.packet
+      ctx.write(new DatagramPacket(Unpooled.copiedBuffer("Result: success", CharsetUtil.UTF_8), this.packet
           .sender()));
     }
   }
@@ -171,10 +175,13 @@ public class NettyUDPServerHandler extends SimpleChannelInboundHandler<DatagramP
     ctx.flush();
   }
 
+  /**
+   * Response message for client
+   */
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
     logger.error(cause.getMessage());
-    ctx.write(new DatagramPacket(Unpooled.copiedBuffer("QOTM: " + cause.getMessage(),
+    ctx.write(new DatagramPacket(Unpooled.copiedBuffer("Error: " + cause.getMessage(),
         CharsetUtil.UTF_8), this.packet.sender()));
   }
 }

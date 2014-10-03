@@ -125,6 +125,9 @@ public class NettyHttpSnoopServerHandler extends SimpleChannelInboundHandler<Htt
     }
   }
 
+  /**
+   * Send message to kafka
+   */
   private void sendKafka() {
     // Validate
     if (this.messageObject.getQueryParams().get(Constant.EVENTNAME_PROP) == null
@@ -224,6 +227,9 @@ public class NettyHttpSnoopServerHandler extends SimpleChannelInboundHandler<Htt
     return keepAlive;
   }
 
+  /**
+   * Write exption for client
+   */
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
     logger.error("Exception caught", cause);
