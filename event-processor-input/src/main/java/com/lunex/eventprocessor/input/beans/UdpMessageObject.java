@@ -7,6 +7,7 @@ public class UdpMessageObject {
   private String contentType;
   private Long contentLength = 0L;
   private String payLoad;
+  private byte[] payLoadBytes;
 
   public String getEvtName() {
     return evtName;
@@ -46,6 +47,14 @@ public class UdpMessageObject {
 
   public void setPayLoad(String payLoad) {
     this.payLoad = payLoad;
+  }
+
+  public byte[] getPayLoadBytes() {
+    return payLoadBytes;
+  }
+
+  public void setPayLoadBytes(byte[] payLoadBytes) {
+    this.payLoadBytes = payLoadBytes;
   }
 
 }

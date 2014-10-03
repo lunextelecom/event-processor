@@ -81,6 +81,6 @@ public class KafkaConsumerGroup {
 
       }
     }
-//     example.shutdown();
+    // example.shutdown();
   }
 }

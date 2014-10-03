@@ -11,6 +11,7 @@ public class Configuration {
   public static List<String> listZookeeper = new ArrayList<String>();
   public static List<String> kafkaCluster = new ArrayList<String>();
   public static String kafkaTopic;
+  public static boolean kafkaProducerAsync = true;
   
   public static int nettyHttpServerPort = 8085;
   public static int nettyUdpServerPort = 8086;
@@ -41,6 +42,7 @@ public class Configuration {
         }
       }
       kafkaTopic = prop.getProperty("kafka.topic.name");
+      kafkaProducerAsync = Boolean.valueOf(prop.getProperty("kafka.producer.async"));
 
       // Netty configuration
       nettyHttpServerPort = Integer.valueOf(prop.getProperty("netty.http.server.port"));      

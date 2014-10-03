@@ -115,8 +115,9 @@ public class NettyHttpSnoopServerHandler extends SimpleChannelInboundHandler<Htt
           ByteBuf bytes = httpContent.content();
           this.messageObject.setContentLengthInByte(bytes.capacity());
           String payLoad = bytes.toString(CharsetUtil.UTF_8);
-          logger.info("payLoad: " + payLoad);
           this.messageObject.setBody(payLoad);
+          this.messageObject.setBodyBytes(payLoad.getBytes(CharsetUtil.UTF_8));
+          logger.info("payLoad: " + payLoad);
         }
       }
     }
@@ -135,21 +136,21 @@ public class NettyHttpSnoopServerHandler extends SimpleChannelInboundHandler<Htt
       exception = new BadRequestException(new Throwable("Query param is not valid"));
       return;
     }
-    
+
     String eventName = this.messageObject.getQueryParams().get(Constant.EVENTNAME_PROP);
     if (Constant.EMPTY_STRING.equals(eventName)) {
       isException = true;
       exception = new BadRequestException(new Throwable("Event name is empty"));
       return;
     }
-    
+
     String body = this.messageObject.getBody();
     if (body == null || Constant.EMPTY_STRING.equals(body)) {
       isException = true;
       exception = new BadRequestException(new Throwable("Body is empty"));
       return;
     }
-    
+
     HttpHeaders header = this.messageObject.getHeader();
     EContentType contentType = EContentType.getContentType(header.get(CONTENT_TYPE.toString()));
     if (contentType == null) {
@@ -169,14 +170,14 @@ public class NettyHttpSnoopServerHandler extends SimpleChannelInboundHandler<Htt
           break;
       }
     }
-    
+
     if (!Integer.valueOf(header.get(CONTENT_LENGTH.toString())).equals(
         this.messageObject.getContentLengthInByte())) {
       isException = true;
       exception = new BadRequestException(new Throwable("Wrong Content-Length"));
       return;
     }
-    
+
     Long seq = Long.valueOf(this.messageObject.getQueryParams().get(Constant.SEQ_PROP));
     Seq seqObj = new Seq(seq, eventName, System.currentTimeMillis());
     if (App.seqTimerTask.contains(seqObj)) {
@@ -189,7 +190,7 @@ public class NettyHttpSnoopServerHandler extends SimpleChannelInboundHandler<Htt
 
     // send kafka
     try {
-      App.kafkaProducer.sendData(Configuration.kafkaTopic, eventName, body);
+      App.kafkaProducer.sendData(Configuration.kafkaTopic, eventName, this.messageObject.getBody());
     } catch (Exception ex) {
       isException = true;
       exception =

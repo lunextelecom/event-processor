@@ -51,7 +51,7 @@ public class App {
       // create kafka producer
       kafkaProducer =
           new KafkaProducer(Configuration.kafkaCluster, StringEncoder.class.getName(),
-              ASCIIPartitioner.class.getName());
+              ASCIIPartitioner.class.getName(), Configuration.kafkaProducerAsync);
     } catch (IOException ex) {
       logger.error(ex.getMessage());
     } catch (Exception e) {

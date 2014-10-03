@@ -3,6 +3,7 @@ package com.lunex.eventprocessor.input.beans;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_LENGTH;
@@ -16,6 +17,7 @@ public class HttpMessageObject {
   private Map<String, String> queryParams;
 
   private String body;
+  private byte[] bodyBytes;
   private Integer contentLengthInByte;
 
   public HttpMethod getMethod() {
@@ -53,7 +55,7 @@ public class HttpMessageObject {
   public HttpMessageObject() {
     this.queryParams = new HashMap<String, String>();
   }
-  
+
   public Integer getContentLengthInByte() {
     return contentLengthInByte;
   }
@@ -61,7 +63,15 @@ public class HttpMessageObject {
   public void setContentLengthInByte(Integer contentLengthInByte) {
     this.contentLengthInByte = contentLengthInByte;
   }
-  
+
+  public byte[] getBodyBytes() {
+    return bodyBytes;
+  }
+
+  public void setBodyBytes(byte[] bodyBytes) {
+    this.bodyBytes = bodyBytes;
+  }
+
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
@@ -71,5 +81,5 @@ public class HttpMessageObject {
     builder.append("queryParams: " + this.queryParams.toString() + ", ");
     builder.append("body: '" + this.body + "'");
     return builder.toString();
-  }  
+  }
 }

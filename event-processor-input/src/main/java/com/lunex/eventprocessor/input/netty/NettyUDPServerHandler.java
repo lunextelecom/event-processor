@@ -71,6 +71,7 @@ public class NettyUDPServerHandler extends SimpleChannelInboundHandler<DatagramP
           }
           // process payload
           this.messageObject.setPayLoad(arrayMessages[4].trim());
+          this.messageObject.setPayLoadBytes(arrayMessages[4].trim().getBytes(CharsetUtil.UTF_8));
           // Send kafka
           this.sendKafka(ctx);
         } catch (Exception ex) {
@@ -147,7 +148,8 @@ public class NettyUDPServerHandler extends SimpleChannelInboundHandler<DatagramP
 
     // send kafka
     try {
-      App.kafkaProducer.sendData(Configuration.kafkaTopic, eventName, payLoad);
+      App.kafkaProducer.sendData(Configuration.kafkaTopic, eventName,
+          this.messageObject.getPayLoad());
     } catch (Exception ex) {
       isException = true;
       exception =
