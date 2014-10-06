@@ -8,6 +8,7 @@ public class UdpMessageObject {
   private Long contentLength = 0L;
   private String payLoad;
   private byte[] payLoadBytes;
+  private String hashKey;
 
   public String getEvtName() {
     return evtName;
@@ -55,6 +56,14 @@ public class UdpMessageObject {
 
   public void setPayLoadBytes(byte[] payLoadBytes) {
     this.payLoadBytes = payLoadBytes;
+  }
+
+  public String getHashKey() {
+    return hashKey;
+  }
+
+  public void setHashKey(String hashKey) {
+    this.hashKey = hashKey;
   }
 
 }

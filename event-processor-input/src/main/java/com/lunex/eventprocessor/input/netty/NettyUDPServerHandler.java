@@ -154,6 +154,7 @@ public class NettyUDPServerHandler extends SimpleChannelInboundHandler<DatagramP
     try {
       App.kafkaProducer.sendData(Configuration.kafkaTopic, eventName,
           this.messageObject.getPayLoad());
+      this.messageObject.setHashKey(this.messageObject.getPayLoad());
     } catch (Exception ex) {
       isException = true;
       exception =
@@ -165,7 +166,7 @@ public class NettyUDPServerHandler extends SimpleChannelInboundHandler<DatagramP
     if (isException) {
       exceptionCaught(ctx, exception);
     } else {
-      ctx.write(new DatagramPacket(Unpooled.copiedBuffer("Result: success", CharsetUtil.UTF_8), this.packet
+      ctx.write(new DatagramPacket(Unpooled.copiedBuffer("{\"result\": true, \"hashKey\": \"" + this.messageObject.getHashKey() + "\"}", CharsetUtil.UTF_8), this.packet
           .sender()));
     }
   }

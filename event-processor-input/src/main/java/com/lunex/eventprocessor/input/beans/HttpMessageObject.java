@@ -18,6 +18,7 @@ public class HttpMessageObject {
   private String body;
   private byte[] bodyBytes;
   private Integer contentLengthInByte;
+  private String hashKey;
 
   public HttpMethod getMethod() {
     return method;
@@ -71,6 +72,14 @@ public class HttpMessageObject {
     this.bodyBytes = bodyBytes;
   }
 
+  public String getHashKey() {
+    return hashKey;
+  }
+
+  public void setHashKey(String hashKey) {
+    this.hashKey = hashKey;
+  }
+  
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
@@ -80,5 +89,5 @@ public class HttpMessageObject {
     builder.append("queryParams: " + this.queryParams.toString() + ", ");
     builder.append("body: '" + this.body + "'");
     return builder.toString();
-  }
+  }  
 }

@@ -191,6 +191,7 @@ public class NettyHttpSnoopServerHandler extends SimpleChannelInboundHandler<Htt
     // send kafka
     try {
       App.kafkaProducer.sendData(Configuration.kafkaTopic, eventName, this.messageObject.getBody());
+      this.messageObject.setHashKey(StringUtils.md5Java(this.messageObject.getBody()));
     } catch (Exception ex) {
       isException = true;
       exception =
@@ -209,7 +210,8 @@ public class NettyHttpSnoopServerHandler extends SimpleChannelInboundHandler<Htt
   private boolean writeResponse(ChannelHandlerContext ctx) {
     logger.info("Write response");
     boolean keepAlive = isKeepAlive(request);
-    responseContentBuilder.append("{\"result\": true}");
+    responseContentBuilder.append("{\"result\": true, \"hashKey\": \""
+        + this.messageObject.getHashKey() + "\"}");
     FullHttpResponse response =
         new DefaultFullHttpResponse(HTTP_1_1, status, Unpooled.copiedBuffer(
             responseContentBuilder.toString(), CharsetUtil.UTF_8));
