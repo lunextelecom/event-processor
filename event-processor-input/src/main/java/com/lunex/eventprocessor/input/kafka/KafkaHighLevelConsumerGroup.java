@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  */
 public class KafkaHighLevelConsumerGroup {
 
-  static final Logger logger = LoggerFactory.getLogger(KafkaProducer.class);
+  static final Logger logger = LoggerFactory.getLogger(KafkaHighLevelConsumerGroup.class);
 
   private final ConsumerConnector consumer;
   private ExecutorService executor;

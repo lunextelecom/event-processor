@@ -10,7 +10,7 @@ import kafka.message.MessageAndMetadata;
 
 public class KafkaComsumerProcessorThread implements Runnable {
   
-  static final Logger logger = LoggerFactory.getLogger(KafkaProducer.class);
+  static final Logger logger = LoggerFactory.getLogger(KafkaComsumerProcessorThread.class);
   
   private KafkaStream<byte[], byte[]> kafkaStream;
   private int threadNumber;
