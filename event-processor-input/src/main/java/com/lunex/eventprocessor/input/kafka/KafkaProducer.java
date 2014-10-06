@@ -21,15 +21,23 @@ import kafka.serializer.StringEncoder;
 
 /**
  * 
- * Class Kafka producer to send message to kafka 
+ * Class Kafka producer to send message to kafka
  *
  */
 public class KafkaProducer {
 
   static final Logger logger = LoggerFactory.getLogger(KafkaProducer.class);
-  
+
   private Producer<String, byte[]> producer;
 
+  /**
+   * Constructor
+   * 
+   * @param listBroker : list node of kafka
+   * @param serializerForKey: serializer for Key
+   * @param partitionerClass: partition Class
+   * @param async : default true
+   */
   public KafkaProducer(List<String> listBroker, String serializerForKey, String partitionerClass,
       boolean async) {
 
@@ -48,6 +56,14 @@ public class KafkaProducer {
     producer = new Producer<String, byte[]>(config);
   }
 
+  /**
+   * Send Data as a String message
+   * 
+   * @param topicName
+   * @param key
+   * @param message
+   * @throws Exception
+   */
   public void sendData(String topicName, String key, String message) throws Exception {
     if (Constant.EMPTY_STRING.equals(topicName)) {
       throw new InternalServerErrorException(new Throwable("Topic name is empty"));
@@ -63,6 +79,14 @@ public class KafkaProducer {
     }
   }
 
+  /**
+   * Send data as a netty ByteBuf
+   * 
+   * @param topicName
+   * @param key
+   * @param byteBuf
+   * @throws Exception
+   */
   public void sendData(String topicName, String key, ByteBuf byteBuf) throws Exception {
     if (Constant.EMPTY_STRING.equals(topicName)) {
       throw new InternalServerErrorException(new Throwable("Topic name is empty"));
@@ -77,6 +101,14 @@ public class KafkaProducer {
     }
   }
 
+  /**
+   * Send message as a byte array
+   * 
+   * @param topicName
+   * @param key
+   * @param byteBuf
+   * @throws Exception
+   */
   public void sendData(String topicName, String key, byte[] byteBuf) throws Exception {
     if (Constant.EMPTY_STRING.equals(topicName)) {
       throw new InternalServerErrorException(new Throwable("Topic name is empty"));
