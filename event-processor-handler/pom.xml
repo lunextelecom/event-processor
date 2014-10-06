@@ -8,8 +8,14 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>event-processor-handler</artifactId>
-
-
+    <dependencies>
+        <dependency>
+            <groupId>com.lunex.eventprocessor</groupId>
+            <artifactId>event-processor-core</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/../event-processor-core/target/event-processor-core-1.0-SNAPSHOT.jar</systemPath>
+        </dependency>
+    </dependencies>
 </project>
