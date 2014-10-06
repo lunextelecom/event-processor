@@ -10,8 +10,8 @@ public class ASCIIPartitionerTest {
   @Test
   public void testPartition() {
     ASCIIPartitioner aSCIIPartitioner = new ASCIIPartitioner(new VerifiableProperties());
-    int partitionIndex = aSCIIPartitioner.partition("ac", 5);
-    assertEquals(1, partitionIndex);
+    int partitionIndex = aSCIIPartitioner.partition("new-order", 5);
+    assertEquals(0, partitionIndex);
   }
 
 }

@@ -15,6 +15,7 @@ public class ASCIIPartitioner implements Partitioner {
     for (char c : ((String) key).toCharArray()) {
       total += (int) c;
     }
-    return total % countPartitions;
+    int partitionIndex = total % countPartitions;
+    return partitionIndex;
   }
 }
