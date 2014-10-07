@@ -1,4 +1,4 @@
-package com.lunex.eventprocessor.handler.reader;
+package com.lunex.eventprocessor.handler.processor;
 
 import com.lunex.eventprocessor.core.Event;
 

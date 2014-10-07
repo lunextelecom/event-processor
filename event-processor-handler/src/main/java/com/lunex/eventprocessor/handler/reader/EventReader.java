@@ -1,6 +1,7 @@
 package com.lunex.eventprocessor.handler.reader;
 
 import com.lunex.eventprocessor.core.Event;
+import com.lunex.eventprocessor.handler.processor.EventConsumer;
 
 public interface EventReader {
   /**

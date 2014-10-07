@@ -1,4 +1,6 @@
-package com.lunex.eventprocessor.handler.reader;
+package com.lunex.eventprocessor.handler.processor;
+
+import com.lunex.eventprocessor.handler.reader.QueryHierarchy;
 
 public interface Processor extends EventConsumer {
   
