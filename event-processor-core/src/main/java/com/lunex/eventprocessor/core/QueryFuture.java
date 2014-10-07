@@ -1,7 +1,7 @@
 package com.lunex.eventprocessor.core;
 
 public class QueryFuture {
-  Object[] getValue() {
+  public Object[] getValue() {
     return null;
   }
 }

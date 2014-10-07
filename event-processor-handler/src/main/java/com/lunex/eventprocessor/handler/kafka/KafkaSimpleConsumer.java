@@ -19,6 +19,7 @@ import kafka.message.MessageAndOffset;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -139,7 +140,8 @@ public class KafkaSimpleConsumer {
       for (MessageAndOffset messageAndOffset : fetchResponse.messageSet(topicName, partitionIndex)) {
         long currentOffset = messageAndOffset.offset();
         if (currentOffset < readOffset) {
-          //System.out.println("Found an old offset: " + currentOffset + " Expecting: " + readOffset);
+          // System.out.println("Found an old offset: " + currentOffset + " Expecting: " +
+          // readOffset);
           logger.info("Found an old offset: " + currentOffset + " Expecting: " + readOffset);
           continue;
         }
@@ -154,7 +156,7 @@ public class KafkaSimpleConsumer {
         byte[] bytes = new byte[payload.limit()];
         payload.get(bytes);
         String content = new String(bytes, "UTF-8");
-        //System.out.println(String.valueOf(messageAndOffset.offset()) + ": " + content);
+        // System.out.println(String.valueOf(messageAndOffset.offset()) + ": " + content);
         logger.info(String.valueOf(messageAndOffset.offset()) + ": " + content);
 
         // TODO something with message
@@ -296,17 +298,27 @@ public class KafkaSimpleConsumer {
     List<String> listBrokers = new ArrayList<String>();
     listBrokers.add("192.168.93.38:9092");
     listBrokers.add("192.168.93.39:9092");
-    KafkaSimpleConsumer example = new KafkaSimpleConsumer(listBrokers, "testKafka", 4, -1, new IKafkaMessageProcessor() {
-      
-      public Object processMessage(byte[] message) {
-        try {
-          System.out.println("Message content: " + new String(message, "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-          e.printStackTrace();
-        }
-        return null;
-      }
-    });
+    KafkaSimpleConsumer example =
+        new KafkaSimpleConsumer(listBrokers, "testKafka", 0, -1, new IKafkaMessageProcessor() {
+
+          public Object processMessage(byte[] message) {
+            try {
+              int contentType = (int)message[0];
+              switch (contentType) {
+                case 1:// JSON
+                  System.out.println("JSon");
+                  break;
+                default:
+                  break;
+              }
+              message = Arrays.copyOfRange(message, 1, message.length);
+              System.out.println("Message content: " + new String(message, "UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+              e.printStackTrace();
+            }
+            return null;
+          }
+        });
 
     try {
       example.readKafka(kafka.api.OffsetRequest.LatestTime());

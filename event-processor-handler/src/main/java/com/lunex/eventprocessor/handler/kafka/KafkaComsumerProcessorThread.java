@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 
 import kafka.consumer.ConsumerIterator;
 import kafka.consumer.KafkaStream;
-import kafka.message.Message;
 import kafka.message.MessageAndMetadata;
 
 public class KafkaComsumerProcessorThread implements Runnable {
