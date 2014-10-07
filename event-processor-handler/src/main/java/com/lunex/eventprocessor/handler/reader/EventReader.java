@@ -2,7 +2,7 @@ package com.lunex.eventprocessor.handler.reader;
 
 import com.lunex.eventprocessor.core.bean.Event;
 
-public interface IEventReader {
+public interface EventReader {
   /**
    * Read a single message, may not be supported by all reader
    * 
@@ -16,7 +16,7 @@ public interface IEventReader {
    * 
    * @param consumer
    */
-  public void read(IEventConsumer consumer);
+  public void read(EventConsumer consumer);
 
   /**
    * used to stop the read

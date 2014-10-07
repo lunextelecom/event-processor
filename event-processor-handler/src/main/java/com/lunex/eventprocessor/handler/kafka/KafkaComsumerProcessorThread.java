@@ -13,9 +13,9 @@ public class KafkaComsumerProcessorThread implements Runnable {
   
   private KafkaStream<byte[], byte[]> kafkaStream;
   private int threadNumber;
-  private IKafkaMessageProcessor processorMessage;
+  private KafkaMessageProcessor processorMessage;
 
-  public KafkaComsumerProcessorThread(KafkaStream<byte[], byte[]> kafkaStream, int threadNumber, IKafkaMessageProcessor processorMessage) {
+  public KafkaComsumerProcessorThread(KafkaStream<byte[], byte[]> kafkaStream, int threadNumber, KafkaMessageProcessor processorMessage) {
     this.threadNumber = threadNumber;
     this.kafkaStream = kafkaStream;
     this.processorMessage = processorMessage;

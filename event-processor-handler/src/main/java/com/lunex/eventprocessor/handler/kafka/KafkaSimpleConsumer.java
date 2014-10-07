@@ -41,7 +41,7 @@ public class KafkaSimpleConsumer {
   private int partitionIndex;
   private int maxReads = -1; // -1 -> no limit
   private int maxError = 5;
-  private IKafkaMessageProcessor processorMessage;
+  private KafkaMessageProcessor processorMessage;
 
   public int getMaxError() {
     return maxError;
@@ -60,7 +60,7 @@ public class KafkaSimpleConsumer {
    * @param maxReads: -1 is unlimit > -1 is limit to read message from partion of topic
    */
   public KafkaSimpleConsumer(List<String> listBroker, String topicName, int partitionIndex,
-      int maxReads, IKafkaMessageProcessor processorMessage) {
+      int maxReads, KafkaMessageProcessor processorMessage) {
     this.replicaBrokersList = listBroker;
     this.topicName = topicName;
     this.partitionIndex = partitionIndex;
@@ -299,7 +299,7 @@ public class KafkaSimpleConsumer {
     listBrokers.add("192.168.93.38:9092");
     listBrokers.add("192.168.93.39:9092");
     KafkaSimpleConsumer example =
-        new KafkaSimpleConsumer(listBrokers, "testKafka", 0, -1, new IKafkaMessageProcessor() {
+        new KafkaSimpleConsumer(listBrokers, "testKafka", 0, -1, new KafkaMessageProcessor() {
 
           public Object processMessage(byte[] message) {
             try {

@@ -26,7 +26,7 @@ public class KafkaHighLevelConsumerGroup {
 
   private final ConsumerConnector consumer;
   private ExecutorService executor;
-  private IKafkaMessageProcessor processorMessage;
+  private KafkaMessageProcessor processorMessage;
 
   /**
    * Contructor
@@ -40,7 +40,7 @@ public class KafkaHighLevelConsumerGroup {
    *        will get replayed messages.
    */
   public KafkaHighLevelConsumerGroup(String zookeeper, String groupId, int numThreads,
-      IKafkaMessageProcessor processorMessage, int autoCommitInterval) {
+      KafkaMessageProcessor processorMessage, int autoCommitInterval) {
     ConsumerConfig config = this.createConsumerConfig(zookeeper, groupId, autoCommitInterval);
     this.consumer = Consumer.createJavaConsumerConnector(config);
     this.processorMessage = processorMessage;
@@ -111,7 +111,7 @@ public class KafkaHighLevelConsumerGroup {
 
     KafkaHighLevelConsumerGroup example =
         new KafkaHighLevelConsumerGroup(zooKeeper, groupId, numThreads,
-            new IKafkaMessageProcessor() {
+            new KafkaMessageProcessor() {
 
               public Object processMessage(byte[] message) {
                 try {
