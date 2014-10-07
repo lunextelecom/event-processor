@@ -1,4 +1,4 @@
-package com.lunex.eventprocessor.input.beans;
+package com.lunex.eventprocessor.input;
 
 public class UdpMessageObject {
 

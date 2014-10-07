@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.lunex.eventprocessor.input.App;
-import com.lunex.eventprocessor.input.beans.Seq;
+import com.lunex.eventprocessor.input.Seq;
 
 /**
  * Class handle seq of event

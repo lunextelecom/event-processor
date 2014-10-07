@@ -4,8 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.lunex.eventprocessor.input.App;
-import com.lunex.eventprocessor.input.beans.Seq;
-import com.lunex.eventprocessor.input.beans.UdpMessageObject;
+import com.lunex.eventprocessor.input.Seq;
+import com.lunex.eventprocessor.input.UdpMessageObject;
 import com.lunex.eventprocessor.input.enums.EContentType;
 import com.lunex.eventprocessor.input.exception.BadRequestException;
 import com.lunex.eventprocessor.input.exception.InternalServerErrorException;

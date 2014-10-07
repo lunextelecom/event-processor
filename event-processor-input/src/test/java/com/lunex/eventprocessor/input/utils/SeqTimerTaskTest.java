@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import com.lunex.eventprocessor.input.beans.Seq;
+import com.lunex.eventprocessor.input.Seq;
 
 public class SeqTimerTaskTest {
 
