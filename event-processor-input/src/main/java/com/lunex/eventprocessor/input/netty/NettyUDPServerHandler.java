@@ -21,7 +21,7 @@ import io.netty.channel.socket.DatagramPacket;
 import io.netty.util.CharsetUtil;
 
 /**
- * Netty UDP server handler - process message 
+ * Netty UDP server handler - process message
  *
  */
 public class NettyUDPServerHandler extends SimpleChannelInboundHandler<DatagramPacket> {
@@ -95,6 +95,7 @@ public class NettyUDPServerHandler extends SimpleChannelInboundHandler<DatagramP
 
   /**
    * Send message to kafka
+   * 
    * @param ctx
    */
   private void sendKafka(ChannelHandlerContext ctx) {
@@ -153,7 +154,7 @@ public class NettyUDPServerHandler extends SimpleChannelInboundHandler<DatagramP
     // send kafka
     try {
       App.kafkaProducer.sendData(Configuration.kafkaTopic, eventName,
-          this.messageObject.getPayLoad());
+          this.messageObject.getPayLoad(), eContentType);
       this.messageObject.setHashKey(this.messageObject.getPayLoad());
     } catch (Exception ex) {
       isException = true;
@@ -166,8 +167,8 @@ public class NettyUDPServerHandler extends SimpleChannelInboundHandler<DatagramP
     if (isException) {
       exceptionCaught(ctx, exception);
     } else {
-      ctx.write(new DatagramPacket(Unpooled.copiedBuffer("{\"result\": true, \"hashKey\": \"" + this.messageObject.getHashKey() + "\"}", CharsetUtil.UTF_8), this.packet
-          .sender()));
+      ctx.write(new DatagramPacket(Unpooled.copiedBuffer("{\"result\": true, \"hashKey\": \""
+          + this.messageObject.getHashKey() + "\"}", CharsetUtil.UTF_8), this.packet.sender()));
     }
   }
 

@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
+import com.lunex.eventprocessor.input.enums.EContentType;
 import com.lunex.eventprocessor.input.exception.InternalServerErrorException;
 import com.lunex.eventprocessor.input.utils.Constant;
 
@@ -64,12 +65,14 @@ public class KafkaProducer {
    * @param message
    * @throws Exception
    */
-  public void sendData(String topicName, String key, String message) throws Exception {
+  public void sendData(String topicName, String key, String message, EContentType contentType)
+      throws Exception {
     if (Constant.EMPTY_STRING.equals(topicName)) {
       throw new InternalServerErrorException(new Throwable("Topic name is empty"));
     }
     try {
       byte[] byteArray = message.getBytes(CharsetUtil.UTF_8);
+      byteArray = this.addByteContentType(byteArray, contentType);
       KeyedMessage<String, byte[]> data =
           new KeyedMessage<String, byte[]>(topicName, key, byteArray);
       producer.send(data);
@@ -87,13 +90,16 @@ public class KafkaProducer {
    * @param byteBuf
    * @throws Exception
    */
-  public void sendData(String topicName, String key, ByteBuf byteBuf) throws Exception {
+  public void sendData(String topicName, String key, ByteBuf byteBuf, EContentType contentType)
+      throws Exception {
     if (Constant.EMPTY_STRING.equals(topicName)) {
       throw new InternalServerErrorException(new Throwable("Topic name is empty"));
     }
     try {
+      byte[] byteArray = byteBuf.array();
+      byteArray = this.addByteContentType(byteArray, contentType);
       KeyedMessage<String, byte[]> data =
-          new KeyedMessage<String, byte[]>(topicName, key, byteBuf.array());
+          new KeyedMessage<String, byte[]>(topicName, key, byteArray);
       producer.send(data);
     } catch (Exception ex) {
       logger.error(ex.getMessage());
@@ -109,12 +115,15 @@ public class KafkaProducer {
    * @param byteBuf
    * @throws Exception
    */
-  public void sendData(String topicName, String key, byte[] byteBuf) throws Exception {
+  public void sendData(String topicName, String key, byte[] byteBuf, EContentType contentType)
+      throws Exception {
     if (Constant.EMPTY_STRING.equals(topicName)) {
       throw new InternalServerErrorException(new Throwable("Topic name is empty"));
     }
     try {
-      KeyedMessage<String, byte[]> data = new KeyedMessage<String, byte[]>(topicName, key, byteBuf);
+      byte[] byteArray = byteBuf;
+      byteArray = this.addByteContentType(byteArray, contentType);
+      KeyedMessage<String, byte[]> data = new KeyedMessage<String, byte[]>(topicName, key, byteArray);
       producer.send(data);
     } catch (Exception ex) {
       logger.error(ex.getMessage());
@@ -126,6 +135,21 @@ public class KafkaProducer {
     this.producer.close();
   }
 
+  public byte[] addByteContentType(byte[] payload, EContentType contentType) {
+    byte[] newPayload = new byte[payload.length + 1];
+    switch (contentType) {
+      case JSONType:
+        newPayload[0] = (byte) 1;
+        break;
+      default:
+        break;
+    }
+    for (int i = 0; i < payload.length; i++) {
+      newPayload[i + 1] = payload[i];
+    }
+    return newPayload;
+  }
+
   public static void main(String[] agrs) {
     List<String> a = new ArrayList<String>();
     a.add("192.168.93.38:9092");
@@ -134,7 +158,7 @@ public class KafkaProducer {
         new KafkaProducer(a, StringEncoder.class.getName(), HashCodePartitioner.class.getName(),
             true);
     try {
-      producer.sendData("testKafka", "new-order", "asssbc");
+      producer.sendData("testKafka", "new-order", "kkk", EContentType.JSONType);
     } catch (Exception e) {
       e.printStackTrace();
     }

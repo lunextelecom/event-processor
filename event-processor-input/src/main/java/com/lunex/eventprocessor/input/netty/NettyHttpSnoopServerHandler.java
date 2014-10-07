@@ -190,7 +190,7 @@ public class NettyHttpSnoopServerHandler extends SimpleChannelInboundHandler<Htt
 
     // send kafka
     try {
-      App.kafkaProducer.sendData(Configuration.kafkaTopic, eventName, this.messageObject.getBody());
+      App.kafkaProducer.sendData(Configuration.kafkaTopic, eventName, this.messageObject.getBody(), contentType);
       this.messageObject.setHashKey(StringUtils.md5Java(this.messageObject.getBody()));
     } catch (Exception ex) {
       isException = true;
