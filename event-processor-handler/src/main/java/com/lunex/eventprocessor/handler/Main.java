@@ -15,20 +15,19 @@ public class Main {
 
 
   public static void main(String[] argv){
-    //sample here
-    //should pass in configuration
+    //sample here, this code should be put into factory function
+    //should pass in configuration for KafkaReader
+    //EventQuery should be read from datastore
 
     EventReader reader = new KafkaReader();
 
     Processor processor = new EsperProcessor();
     EventQuery query = new EventQuery();
-    QueryFuture rs = processor.addQuery("new_order", query);
-    processor.bindOutput(rs, new ResultListener[] {new ConsoleOutput()});
-
+    QueryHierarchy hierarchy = new QueryHierarchy();
+    hierarchy.addQuery("new_order", query, new ResultListener[] {new ConsoleOutput()});
+    processor.setHierarchy(hierarchy);
 
     reader.read(processor);
-
-
 
   }
 

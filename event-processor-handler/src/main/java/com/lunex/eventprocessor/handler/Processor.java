@@ -11,13 +11,8 @@ import java.util.Map;
  */
 public interface Processor extends EventConsumer {
 
-  public QueryFuture addQuery(String evtName, EventQuery query);
+  public QueryHierarchy getHierarchy();
 
-  public Map<String, Map<EventQuery, ResultListener>> getHierarchy();
-
-  public QueryFuture getFuture(EventQuery query);
-
-  public void bindOutput(QueryFuture future, ResultListener[] output);
-
+  public void setHierarchy(QueryHierarchy hierarchy);
 
 }
