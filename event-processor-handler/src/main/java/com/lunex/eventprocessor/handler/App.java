@@ -5,9 +5,6 @@ import java.util.Properties;
 
 import org.apache.log4j.PropertyConfigurator;
 
-import com.lunex.eventprocessor.handler.continuousquery.EventProcessorHandler;
-import com.lunex.eventprocessor.handler.kafka.IKafkaMessageProcessor;
-import com.lunex.eventprocessor.handler.kafka.KafkaSimpleConsumer;
 import com.lunex.eventprocessor.handler.utils.Configuration;
 
 /**
@@ -15,8 +12,6 @@ import com.lunex.eventprocessor.handler.utils.Configuration;
  *
  */
 public class App {
-
-  public static EventProcessorHandler eventHandler;
 
   public static void main(String[] args) {
     System.out.println("Hello World!");
@@ -29,8 +24,6 @@ public class App {
       // Load config
       Configuration.getPropertiesValues("src/main/resources/app.properties");
 
-      eventHandler = new EventProcessorHandler();
-      eventHandler.loadEPLRuntime("eventProcessor");
     } catch (Exception ex) {
     }
   }
