@@ -123,7 +123,8 @@ public class KafkaProducer {
     try {
       byte[] byteArray = byteBuf;
       byteArray = this.addByteContentType(byteArray, contentType);
-      KeyedMessage<String, byte[]> data = new KeyedMessage<String, byte[]>(topicName, key, byteArray);
+      KeyedMessage<String, byte[]> data =
+          new KeyedMessage<String, byte[]>(topicName, key, byteArray);
       producer.send(data);
     } catch (Exception ex) {
       logger.error(ex.getMessage());
@@ -135,6 +136,13 @@ public class KafkaProducer {
     this.producer.close();
   }
 
+  /**
+   * Add 1 byte for payload to send content-type to consumer
+   * 
+   * @param payload
+   * @param contentType
+   * @return
+   */
   public byte[] addByteContentType(byte[] payload, EContentType contentType) {
     byte[] newPayload = new byte[payload.length + 1];
     switch (contentType) {
@@ -144,7 +152,7 @@ public class KafkaProducer {
       default:
         break;
     }
-    for (int i = 0; i < payload.length; i++) {
+    for (int i = 0, length = payload.length; i < length; i++) {
       newPayload[i + 1] = payload[i];
     }
     return newPayload;
