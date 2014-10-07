@@ -54,11 +54,9 @@ public class NettyHttpSnoopServerHandler extends SimpleChannelInboundHandler<Htt
 
   private Boolean isException = false;
   private Exception exception;
-  private final StringBuilder responseContentBuilder = new StringBuilder();
 
   private HttpRequest request;
   private HttpMessageObject messageObject;
-  private HttpResponseStatus status = OK;
 
   public NettyHttpSnoopServerHandler() {
 
@@ -190,7 +188,8 @@ public class NettyHttpSnoopServerHandler extends SimpleChannelInboundHandler<Htt
 
     // send kafka
     try {
-      App.kafkaProducer.sendData(Configuration.kafkaTopic, eventName, this.messageObject.getBody(), contentType);
+      App.kafkaProducer.sendData(Configuration.kafkaTopic, eventName, this.messageObject.getBody(),
+          contentType);
       this.messageObject.setHashKey(StringUtils.md5Java(this.messageObject.getBody()));
     } catch (Exception ex) {
       isException = true;
@@ -210,10 +209,11 @@ public class NettyHttpSnoopServerHandler extends SimpleChannelInboundHandler<Htt
   private boolean writeResponse(ChannelHandlerContext ctx) {
     logger.info("Write response");
     boolean keepAlive = isKeepAlive(request);
+    StringBuilder responseContentBuilder = new StringBuilder();
     responseContentBuilder.append("{\"result\": true, \"hashKey\": \""
         + this.messageObject.getHashKey() + "\"}");
     FullHttpResponse response =
-        new DefaultFullHttpResponse(HTTP_1_1, status, Unpooled.copiedBuffer(
+        new DefaultFullHttpResponse(HTTP_1_1, OK, Unpooled.copiedBuffer(
             responseContentBuilder.toString(), CharsetUtil.UTF_8));
     logger.info("Final content:" + responseContentBuilder.toString());
     response.headers().set(CONTENT_TYPE, EContentType.JSONType.toString());

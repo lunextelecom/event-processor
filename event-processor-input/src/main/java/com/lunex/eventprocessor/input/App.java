@@ -34,11 +34,11 @@ public class App {
     try {
       // load log properties
       Properties props = new Properties();
-      props.load(new FileInputStream("../resources/log4j.properties"));
+      props.load(new FileInputStream("src/main/resources/log4j.properties"));
       PropertyConfigurator.configure(props);
 
       // Load config
-      Configuration.getPropertiesValues("../resources/app.properties");
+      Configuration.getPropertiesValues("src/main/resources/app.properties");
 
       // start netty server
       App.startHttpServer();
