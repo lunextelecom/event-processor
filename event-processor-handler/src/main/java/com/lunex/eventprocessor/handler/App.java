@@ -32,13 +32,18 @@ public class App {
       // Load config
       Configuration.getPropertiesValues("src/main/resources/app.properties");
 
-      EventReader reader = new KafkaReader();
+      // create event reader
+      EventReader reader = new KafkaReader(-1);
+
       Processor processor = new EsperProcessor();
       EventQuery query = new EventQuery();
       QueryHierarchy hierarchy = new QueryHierarchy();
       hierarchy.addQuery("new_order", query, new ResultListener[] {new ConsoleOutput()});
       processor.setHierarchy(hierarchy);
+
+      // reader read event and send to processor
       reader.read(processor);
+
     } catch (Exception ex) {
     }
   }

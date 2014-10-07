@@ -42,6 +42,7 @@ public class KafkaSimpleConsumer {
   private int maxReads = -1; // -1 -> no limit
   private int maxError = 5;
   private KafkaMessageProcessor processorMessage;
+  public boolean stoped = false;
 
   public int getMaxError() {
     return maxError;
@@ -105,6 +106,9 @@ public class KafkaSimpleConsumer {
     int numErrors = 0;
     boolean unlimit = maxReads == -1;
     while (maxReads > 0 || unlimit) {
+      if (stoped == true) {
+        break;
+      }
       if (consumer == null) {// create consumer again from new other leader if fetchResponse error
         consumer = new SimpleConsumer(leadHost, port, 100000, 64 * 1024, clientName);
       }

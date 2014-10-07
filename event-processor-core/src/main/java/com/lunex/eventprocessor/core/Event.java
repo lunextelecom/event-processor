@@ -59,4 +59,9 @@ public class Event implements Serializable {
   public void setEvent(Map<String, Object> event) {
     this.event = event;
   }
+
+  @Override
+  public String toString() {
+    return "time: " + this.time + ", name: " + this.name + ", event: " + this.event.toString();
+  }
 }
