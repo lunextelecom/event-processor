@@ -121,7 +121,7 @@ function bool add_and_check(event)
 POST /event?evtname=&parm1=&param2=..&result=true
 ```
 ### Handler
-Handler will handle the actual work of computing result, saving display data.  Handler is a standalone process.
+Handler will handle the actual work of computing result, saving display data.  Handler is a standalone application that reads from Kakfa.  There will be n number of Handler running to match the number of Kakfa partitions.
 
 Life Cycle
 
