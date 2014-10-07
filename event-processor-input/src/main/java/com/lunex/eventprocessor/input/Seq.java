@@ -2,15 +2,15 @@ package com.lunex.eventprocessor.input;
 
 public class Seq {
 
-  private Long seq;
+  private long seq;
   private String eventName;
-  private Long time; // by mili sec
+  private long time; // by mili sec
 
-  public Long getSeq() {
+  public long getSeq() {
     return seq;
   }
 
-  public void setSeq(Long seq) {
+  public void setSeq(long seq) {
     this.seq = seq;
   }
 
@@ -22,17 +22,17 @@ public class Seq {
     this.eventName = eventName;
   }
 
-  public Seq(Long seq, String eventName, Long time) {
+  public Seq(long seq, String eventName, long time) {
     this.seq = seq;
     this.eventName = eventName;
     this.time = time;
   }
 
-  public Long getTime() {
+  public long getTime() {
     return time;
   }
 
-  public void setTime(Long time) {
+  public void setTime(long time) {
     this.time = time;
   }
 

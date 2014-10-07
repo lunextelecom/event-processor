@@ -61,8 +61,7 @@ public class SeqTimerTask extends TimerTask {
       if (seqTemp == null) {
         return false;
       }
-      if (seq.getEventName().equals(seqTemp.getEventName())
-          && seq.getSeq().equals(seqTemp.getSeq())) {
+      if (seq.getEventName().equals(seqTemp.getEventName()) && seq.getSeq() == seqTemp.getSeq()) {
         return true;
       }
     }

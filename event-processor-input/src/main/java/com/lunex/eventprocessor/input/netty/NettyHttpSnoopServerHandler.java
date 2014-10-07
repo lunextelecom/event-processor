@@ -52,7 +52,7 @@ public class NettyHttpSnoopServerHandler extends SimpleChannelInboundHandler<Htt
 
   static final Logger logger = LoggerFactory.getLogger(NettyHttpSnoopServerHandler.class);
 
-  private Boolean isException = false;
+  private boolean isException = false;
   private Exception exception;
 
   private HttpRequest request;
