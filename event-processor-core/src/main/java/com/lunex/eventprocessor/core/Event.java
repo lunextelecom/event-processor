@@ -1,4 +1,4 @@
-package com.lunex.eventprocessor.core.bean;
+package com.lunex.eventprocessor.core;
 
 import java.io.Serializable;
 import java.util.HashMap;

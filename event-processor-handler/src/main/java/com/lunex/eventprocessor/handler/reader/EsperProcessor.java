@@ -1,6 +1,6 @@
 package com.lunex.eventprocessor.handler.reader;
 
-import com.lunex.eventprocessor.core.bean.Event;
+import com.lunex.eventprocessor.core.Event;
 
 public class EsperProcessor implements Processor {
   
