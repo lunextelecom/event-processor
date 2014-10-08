@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-public class Configuration {
+public class Configurations {
 
   public static List<String> listZookeeper = new ArrayList<String>();
   public static List<String> kafkaCluster = new ArrayList<String>();
