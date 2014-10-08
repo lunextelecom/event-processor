@@ -27,6 +27,7 @@ import com.datastax.driver.core.policies.ConstantReconnectionPolicy;
 import com.datastax.driver.core.policies.DowngradingConsistencyRetryPolicy;
 import com.google.common.base.Strings;
 import com.lunex.eventprocessor.core.Event;
+import com.lunex.eventprocessor.core.EventProperty;
 import com.lunex.eventprocessor.core.EventQuery;
 import com.lunex.eventprocessor.core.utils.Constants;
 
@@ -163,6 +164,7 @@ public class CassandraRepository {
         results = new ArrayList<EventQuery>();
       }
       eventQuery = new EventQuery();
+      eventQuery.setEventName(row.getString("event_name"));
       eventQuery.setData(row.getString("data"));
       eventQuery.setFields(row.getString("fields"));
       eventQuery.setFilters(row.getString("filters"));
@@ -170,8 +172,8 @@ public class CassandraRepository {
       eventQuery.setTimeSeries(row.getString("time_series"));
       results.add(eventQuery);
     }
-    return null;
-  }
+    return results;
+  } 
 
   /**
    * Execute non query

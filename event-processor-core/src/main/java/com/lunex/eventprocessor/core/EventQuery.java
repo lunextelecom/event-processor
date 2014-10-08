@@ -6,6 +6,7 @@ package com.lunex.eventprocessor.core;
  */
 public class EventQuery {
 
+  private String eventName;
   private String data;
   private String fields;
   private String filters;
@@ -54,5 +55,13 @@ public class EventQuery {
 
   public void setTimeSeries(String timeSeries) {
     this.timeSeries = timeSeries;
+  }
+
+  public String getEventName() {
+    return eventName;
+  }
+
+  public void setEventName(String eventName) {
+    this.eventName = eventName;
   }
 }
