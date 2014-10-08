@@ -22,7 +22,7 @@ public class QueryFuture {
    * @return array of object
    */
   public Object[] getValues() {
-    return null;
+    return values;
   }
 
   public EventQuery getEventQuery() {

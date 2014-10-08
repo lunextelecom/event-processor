@@ -54,12 +54,13 @@ public class KafkaReader implements EventReader {
               try {
                 kafkaConsumer.readKafka(kafka.api.OffsetRequest.LatestTime());
               } catch (Exception e) {
+                logger.error("Function read: " + e.getMessage());
               }
             }
           });
           thread.start();
         } catch (Exception e) {
-          logger.error(e.getMessage());
+          logger.error("Function read: " + e.getMessage());
         }
       }
     } else {
@@ -86,6 +87,12 @@ public class KafkaReader implements EventReader {
     }
   }
 
+  /**
+   * Send message event to Consumer to consume event
+   * 
+   * @param message
+   * @param consumer
+   */
   public void sendEventToConsumer(byte[] message, final EventConsumer consumer) {
     Event event = null;
     byte contentype = message[0];

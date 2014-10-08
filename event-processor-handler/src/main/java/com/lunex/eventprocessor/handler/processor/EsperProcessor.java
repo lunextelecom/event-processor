@@ -66,6 +66,9 @@ public class EsperProcessor implements Processor {
   }
 
   public void consume(Event event) {
+    if (event == null) {
+      return;
+    }
     System.out.println("Start consume event:" + event.toString());
     sericeProvider.getEPRuntime().sendEvent(event.getEvent(), event.getEvtName());
   }

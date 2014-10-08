@@ -28,9 +28,8 @@ public class QueryHierarchy {
     Map<EventQuery, ResultListener[]> temp = hierarchy.get(evtName);
     if (temp == null) {
       temp = new HashMap<EventQuery, ResultListener[]>();
-    } else {
-      temp.put(query, outputs);
     }
+    temp.put(query, outputs);
     hierarchy.put(evtName, temp);
     return null;
   }
