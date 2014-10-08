@@ -27,6 +27,7 @@ Display: Handle by grafana via kairosdb protocol
 ```
 [ ] = Not done yet
 [S] = Specification, not yet implemented
+[W] = Work in progress
 [X] = Complete
 
 [X] Evaluate Influxdb.  Cluster Setup.  Replacing cluster node.
@@ -39,13 +40,13 @@ Display: Handle by grafana via kairosdb protocol
 [ ] Build phase 2 Final    
     [X] Evalute Esper. Benchmark using basic rule
     [ ] Components
-        [S] Input Buffer - Netty
-        [ ] Core
+        [X] Input Buffer - Netty
+        [W] Core
         	[ ] Rule			     
             [ ] Data Access
             	[ ] Rule            
             	[ ] Input, Result
-        [ ] Handler
+        [W] Handler
             [ ] Continuous Query(library or use esper)
             [ ] Output Handler            
         [ ] Display - Grafana ploting timeseries(kairosdb), Results(Annotation)
