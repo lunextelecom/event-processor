@@ -6,9 +6,13 @@ import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPAdministrator;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
+import com.espertech.esper.client.EPStatement;
+import com.espertech.esper.client.EventBean;
+import com.espertech.esper.client.UpdateListener;
 import com.lunex.eventprocessor.core.Event;
 import com.lunex.eventprocessor.core.EventProperty;
 import com.lunex.eventprocessor.core.EventQuery;
+import com.lunex.eventprocessor.core.utils.Constants;
 import com.lunex.eventprocessor.handler.reader.QueryHierarchy;
 
 public class EsperProcessor implements Processor {
@@ -29,10 +33,21 @@ public class EsperProcessor implements Processor {
     EventQuery eventQuery = null;
     for (int i = 0, size = listEventQuery.size(); i < size; i++) {
       eventQuery = listEventQuery.get(i);
-      admin.createEPL(String.format("SELECT %s FROM %s%s WHERE %s GROUP BY %s HAVING %s",
-          eventQuery.getFields(), eventQuery.getData(), ".win:time(" + eventQuery.getTimeSeries()
-              + ")", eventQuery.getFilters(), eventQuery.getAggregateField(),
-          eventQuery.getHaving()));
+      String timeSeries =
+          (Constants.EMPTY_STRING.equals(eventQuery.getTimeSeries())) ? "" : ".win:time("
+              + eventQuery.getTimeSeries() + ")";
+
+      EPStatement statement =
+          admin.createEPL(String.format("SELECT %s FROM %s%s WHERE %s GROUP BY %s HAVING %s",
+              eventQuery.getFields(), eventQuery.getData(), timeSeries, eventQuery.getFilters(),
+              eventQuery.getAggregateField(), eventQuery.getHaving()));
+
+      statement.addListener(new UpdateListener() {
+        public void update(EventBean[] newEvents, EventBean[] oldEvents) {
+          // TODO: trigger event and process
+          
+        }
+      });
     }
   }
 
@@ -42,10 +57,10 @@ public class EsperProcessor implements Processor {
   }
 
   public QueryHierarchy getHierarchy() {
-    return null;
+    return queryHierarchy;
   }
 
   public void setHierarchy(QueryHierarchy hierarchy) {
-    queryHierarchy = hierarchy;
+    this.queryHierarchy = hierarchy;
   }
 }

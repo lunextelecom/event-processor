@@ -3,13 +3,20 @@ package com.lunex.eventprocessor.handler.reader;
 import com.lunex.eventprocessor.core.EventQuery;
 import com.lunex.eventprocessor.core.QueryFuture;
 import com.lunex.eventprocessor.core.listener.ResultListener;
+
+import java.util.HashMap;
 import java.util.Map;
 
 /**
- * QueryHiearchy defines the Mapping of EventQuery and who is listening to it’s result
- *
+ * Provide relationship between evtname, EventQuery and ResultListender.
  */
 public class QueryHierarchy {
+
+  private Map<String, Map<EventQuery, ResultListener[]>> hierarchy;
+
+  public QueryHierarchy() {
+    this.hierarchy = new HashMap<String, Map<EventQuery, ResultListener[]>>();
+  }
 
   /**
    * add Query
@@ -20,6 +27,13 @@ public class QueryHierarchy {
    * @return
    */
   public QueryFuture addQuery(String evtName, EventQuery query, ResultListener[] outputs) {
+    Map<EventQuery, ResultListener[]> temp = hierarchy.get(evtName);
+    if (temp == null) {
+      temp = new HashMap<EventQuery, ResultListener[]>();
+    } else {
+      temp.put(query, outputs);
+    }
+    hierarchy.put(evtName, temp);
     return null;
   }
 
@@ -29,7 +43,7 @@ public class QueryHierarchy {
    * @return
    */
   public Map<String, Map<EventQuery, ResultListener[]>> getHierarchy() {
-    return null;
+    return hierarchy;
   }
 
   /**
@@ -39,14 +53,18 @@ public class QueryHierarchy {
    * @return
    */
   public QueryFuture getFuture(EventQuery query) {
-    return null;
+    return query.getFuture();
   }
 
   /**
-   * bindOutput
+   * bindOutput: RuleListener process QueryFuture
    * 
    * @param query
    * @param outputs
    */
-  public void bindOutput(QueryFuture query, ResultListener[] outputs) {}
+  public void bindOutput(QueryFuture query, ResultListener[] outputs) {
+    for (int i = 0, length = outputs.length; i < length; i++) {
+      outputs[i].onEvent(query);
+    }
+  }
 }

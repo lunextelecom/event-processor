@@ -3,6 +3,9 @@ package com.lunex.eventprocessor.handler.reader;
 import com.lunex.eventprocessor.core.Event;
 import com.lunex.eventprocessor.handler.processor.EventConsumer;
 
+/**
+ * Provide as input source for event that.
+ */
 public interface EventReader {
   /**
    * Read a single message, may not be supported by all reader

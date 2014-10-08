@@ -20,12 +20,14 @@ import com.lunex.eventprocessor.handler.reader.QueryHierarchy;
 import com.lunex.eventprocessor.handler.utils.Configurations;
 
 /**
- * Hello world!
- *
+ * Setup KafkaReader
+ * Setup EsperProcessor
  */
 public class App {
 
   public static List<EventProperty> listEventProperty;
+  public static QueryHierarchy hierarchy;
+
 
   public static void main(String[] args) {
     System.out.println("Hello World!");
@@ -48,15 +50,15 @@ public class App {
 
       // create processor
       Processor processor = new EsperProcessor(listEventProperty, listEventQuery);
+      hierarchy = new QueryHierarchy();
+      processor.setHierarchy(hierarchy);
       for (int i = 0; i < grouping.size(); i++) {
-        QueryHierarchy hierarchy = new QueryHierarchy();
         List<EventQuery> subList = grouping.get(i);
         for (int j = 0; j < subList.size(); j++) {
           EventQuery query = subList.get(j);
           hierarchy.addQuery(query.getEventName(), query,
               new ResultListener[] {new ConsoleOutput()});
         }
-        processor.setHierarchy(hierarchy);
       }
 
       // create event reader

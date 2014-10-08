@@ -25,6 +25,12 @@ public class Event implements Serializable {
     this.event = event;
   }
 
+  public Event(long time, String evtName, Map<String, Object> event) {
+    this.time = time;
+    this.evtName = evtName;
+    this.event = event;
+  }
+
   public Event(String jsonStr) {
     try {
       JSONObject jsonObject = new JSONObject(jsonStr);

@@ -3,6 +3,10 @@ package com.lunex.eventprocessor.handler.listener;
 import com.lunex.eventprocessor.core.QueryFuture;
 import com.lunex.eventprocessor.core.listener.ResultListener;
 
+
+/**
+ * Example console output writer
+ */
 public class ConsoleOutput implements ResultListener {
 
   public void onEvent(QueryFuture result) {

@@ -1,9 +1,15 @@
 package com.lunex.eventprocessor.core;
 
 /**
- * This is just a class used to represent the content of the Rules that is read from datastore. It
- * is not the actually esper query. It’s the pieces that we used to build the esper query
- */
+* SELECT [Fields] FROM [Data] WHERE [Filter] GROUP BY [AggregateField]
+* Query Parts
+* Data: raw incoming data or generated time series
+* AggregateField: Fields that are used to build aggregation of data.
+* Timeseries is a special function here to group data into timeseries.
+* Filter: conditions to filter data. =, !=, >=, <=, >, <, and, or
+* Field: field1, field2, or * for all
+* Field func: sum, max, min, first, last, avg, timeseries(timefield, size1, size2[optional])
+*/
 public class EventQuery {
 
   private String eventName;
@@ -14,7 +20,7 @@ public class EventQuery {
   private String having;
   private String timeSeries;
 
-  QueryFuture getFuture() {
+  public QueryFuture getFuture() {
     return null;
   }
 
