@@ -12,8 +12,9 @@ import com.espertech.esper.client.UpdateListener;
 import com.lunex.eventprocessor.core.Event;
 import com.lunex.eventprocessor.core.EventProperty;
 import com.lunex.eventprocessor.core.EventQuery;
+import com.lunex.eventprocessor.core.QueryFuture;
+import com.lunex.eventprocessor.core.QueryHierarchy;
 import com.lunex.eventprocessor.core.utils.Constants;
-import com.lunex.eventprocessor.handler.reader.QueryHierarchy;
 
 public class EsperProcessor implements Processor {
 
@@ -30,9 +31,8 @@ public class EsperProcessor implements Processor {
     sericeProvider = EPServiceProviderManager.getProvider("event-processor-engine", config);
 
     EPAdministrator admin = sericeProvider.getEPAdministrator();
-    EventQuery eventQuery = null;
     for (int i = 0, size = listEventQuery.size(); i < size; i++) {
-      eventQuery = listEventQuery.get(i);
+      final EventQuery eventQuery = listEventQuery.get(i);
       String timeSeries =
           (Constants.EMPTY_STRING.equals(eventQuery.getTimeSeries())) ? "" : ".win:time("
               + eventQuery.getTimeSeries() + ")";
@@ -45,7 +45,7 @@ public class EsperProcessor implements Processor {
       statement.addListener(new UpdateListener() {
         public void update(EventBean[] newEvents, EventBean[] oldEvents) {
           // TODO: trigger event and process
-          
+          QueryFuture queryFuture = new QueryFuture(newEvents, eventQuery);
         }
       });
     }

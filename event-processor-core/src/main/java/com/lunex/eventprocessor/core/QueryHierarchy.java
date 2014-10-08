@@ -1,7 +1,5 @@
-package com.lunex.eventprocessor.handler.reader;
+package com.lunex.eventprocessor.core;
 
-import com.lunex.eventprocessor.core.EventQuery;
-import com.lunex.eventprocessor.core.QueryFuture;
 import com.lunex.eventprocessor.core.listener.ResultListener;
 
 import java.util.HashMap;

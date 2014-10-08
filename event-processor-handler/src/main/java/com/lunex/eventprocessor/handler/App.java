@@ -8,6 +8,7 @@ import org.apache.log4j.PropertyConfigurator;
 
 import com.lunex.eventprocessor.core.EventProperty;
 import com.lunex.eventprocessor.core.EventQuery;
+import com.lunex.eventprocessor.core.QueryHierarchy;
 import com.lunex.eventprocessor.core.dataaccess.CassandraRepository;
 import com.lunex.eventprocessor.core.listener.ResultListener;
 import com.lunex.eventprocessor.core.utils.EventQueryProcessor;
@@ -16,7 +17,6 @@ import com.lunex.eventprocessor.handler.processor.EsperProcessor;
 import com.lunex.eventprocessor.handler.processor.Processor;
 import com.lunex.eventprocessor.handler.reader.EventReader;
 import com.lunex.eventprocessor.handler.reader.KafkaReader;
-import com.lunex.eventprocessor.handler.reader.QueryHierarchy;
 import com.lunex.eventprocessor.handler.utils.Configurations;
 
 /**
