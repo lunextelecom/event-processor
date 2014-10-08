@@ -68,7 +68,7 @@ public class CassandraRepository {
   private static CassandraRepository init(String serverIP, String keyspace) throws Exception {
     instance = new CassandraRepository();
     if (Strings.isNullOrEmpty(keyspace)) {
-      instance.keyspace = "http_proxy";
+      instance.keyspace = "event_processor";
     } else {
       instance.keyspace = keyspace.trim();
     }
@@ -96,21 +96,23 @@ public class CassandraRepository {
       keyspaceMetadata = metadata.getKeyspace(instance.keyspace);
     }
     if (metadata != null) {
+
       keyspaceMetadata = metadata.getKeyspace(instance.keyspace);
       if (keyspaceMetadata == null) {
         throw new UnsupportedOperationException("Can't find keyspace :" + instance.keyspace);
       }
-      if (keyspaceMetadata.getTable("logging") == null) {
+      if (keyspaceMetadata.getTable("rule") == null) {
         String sql =
             "CREATE TABLE "
                 + instance.keyspace
-                + ".logging (target text, url text, updateid timeuuid, client text, method text, request_header text, request_body text, response_body text, PRIMARY KEY (target, url, updateid)) WITH CLUSTERING ORDER BY (url ASC, updateid DESC)";
+                + ".rule (id uuid, event_name text, rule_name text, data text,  fields text, filters text, aggregate_field text, having text, time_series text, PRIMARY KEY (id, event_name, rule_name))";
         instance.session.execute(sql);
       }
-      if (keyspaceMetadata.getTable("endpoint") == null) {
+      if (keyspaceMetadata.getTable("event") == null) {
         String sql =
-            "CREATE TABLE " + instance.keyspace
-                + ".endpoint (target text, status int, updateid timeuuid, PRIMARY KEY (target))";
+            "CREATE TABLE "
+                + instance.keyspace
+                + ".time (time bigint, event_name text, event text, PRIMARY KEY (time, event_name))";
         instance.session.execute(sql);
       }
 
@@ -133,6 +135,15 @@ public class CassandraRepository {
       logger.error(ex.getMessage());
       return false;
     }
+  }
+
+  public void insertEventToDB(Event event) throws Exception {
+    String sql = "INSERT INTO event (time, event_name, event) VALUES (?, ?, ?);";
+    List<Object> params = new ArrayList<Object>();
+    params.add(event.getTime());
+    params.add(event.getEvtName());
+    params.add(event.getEvent());
+    execute(sql, params);
   }
 
   public List<EventQuery> getEventQueryFromDB(int id, String eventName, String ruleName)
@@ -173,7 +184,7 @@ public class CassandraRepository {
       results.add(eventQuery);
     }
     return results;
-  } 
+  }
 
   /**
    * Execute non query
