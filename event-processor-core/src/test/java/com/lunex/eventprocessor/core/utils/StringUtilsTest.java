@@ -42,7 +42,7 @@ public class StringUtilsTest extends TestCase {
     eventQuery.setTimeSeries(null);
     testData.add(eventQuery);
 
-    List<EventProperty> temp = StringUtils.processEventProperyForEventQuery(testData);
+    List<EventProperty> temp = EventQueryProcessor.processEventProperyForEventQuery(testData);
     
     assertEquals(temp.size(), 1);
   }

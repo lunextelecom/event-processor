@@ -1,25 +1,31 @@
 package com.lunex.eventprocessor.handler;
 
 import java.io.FileInputStream;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.log4j.PropertyConfigurator;
 
+import com.lunex.eventprocessor.core.EventProperty;
 import com.lunex.eventprocessor.core.EventQuery;
+import com.lunex.eventprocessor.core.dataaccess.CassandraRepository;
 import com.lunex.eventprocessor.core.listener.ResultListener;
+import com.lunex.eventprocessor.core.utils.EventQueryProcessor;
 import com.lunex.eventprocessor.handler.listener.ConsoleOutput;
 import com.lunex.eventprocessor.handler.processor.EsperProcessor;
 import com.lunex.eventprocessor.handler.processor.Processor;
 import com.lunex.eventprocessor.handler.reader.EventReader;
 import com.lunex.eventprocessor.handler.reader.KafkaReader;
 import com.lunex.eventprocessor.handler.reader.QueryHierarchy;
-import com.lunex.eventprocessor.handler.utils.Configuration;
+import com.lunex.eventprocessor.handler.utils.Configurations;
 
 /**
  * Hello world!
  *
  */
 public class App {
+
+  public static List<EventProperty> listEventProperty;
 
   public static void main(String[] args) {
     System.out.println("Hello World!");
@@ -30,21 +36,36 @@ public class App {
       PropertyConfigurator.configure(props);
 
       // Load config
-      Configuration.getPropertiesValues("src/main/resources/app.properties");
+      Configurations.getPropertiesValues("src/main/resources/app.properties");
+
+
+      // get EventQuery
+      List<EventQuery> listEventQuery =
+          CassandraRepository.getInstance().getEventQueryFromDB(-1, "", "");
+      List<List<EventQuery>> grouping = EventQueryProcessor.groupEventQuery(listEventQuery);
+      // get Eventproperties
+      listEventProperty = EventQueryProcessor.processEventProperyForEventQuery(listEventQuery);
+
+      // create processor
+      Processor processor = new EsperProcessor(listEventProperty, listEventQuery);
+      for (int i = 0; i < grouping.size(); i++) {
+        QueryHierarchy hierarchy = new QueryHierarchy();
+        List<EventQuery> subList = grouping.get(i);
+        for (int j = 0; j < subList.size(); j++) {
+          EventQuery query = subList.get(j);
+          hierarchy.addQuery(query.getEventName(), query,
+              new ResultListener[] {new ConsoleOutput()});
+        }
+        processor.setHierarchy(hierarchy);
+      }
 
       // create event reader
       EventReader reader = new KafkaReader(-1);
-
-      Processor processor = new EsperProcessor();
-      EventQuery query = new EventQuery();
-      QueryHierarchy hierarchy = new QueryHierarchy();
-      hierarchy.addQuery("new_order", query, new ResultListener[] {new ConsoleOutput()});
-      processor.setHierarchy(hierarchy);
-
       // reader read event and send to processor
       reader.read(processor);
 
     } catch (Exception ex) {
+      System.out.println(ex.getMessage());
     }
   }
 }

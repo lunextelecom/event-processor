@@ -5,6 +5,10 @@ import com.lunex.eventprocessor.core.QueryFuture;
 import com.lunex.eventprocessor.core.listener.ResultListener;
 import java.util.Map;
 
+/**
+ * QueryHiearchy defines the Mapping of EventQuery and who is listening to it’s result
+ *
+ */
 public class QueryHierarchy {
 
   /**

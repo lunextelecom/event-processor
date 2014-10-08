@@ -49,7 +49,7 @@ public class CassandraRepository {
   public static CassandraRepository getInstance() throws Exception {
     if (instance == null) {
       Properties prop = new Properties();
-      InputStream inputStream = new FileInputStream("src/main/resources/");
+      InputStream inputStream = new FileInputStream("src/main/resources/app.properties");
       prop.load(inputStream);
       String host = prop.getProperty("cassandra.host");
       String keyspace = prop.getProperty("cassandra.keyspace");
@@ -137,7 +137,7 @@ public class CassandraRepository {
 
   public List<EventQuery> getEventQueryFromDB(int id, String eventName, String ruleName)
       throws Exception {
-    String sql = "SELECT * FROM rule";
+    String sql = "SELECT * FROM " + keyspace + ".rule";
     List<Object> params = new ArrayList<Object>();
     if (id != -1 || !Constants.EMPTY_STRING.equals(eventName)
         || !Constants.EMPTY_STRING.equals(ruleName)) {
@@ -189,7 +189,7 @@ public class CassandraRepository {
     }
     String cqlStatement = sql;
     try {
-      if (listParams != null) {
+      if (listParams != null && listParams.size() > 0) {
         PreparedStatement statement = null;
         if (!listPreparedStatements.keySet().contains(cqlStatement)) {
           statement = session.prepare(cqlStatement);

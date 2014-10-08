@@ -12,7 +12,7 @@ import com.lunex.eventprocessor.core.Event;
 import com.lunex.eventprocessor.handler.kafka.KafkaMessageProcessor;
 import com.lunex.eventprocessor.handler.kafka.KafkaSimpleConsumer;
 import com.lunex.eventprocessor.handler.processor.EventConsumer;
-import com.lunex.eventprocessor.handler.utils.Configuration;
+import com.lunex.eventprocessor.handler.utils.Configurations;
 
 public class KafkaReader implements EventReader {
 
@@ -38,9 +38,9 @@ public class KafkaReader implements EventReader {
 
   public void read(final EventConsumer consumer) {
     if (partitionIndex == -1) {
-      for (int i = 0; i < Configuration.kafkaTopicNumPartition; i++) {
+      for (int i = 0; i < Configurations.kafkaTopicNumPartition; i++) {
         final KafkaSimpleConsumer kafkaConsumer =
-            new KafkaSimpleConsumer(Configuration.kafkaCluster, Configuration.kafkaTopic, i, -1,
+            new KafkaSimpleConsumer(Configurations.kafkaCluster, Configurations.kafkaTopic, i, -1,
                 new KafkaMessageProcessor() {
                   public Object processMessage(byte[] message) {
                     sendEventToConsumer(message, consumer);
@@ -64,7 +64,7 @@ public class KafkaReader implements EventReader {
       }
     } else {
       KafkaSimpleConsumer kafkaConsumer =
-          new KafkaSimpleConsumer(Configuration.kafkaCluster, Configuration.kafkaTopic,
+          new KafkaSimpleConsumer(Configurations.kafkaCluster, Configurations.kafkaTopic,
               partitionIndex, -1, new KafkaMessageProcessor() {
                 public Object processMessage(byte[] message) {
                   sendEventToConsumer(message, consumer);

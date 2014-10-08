@@ -15,23 +15,23 @@ public class Event implements Serializable {
   private static final long serialVersionUID = -3901685029349769059L;
 
   private long time = System.currentTimeMillis();
-  private String name;
+  private String evtName;
   private Map<String, Object> event = new HashMap<String, Object>();
 
   public Event() {}
 
   public Event(String evtName, Map<String, Object> event) {
-    this.name = evtName;
+    this.evtName = evtName;
     this.event = event;
   }
 
   public Event(String jsonStr) {
     try {
       JSONObject jsonObject = new JSONObject(jsonStr);
-      this.name = jsonObject.getString("evtName");
+      this.evtName = jsonObject.getString("evtName");
       this.event = JsonHelper.toMap(jsonObject);
     } catch (Exception ex) {
-      this.name = null;
+      this.evtName = null;
       this.event = null;
     }
   }
@@ -44,12 +44,12 @@ public class Event implements Serializable {
     this.time = time;
   }
 
-  public String getName() {
-    return name;
+  public String getEvtName() {
+    return evtName;
   }
 
-  public void setName(String name) {
-    this.name = name;
+  public void setEvtName(String evtName) {
+    this.evtName = evtName;
   }
 
   public Map<String, Object> getEvent() {
@@ -62,6 +62,6 @@ public class Event implements Serializable {
 
   @Override
   public String toString() {
-    return "time: " + this.time + ", name: " + this.name + ", event: " + this.event.toString();
+    return "time: " + this.time + ", name: " + this.evtName + ", event: " + this.event.toString();
   }
 }

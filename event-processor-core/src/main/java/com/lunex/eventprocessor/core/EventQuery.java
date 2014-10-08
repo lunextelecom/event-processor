@@ -11,6 +11,7 @@ public class EventQuery {
   private String fields;
   private String filters;
   private String aggregateField;
+  private String having;
   private String timeSeries;
 
   QueryFuture getFuture() {
@@ -63,5 +64,13 @@ public class EventQuery {
 
   public void setEventName(String eventName) {
     this.eventName = eventName;
+  }
+
+  public String getHaving() {
+    return having;
+  }
+
+  public void setHaving(String having) {
+    this.having = having;
   }
 }
