@@ -1,15 +1,11 @@
-package com.lunex.eventprocessor.handler;
-
-import com.lunex.eventprocessor.EventQuery;
-import com.lunex.eventprocessor.QueryFuture;
-import com.lunex.eventprocessor.ResultListener;
+package com.lunex.eventprocessor;
 
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.Map;
 
 /**
- * Created by jerryj on 10/6/14.
+ * Provide relationship between evtname, EventQuery and ResultListender.
  */
 public class QueryHierarchy {
 

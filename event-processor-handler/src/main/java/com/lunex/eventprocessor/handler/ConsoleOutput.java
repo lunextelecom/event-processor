@@ -4,7 +4,7 @@ import com.lunex.eventprocessor.QueryFuture;
 import com.lunex.eventprocessor.ResultListener;
 
 /**
- * Created by jerryj on 10/6/14.
+ * Example console output writer
  */
 public class ConsoleOutput implements ResultListener {
 

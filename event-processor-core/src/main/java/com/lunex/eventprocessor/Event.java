@@ -1,17 +1,36 @@
 package com.lunex.eventprocessor;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by jerryj on 9/26/14.
+ * Generic Event.
+ *
  */
 public class Event implements Serializable {
 
-  long time;
-  String name;
-  Map<String, Object> event = new HashMap<String, Object>();
+  private long time;
+  private String name;
+  private Map<String, Object> event;
+
+  public Event(long time, String name, Map<String, Object> event) {
+    this.time = time;
+    this.name = name;
+    this.event = event;
+  }
+
+  public long getTime() {
+    return time;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public Map<String, Object> getEvent() {
+    return event;
+  }
+
 }
 
 

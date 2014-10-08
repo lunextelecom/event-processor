@@ -1,11 +1,15 @@
 package com.lunex.eventprocessor;
 
 /**
- * Created by jerryj on 10/1/14.
+ * SELECT [Fields] FROM [Data] WHERE [Filter] GROUP BY [AggregateField]
+ * Query Parts
+ *  Data: raw incoming data or generated time series
+ *  AggregateField: Fields that are used to build aggregation of data.
+ *  Timeseries is a special function here to group data into timeseries.
+ *  Filter: conditions to filter data. =, !=, >=, <=, >, <, and, or
+ *  Field: field1, field2, or * for all
+ *  Field func: sum, max, min, first, last, avg, timeseries(timefield, size1, size2[optional])
  */
 public class EventQuery {
 
-  QueryFuture getFuture(){
-    return null;
-  }
 }

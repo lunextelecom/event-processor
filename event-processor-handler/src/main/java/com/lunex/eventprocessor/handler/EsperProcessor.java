@@ -1,6 +1,7 @@
 package com.lunex.eventprocessor.handler;
 
 import com.lunex.eventprocessor.Event;
+import com.lunex.eventprocessor.QueryHierarchy;
 
 /**
  * Created by jerryj on 10/2/14.

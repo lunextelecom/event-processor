@@ -4,7 +4,7 @@ import com.lunex.eventprocessor.Event;
 import com.lunex.eventprocessor.handler.EventConsumer;
 
 /**
- * Created by jerryj on 10/2/14.
+ * Provide as input source for event that.
  */
 public interface EventReader {
 

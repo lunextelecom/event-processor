@@ -2,7 +2,7 @@ package com.lunex.eventprocessor.handler;
 
 
 import com.lunex.eventprocessor.EventQuery;
-import com.lunex.eventprocessor.QueryFuture;
+import com.lunex.eventprocessor.QueryHierarchy;
 import com.lunex.eventprocessor.ResultListener;
 
 /**
