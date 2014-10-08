@@ -20,10 +20,6 @@ public class EventQuery {
   private String having;
   private String timeSeries;
 
-  public QueryFuture getFuture() {
-    return null;
-  }
-
   public String getData() {
     return data;
   }

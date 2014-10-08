@@ -22,7 +22,8 @@ public class EventQueryProcessor {
     newEventQuery.setFilters(oldEventQuery.getFilters());
     newEventQuery.setTimeSeries(oldEventQuery.getTimeSeries());
     newEventQuery.setFields(processStringFieldForEventQuery(oldEventQuery.getFields()));
-    newEventQuery.setFields(processStringFieldForEventQuery(oldEventQuery.getAggregateField()));
+    newEventQuery.setAggregateField(processStringFieldForEventQuery(oldEventQuery
+        .getAggregateField()));
 
     return newEventQuery;
   }
@@ -35,9 +36,7 @@ public class EventQueryProcessor {
       String[] temp = field.split(":");
       if (temp.length == 1 || temp.length == 2) {
         fieldBuilder.append(temp[0]);
-        if (temp[0].contains("("))
-          ;
-        {
+        if (temp[0].contains("(")) {
           fieldBuilder.append(")");
         }
         fieldBuilder.append(",");

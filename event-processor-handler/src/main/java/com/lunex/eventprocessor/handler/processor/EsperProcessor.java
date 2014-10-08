@@ -14,7 +14,9 @@ import com.lunex.eventprocessor.core.EventProperty;
 import com.lunex.eventprocessor.core.EventQuery;
 import com.lunex.eventprocessor.core.QueryFuture;
 import com.lunex.eventprocessor.core.QueryHierarchy;
+import com.lunex.eventprocessor.core.listener.ResultListener;
 import com.lunex.eventprocessor.core.utils.Constants;
+import com.lunex.eventprocessor.core.utils.EventQueryProcessor;
 
 public class EsperProcessor implements Processor {
 
@@ -33,19 +35,31 @@ public class EsperProcessor implements Processor {
     EPAdministrator admin = sericeProvider.getEPAdministrator();
     for (int i = 0, size = listEventQuery.size(); i < size; i++) {
       final EventQuery eventQuery = listEventQuery.get(i);
+      EventQuery newEventQuery = EventQueryProcessor.processEventQuery(eventQuery);
       String timeSeries =
           (Constants.EMPTY_STRING.equals(eventQuery.getTimeSeries())) ? "" : ".win:time("
-              + eventQuery.getTimeSeries() + ")";
+              + newEventQuery.getTimeSeries() + ")";
 
       EPStatement statement =
-          admin.createEPL(String.format("SELECT %s FROM %s%s WHERE %s GROUP BY %s HAVING %s",
-              eventQuery.getFields(), eventQuery.getData(), timeSeries, eventQuery.getFilters(),
-              eventQuery.getAggregateField(), eventQuery.getHaving()));
+          admin.createEPL(String.format(
+              "SELECT %s FROM %s%s WHERE %s %s %s",
+              newEventQuery.getFields(),
+              newEventQuery.getData(),
+              timeSeries,
+              newEventQuery.getFilters(),
+              (newEventQuery.getAggregateField() == null || Constants.EMPTY_STRING
+                  .equals(newEventQuery.getAggregateField())) ? "" : "GROUP BY "
+                  + newEventQuery.getAggregateField(),
+              (newEventQuery.getHaving() == null || Constants.EMPTY_STRING.equals(newEventQuery
+                  .getHaving())) ? "" : "HAVING " + newEventQuery.getHaving()));
 
       statement.addListener(new UpdateListener() {
         public void update(EventBean[] newEvents, EventBean[] oldEvents) {
           // TODO: trigger event and process
           QueryFuture queryFuture = new QueryFuture(newEvents, eventQuery);
+          ResultListener[] listener =
+              queryHierarchy.getHierarchy().get(eventQuery.getEventName()).get(eventQuery);
+          queryHierarchy.bindOutput(queryFuture, listener);
         }
       });
     }

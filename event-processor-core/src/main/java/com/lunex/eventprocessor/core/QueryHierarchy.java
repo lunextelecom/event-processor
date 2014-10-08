@@ -51,7 +51,7 @@ public class QueryHierarchy {
    * @return
    */
   public QueryFuture getFuture(EventQuery query) {
-    return query.getFuture();
+    return null;
   }
 
   /**
