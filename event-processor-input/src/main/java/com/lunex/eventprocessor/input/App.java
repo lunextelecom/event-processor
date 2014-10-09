@@ -24,6 +24,7 @@ import com.lunex.eventprocessor.input.utils.SeqTimerTask;
 public class App {
 
   static final Logger logger = LoggerFactory.getLogger(App.class);
+  
   private static NettyHttpSnoopServer httpServer;
   private static NettyUDPServer udpServer;
   public static SeqTimerTask seqTimerTask;

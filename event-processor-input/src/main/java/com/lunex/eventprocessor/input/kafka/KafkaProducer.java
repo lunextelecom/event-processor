@@ -140,7 +140,7 @@ public class KafkaProducer {
    * Add 1 byte for payload to send content-type to consumer
    * 
    * @param payload
-   * @param contentType
+   * @param contentType: JSON = 1
    * @return
    */
   public byte[] addByteContentType(byte[] payload, EContentType contentType) {

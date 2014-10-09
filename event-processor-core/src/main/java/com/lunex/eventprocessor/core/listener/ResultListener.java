@@ -7,6 +7,8 @@ import com.lunex.eventprocessor.core.QueryFuture;
  */
 public interface ResultListener {
 
+  public void setQueryFuture(QueryFuture queryFuture);
+  
   public QueryFuture getQueryFuture();
 
   /**

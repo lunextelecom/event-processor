@@ -9,6 +9,11 @@ import com.lunex.eventprocessor.core.dataaccess.CassandraRepository;
 public class DataAccessOutput {
   static final Logger logger = LoggerFactory.getLogger(DataAccessOutput.class);
 
+  /**
+   * Save raw event into DB
+   * 
+   * @param event
+   */
   public static void insertRawEvent(Event event) {
     // insert raw event to db
     final Event insertEvent = event;

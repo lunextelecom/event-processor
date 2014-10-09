@@ -96,6 +96,7 @@ public class KafkaReader implements EventReader {
    */
   public void sendEventToConsumer(byte[] message, final EventConsumer consumer) {
     Event event = null;
+    // read 1st byte to get content-type of payload
     byte contentype = message[0];
     switch (contentype) {
       case 1: // JSON
@@ -108,6 +109,7 @@ public class KafkaReader implements EventReader {
           }
           event = new Event(System.currentTimeMillis(), payload);
         } catch (UnsupportedEncodingException e) {
+          event = null;
           logger.error(e.getMessage());
         }
         break;

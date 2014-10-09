@@ -67,6 +67,7 @@ public class QueryHierarchy {
       return;
     }
     for (int i = 0, length = outputs.length; i < length; i++) {
+      outputs[i].setQueryFuture(query);
       outputs[i].onEvent(query.getValues());
     }
   }

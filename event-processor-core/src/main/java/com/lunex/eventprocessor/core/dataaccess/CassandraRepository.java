@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +26,6 @@ import com.datastax.driver.core.policies.ConstantReconnectionPolicy;
 import com.datastax.driver.core.policies.DowngradingConsistencyRetryPolicy;
 import com.google.common.base.Strings;
 import com.lunex.eventprocessor.core.Event;
-import com.lunex.eventprocessor.core.EventProperty;
 import com.lunex.eventprocessor.core.EventQuery;
 import com.lunex.eventprocessor.core.EventResult;
 import com.lunex.eventprocessor.core.utils.Constants;
@@ -103,18 +101,18 @@ public class CassandraRepository {
       if (keyspaceMetadata == null) {
         throw new UnsupportedOperationException("Can't find keyspace :" + instance.keyspace);
       }
-      if (keyspaceMetadata.getTable("rule") == null) {
+      if (keyspaceMetadata.getTable("rules") == null) {
         String sql =
             "CREATE TABLE "
                 + instance.keyspace
-                + ".rule (id uuid, event_name text, rule_name text, data text,  fields text, filters text, aggregate_field text, having text, time_series text, PRIMARY KEY (id, event_name, rule_name))";
+                + ".rules (id uuid, event_name text, rule_name text, data text,  fields text, filters text, aggregate_field text, having text, time_series text, PRIMARY KEY (id, event_name, rule_name))";
         instance.session.execute(sql);
       }
-      if (keyspaceMetadata.getTable("event") == null) {
+      if (keyspaceMetadata.getTable("events") == null) {
         String sql =
             "CREATE TABLE "
                 + instance.keyspace
-                + ".time (event_name text, time bigint, event text, PRIMARY KEY (event_name, time))";
+                + ".events (event_name text, time bigint, event text, PRIMARY KEY (event_name, time))";
         instance.session.execute(sql);
       }
       if (keyspaceMetadata.getTable("results") == null) {
@@ -152,11 +150,13 @@ public class CassandraRepository {
    * @throws Exception
    */
   public void insertEventToDB(Event event) throws Exception {
-    String sql = "INSERT INTO event (event_name, time, event, hashkey) VALUES (?, ?, ?, ?);";
+    String sql =
+        "INSERT INTO " + keyspace
+            + ".events (event_name, time, event, hashkey) VALUES (?, ?, ?, ?);";
     List<Object> params = new ArrayList<Object>();
     params.add(event.getEvtName());
     params.add(event.getTime());
-    params.add(event.getEvent());
+    params.add(event.getPayLoadStr());
     params.add((event.getPayLoadStr() != null && !Constants.EMPTY_STRING.equals(event
         .getPayLoadStr())) ? StringUtils.md5Java(event.getPayLoadStr()) : "");
     execute(sql, params);
@@ -173,7 +173,7 @@ public class CassandraRepository {
    */
   public List<EventQuery> getEventQueryFromDB(int id, String eventName, String ruleName)
       throws Exception {
-    String sql = "SELECT * FROM " + keyspace + ".rule";
+    String sql = "SELECT * FROM " + keyspace + ".rules";
     List<Object> params = new ArrayList<Object>();
     if (id != -1 || !Constants.EMPTY_STRING.equals(eventName)
         || !Constants.EMPTY_STRING.equals(ruleName)) {
@@ -206,6 +206,7 @@ public class CassandraRepository {
       eventQuery.setFilters(row.getString("filters"));
       eventQuery.setAggregateField(row.getString("aggregate_field"));
       eventQuery.setTimeSeries(row.getString("time_series"));
+      eventQuery.setConditions(row.getString("conditions"));
       results.add(eventQuery);
     }
     return results;
@@ -227,7 +228,8 @@ public class CassandraRepository {
   public void insertResults(String eventName, String hashKey, String result, String filterResult)
       throws Exception {
     String sql =
-        "INSERT INTO results (event_name, hashkey, result, filtered_result) VALUES (?, ?, ?, ?);";
+        "INSERT INTO " + keyspace
+            + ".results (event_name, hashkey, result, filtered_result) VALUES (?, ?, ?, ?);";
     List<Object> params = new ArrayList<Object>();
     params.add(eventName);
     params.add(hashKey);
@@ -245,7 +247,7 @@ public class CassandraRepository {
    * @throws Exception
    */
   public List<EventResult> getEventResult(String eventName, String hashkey) throws Exception {
-    String sql = "SELET * FROM results WHERE event_name = ? and hashkey = ?;";
+    String sql = "SELET * FROM " + keyspace + ".results WHERE event_name = ? and hashkey = ?;";
     List<Object> params = new ArrayList<Object>();
     params.add(eventName);
     params.add(hashkey);
@@ -292,7 +294,7 @@ public class CassandraRepository {
         res = session.execute(cqlStatement);
       }
     } catch (Exception ex) {
-      logger.error(ex.getMessage());
+      logger.error(ex.getMessage(), ex);
       throw ex;
     }
     return res;
