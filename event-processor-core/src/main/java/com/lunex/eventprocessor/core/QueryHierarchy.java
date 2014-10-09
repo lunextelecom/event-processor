@@ -60,8 +60,14 @@ public class QueryHierarchy {
    * @param outputs
    */
   public void bindOutput(QueryFuture query, ResultListener[] outputs) {
+    if (query == null) {
+      return;
+    }
+    if (outputs == null || outputs.length == 0) {
+      return;
+    }
     for (int i = 0, length = outputs.length; i < length; i++) {
-      outputs[i].onEvent(query);
+      outputs[i].onEvent(query.getValues());
     }
   }
 }
