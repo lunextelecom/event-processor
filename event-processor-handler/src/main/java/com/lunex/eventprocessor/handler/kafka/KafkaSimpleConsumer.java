@@ -153,8 +153,6 @@ public class KafkaSimpleConsumer {
 
         // get message
         Message message = messageAndOffset.message();
-        // get attribute
-        int attribute = (int) message.attributes();
         // get content of payload from message
         ByteBuffer payload = message.payload();
         byte[] bytes = new byte[payload.limit()];

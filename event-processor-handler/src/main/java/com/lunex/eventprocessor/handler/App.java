@@ -86,7 +86,7 @@ public class App {
       final EventReader reader2 = new KafkaReader(-1);
       Thread kairos = new Thread(new Runnable() {
         public void run() {
-//          reader2.read(kairosDBProcessor);
+          reader2.read(kairosDBProcessor);
         }
       });
       kairos.start();

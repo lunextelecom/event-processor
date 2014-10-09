@@ -13,10 +13,6 @@ import net.hydromatic.linq4j.Grouping;
 import net.hydromatic.linq4j.Linq4j;
 import net.hydromatic.linq4j.function.*;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
-
 public class EventQueryProcessor {
 
   public static EventQuery processEventQuery(EventQuery oldEventQuery) {

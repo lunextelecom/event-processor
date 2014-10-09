@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.espertech.esper.event.map.MapEventBean;
 import com.lunex.eventprocessor.core.EventProperty;
 import com.lunex.eventprocessor.core.EventQuery;
@@ -17,7 +20,7 @@ import com.lunex.eventprocessor.core.utils.EventQueryProcessor;
 import com.lunex.eventprocessor.handler.utils.Configurations;
 
 public class KairosDBOutput implements ResultListener {
-
+  static final Logger logger = LoggerFactory.getLogger(KairosDBOutput.class);
   private QueryFuture queryFuture;
 
   public void setQueryFuture(QueryFuture queryFuture) {
@@ -71,7 +74,7 @@ public class KairosDBOutput implements ResultListener {
         keys = map.keySet().iterator();
         while (keys.hasNext()) {
           String key = keys.next();
-          if (!map.get(key).equals("string")) {
+          if (map.get(key).equals("string")) {
             Object value = null;
             for (Entry<String, Object> e : resultPropeties.entrySet()) {
               if (e.getKey().indexOf(key) > 0) {
@@ -86,7 +89,7 @@ public class KairosDBOutput implements ResultListener {
             for (Entry<String, Object> e : resultPropeties.entrySet()) {
               if (e.getKey().indexOf(key) > 0) {
                 value = e.getValue();
-                client.sendMetric(metric + "." + e.getKey().replace("(", ".").replace("", ""),
+                client.sendMetric(metric + "." + e.getKey().replace("(", ".").replace(")", ""),
                     System.currentTimeMillis(), value, tags);
                 break;
               }
@@ -94,6 +97,7 @@ public class KairosDBOutput implements ResultListener {
           }
         }
       } catch (Exception ex) {
+        logger.error(ex.getMessage(), ex);
       }
     }
   }
