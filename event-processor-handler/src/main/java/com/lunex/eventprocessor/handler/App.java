@@ -16,6 +16,7 @@ import com.lunex.eventprocessor.core.dataaccess.KairosDBClient;
 import com.lunex.eventprocessor.core.listener.ResultListener;
 import com.lunex.eventprocessor.core.utils.EventQueryProcessor;
 import com.lunex.eventprocessor.handler.listener.ConsoleOutput;
+import com.lunex.eventprocessor.handler.listener.KairosDBOutput;
 import com.lunex.eventprocessor.handler.processor.EsperProcessor;
 import com.lunex.eventprocessor.handler.processor.KairosDBProcessor;
 import com.lunex.eventprocessor.handler.processor.Processor;
@@ -61,7 +62,7 @@ public class App {
         for (int j = 0; j < subList.size(); j++) {
           EventQuery query = subList.get(j);
           hierarchy.addQuery(query.getEventName(), query,
-              new ResultListener[] {new ConsoleOutput()});
+              new ResultListener[] {new ConsoleOutput(), new KairosDBOutput()});
         }
       }
 
@@ -73,7 +74,7 @@ public class App {
       // reader read event and send to processor
       Thread esper = new Thread(new Runnable() {
         public void run() {
-//          reader.read(processor);
+          reader.read(processor);
         }
       });
       esper.start();
@@ -85,7 +86,7 @@ public class App {
       final EventReader reader2 = new KafkaReader(-1);
       Thread kairos = new Thread(new Runnable() {
         public void run() {
-          reader2.read(kairosDBProcessor);
+//          reader2.read(kairosDBProcessor);
         }
       });
       kairos.start();
