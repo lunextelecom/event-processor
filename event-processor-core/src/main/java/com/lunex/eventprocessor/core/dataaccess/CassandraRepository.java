@@ -29,6 +29,7 @@ import com.google.common.base.Strings;
 import com.lunex.eventprocessor.core.Event;
 import com.lunex.eventprocessor.core.EventProperty;
 import com.lunex.eventprocessor.core.EventQuery;
+import com.lunex.eventprocessor.core.EventResult;
 import com.lunex.eventprocessor.core.utils.Constants;
 
 public class CassandraRepository {
@@ -112,10 +113,16 @@ public class CassandraRepository {
         String sql =
             "CREATE TABLE "
                 + instance.keyspace
-                + ".time (time bigint, event_name text, event text, PRIMARY KEY (time, event_name))";
+                + ".time (event_name text, time bigint, event text, PRIMARY KEY (event_name, time))";
         instance.session.execute(sql);
       }
-
+      if (keyspaceMetadata.getTable("results") == null) {
+        String sql =
+            "CREATE TABLE "
+                + instance.keyspace
+                + ".results (event_name text, hashkey text, result text, filtered_result text, PRIMARY KEY (event_name, hashkey))";
+        instance.session.execute(sql);
+      }
     }
     instance.listPreparedStatements = new HashMap<String, PreparedStatement>();
     return instance;
@@ -137,15 +144,30 @@ public class CassandraRepository {
     }
   }
 
+  /**
+   * Save raw input event to db
+   * 
+   * @param event
+   * @throws Exception
+   */
   public void insertEventToDB(Event event) throws Exception {
-    String sql = "INSERT INTO event (time, event_name, event) VALUES (?, ?, ?);";
+    String sql = "INSERT INTO event (event_name, time, event) VALUES (?, ?, ?);";
     List<Object> params = new ArrayList<Object>();
-    params.add(event.getTime());
     params.add(event.getEvtName());
+    params.add(event.getTime());
     params.add(event.getEvent());
     execute(sql, params);
   }
 
+  /**
+   * Get event query (rule) from DB
+   * 
+   * @param id
+   * @param eventName
+   * @param ruleName
+   * @return
+   * @throws Exception
+   */
   public List<EventQuery> getEventQueryFromDB(int id, String eventName, String ruleName)
       throws Exception {
     String sql = "SELECT * FROM " + keyspace + ".rule";
@@ -182,6 +204,59 @@ public class CassandraRepository {
       eventQuery.setAggregateField(row.getString("aggregate_field"));
       eventQuery.setTimeSeries(row.getString("time_series"));
       results.add(eventQuery);
+    }
+    return results;
+  }
+
+  public void insertEventQuery() {
+    // TODO
+  }
+
+  /**
+   * Insert result into db
+   * 
+   * @param eventName
+   * @param hashKey
+   * @param result
+   * @param filterResult
+   * @throws Exception
+   */
+  public void insertResults(String eventName, String hashKey, String result, String filterResult)
+      throws Exception {
+    String sql =
+        "INSERT INTO results (event_name, hashkey, result, filtered_result) VALUES (?, ?, ?, ?);";
+    List<Object> params = new ArrayList<Object>();
+    params.add(eventName);
+    params.add(hashKey);
+    params.add(result);
+    params.add(filterResult);
+    execute(sql, params);
+  }
+
+  /**
+   * Get event result
+   * 
+   * @param eventName
+   * @param hashkey
+   * @return
+   * @throws Exception
+   */
+  public List<EventResult> getEventResult(String eventName, String hashkey) throws Exception {
+    String sql = "SELET * FROM results WHERE event_name = ? and hashkey = ?;";
+    List<Object> params = new ArrayList<Object>();
+    params.add(eventName);
+    params.add(hashkey);
+    ResultSet rows = execute(sql, params);
+    List<EventResult> results = null;
+    EventResult eventResult = null;
+    for (Row row : rows) {
+      if (results == null) {
+        results = new ArrayList<EventResult>();
+      }
+      eventResult =
+          new EventResult(row.getString("event_name"), row.getString("hashkey"),
+              row.getString("result"), row.getString("filtered_result"));
+      results.add(eventResult);
     }
     return results;
   }
