@@ -40,8 +40,10 @@ public class StringUtils {
    *
    * @param message
    * @return
+   * @throws UnsupportedEncodingException
+   * @throws NoSuchAlgorithmException
    */
-  public static String md5Java(String message) {
+  public static String md5Java(String message) throws UnsupportedEncodingException, NoSuchAlgorithmException {
     String digest = null;
     try {
       MessageDigest md = MessageDigest.getInstance("MD5");
@@ -53,7 +55,9 @@ public class StringUtils {
       }
       digest = sb.toString();
     } catch (UnsupportedEncodingException ex) {
+      throw ex;
     } catch (NoSuchAlgorithmException ex) {
+      throw ex;
     }
     return digest;
   }

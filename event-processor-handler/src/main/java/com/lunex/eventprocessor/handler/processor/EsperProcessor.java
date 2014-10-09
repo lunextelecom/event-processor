@@ -73,6 +73,7 @@ public class EsperProcessor implements Processor {
 
   public void consume(Event event) {
     if (event == null) {
+      logger.error("Event is null");
       return;
     }
     logger.info("Start consume event:" + event.toString());

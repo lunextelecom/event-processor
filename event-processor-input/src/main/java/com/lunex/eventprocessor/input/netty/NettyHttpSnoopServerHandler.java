@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 import com.lunex.eventprocessor.input.App;
 import com.lunex.eventprocessor.input.HttpMessageObject;
 import com.lunex.eventprocessor.input.Seq;
-import com.lunex.eventprocessor.input.enums.EContentType;
+import com.lunex.eventprocessor.input.enums.ContentTypeEnum;
 import com.lunex.eventprocessor.input.exception.BadRequestException;
 import com.lunex.eventprocessor.input.exception.InternalServerErrorException;
 import com.lunex.eventprocessor.input.exception.MethodNotAllowedException;
@@ -150,7 +150,7 @@ public class NettyHttpSnoopServerHandler extends SimpleChannelInboundHandler<Htt
     }
 
     HttpHeaders header = this.messageObject.getHeader();
-    EContentType contentType = EContentType.getContentType(header.get(CONTENT_TYPE.toString()));
+    ContentTypeEnum contentType = ContentTypeEnum.getContentType(header.get(CONTENT_TYPE.toString()));
     if (contentType == null) {
       isException = true;
       exception = new BadRequestException(new Throwable("Wrong Content-Type"));
@@ -216,7 +216,7 @@ public class NettyHttpSnoopServerHandler extends SimpleChannelInboundHandler<Htt
         new DefaultFullHttpResponse(HTTP_1_1, OK, Unpooled.copiedBuffer(
             responseContentBuilder.toString(), CharsetUtil.UTF_8));
     logger.info("Final content:" + responseContentBuilder.toString());
-    response.headers().set(CONTENT_TYPE, EContentType.JSONType.toString());
+    response.headers().set(CONTENT_TYPE, ContentTypeEnum.JSONType.toString());
 
     if (keepAlive) {
       response.headers().set(CONTENT_LENGTH, response.content().readableBytes());

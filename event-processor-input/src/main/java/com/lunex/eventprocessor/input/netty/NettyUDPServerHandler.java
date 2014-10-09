@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import com.lunex.eventprocessor.input.App;
 import com.lunex.eventprocessor.input.Seq;
 import com.lunex.eventprocessor.input.UdpMessageObject;
-import com.lunex.eventprocessor.input.enums.EContentType;
+import com.lunex.eventprocessor.input.enums.ContentTypeEnum;
 import com.lunex.eventprocessor.input.exception.BadRequestException;
 import com.lunex.eventprocessor.input.exception.InternalServerErrorException;
 import com.lunex.eventprocessor.input.utils.Configuration;
@@ -115,7 +115,7 @@ public class NettyUDPServerHandler extends SimpleChannelInboundHandler<DatagramP
     }
 
     String contentType = this.messageObject.getContentType();
-    EContentType eContentType = EContentType.getContentType(contentType);
+    ContentTypeEnum eContentType = ContentTypeEnum.getContentType(contentType);
     if (eContentType == null) {
       isException = true;
       exception = new BadRequestException(new Throwable("Wrong Content-Type"));

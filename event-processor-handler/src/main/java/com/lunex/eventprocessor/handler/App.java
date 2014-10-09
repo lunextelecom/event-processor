@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.log4j.PropertyConfigurator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.lunex.eventprocessor.core.EventProperty;
 import com.lunex.eventprocessor.core.EventQuery;
@@ -24,7 +26,9 @@ import com.lunex.eventprocessor.handler.utils.Configurations;
  * Setup KafkaReader Setup EsperProcessor
  */
 public class App {
-
+  
+  static final Logger logger = LoggerFactory.getLogger(App.class);
+  
   public static List<EventProperty> listEventProperty;
   public static QueryHierarchy hierarchy;
   public static KairosDBClient kairosDB;
@@ -69,7 +73,7 @@ public class App {
       reader.read(processor);
 
     } catch (Exception ex) {
-      System.out.println(ex.getMessage());
+      logger.error(ex.getMessage(), ex);
     }
   }
 }

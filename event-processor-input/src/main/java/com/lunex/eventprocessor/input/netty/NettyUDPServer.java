@@ -13,7 +13,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 
 /**
- * Netty UDP server 
+ * Netty UDP server
  *
  */
 public class NettyUDPServer {
@@ -44,7 +44,7 @@ public class NettyUDPServer {
       bootStrap.bind(this.port).sync().channel().closeFuture().await();
       logger.info("Start udp server");
     } catch (Exception e) {
-      logger.error(e.getMessage());
+      logger.error(e.getMessage(), e);
     } finally {
       group.shutdownGracefully();
     }

@@ -176,7 +176,7 @@ public class KafkaSimpleConsumer {
         try {
           Thread.sleep(1000);
         } catch (InterruptedException ie) {
-          logger.error(ie.getMessage());
+          logger.error(ie.getMessage(), ie);
         }
       }
     }
@@ -283,7 +283,7 @@ public class KafkaSimpleConsumer {
         }
       } catch (Exception e) {
         logger.error("Error communicating with Broker [" + seed + "] to find Leader for ["
-            + topicName + ", " + partitionIndex + "] Reason: " + e);
+            + topicName + ", " + partitionIndex + "] Reason: " + e, e);
       } finally {
         if (consumer != null)
           consumer.close();

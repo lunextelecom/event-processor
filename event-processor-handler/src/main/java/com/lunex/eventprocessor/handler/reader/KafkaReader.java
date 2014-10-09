@@ -55,13 +55,13 @@ public class KafkaReader implements EventReader {
               try {
                 kafkaConsumer.readKafka(kafka.api.OffsetRequest.LatestTime());
               } catch (Exception e) {
-                logger.error("Function read: " + e.getMessage());
+                logger.error("Function read: " + e.getMessage(), e);
               }
             }
           });
           thread.start();
         } catch (Exception e) {
-          logger.error("Function read: " + e.getMessage());
+          logger.error("Function read: " + e.getMessage(), e);
         }
       }
     } else {
@@ -77,7 +77,7 @@ public class KafkaReader implements EventReader {
       try {
         kafkaConsumer.readKafka(kafka.api.OffsetRequest.LatestTime());
       } catch (Exception e) {
-        logger.error(e.getMessage());
+        logger.error(e.getMessage(), e);
       }
     }
   }
@@ -110,7 +110,7 @@ public class KafkaReader implements EventReader {
           event = new Event(System.currentTimeMillis(), payload);
         } catch (UnsupportedEncodingException e) {
           event = null;
-          logger.error(e.getMessage());
+          logger.error(e.getMessage(), e);
         }
         break;
       default:

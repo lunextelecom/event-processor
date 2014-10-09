@@ -59,7 +59,7 @@ public class ConsoleOutput implements ResultListener {
             System.out.println("Result:" + checked);
             System.out.println(item.getProperties().toString());
           } catch (ScriptException e) {
-            logger.error(e.getMessage());
+            logger.error(e.getMessage(), e);
           }
         }
       } else {
