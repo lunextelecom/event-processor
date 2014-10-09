@@ -10,6 +10,7 @@ import com.lunex.eventprocessor.core.EventProperty;
 import com.lunex.eventprocessor.core.EventQuery;
 import com.lunex.eventprocessor.core.QueryHierarchy;
 import com.lunex.eventprocessor.core.dataaccess.CassandraRepository;
+import com.lunex.eventprocessor.core.dataaccess.KairosDBClient;
 import com.lunex.eventprocessor.core.listener.ResultListener;
 import com.lunex.eventprocessor.core.utils.EventQueryProcessor;
 import com.lunex.eventprocessor.handler.listener.ConsoleOutput;
@@ -20,14 +21,13 @@ import com.lunex.eventprocessor.handler.reader.KafkaReader;
 import com.lunex.eventprocessor.handler.utils.Configurations;
 
 /**
- * Setup KafkaReader
- * Setup EsperProcessor
+ * Setup KafkaReader Setup EsperProcessor
  */
 public class App {
 
   public static List<EventProperty> listEventProperty;
   public static QueryHierarchy hierarchy;
-
+  public static KairosDBClient kairosDB;
 
   public static void main(String[] args) {
     System.out.println("Hello World!");
@@ -40,6 +40,8 @@ public class App {
       // Load config
       Configurations.getPropertiesValues("src/main/resources/app.properties");
 
+      // kairosdb
+      kairosDB = new KairosDBClient(Configurations.kairosDBUrl);
 
       // get EventQuery
       List<EventQuery> listEventQuery =
