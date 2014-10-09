@@ -12,6 +12,7 @@ public class Configurations {
   public static List<String> kafkaCluster = new ArrayList<String>();
   public static String kafkaTopic;
   public static int kafkaTopicNumPartition;
+  public static String kairosDBUrl;
 
   public static void getPropertiesValues(String propFileName) throws Exception {
     try {
@@ -38,6 +39,8 @@ public class Configurations {
       kafkaTopic = prop.getProperty("kafka.topic.name");
       kafkaTopicNumPartition = Integer.valueOf(prop.getProperty("kafka.topic.count.partition"));
 
+      kairosDBUrl = prop.getProperty("kairosdb.url");
+      
     } catch (Exception e) {
       throw e;
     }
