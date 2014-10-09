@@ -5,9 +5,10 @@ package com.lunex.eventprocessor;
  */
 public interface ResultListener {
 
+  public QueryFuture getQueryFuture();
   /**
    * This method is fired when EventQuery that
    * @param result
    */
-  public void onEvent(QueryFuture result);
+  public void onEvent(Object[] result);
 }
