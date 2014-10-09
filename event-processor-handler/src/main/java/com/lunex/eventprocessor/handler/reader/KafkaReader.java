@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.lunex.eventprocessor.core.Event;
+import com.lunex.eventprocessor.core.utils.StringUtils;
 import com.lunex.eventprocessor.handler.kafka.KafkaMessageProcessor;
 import com.lunex.eventprocessor.handler.kafka.KafkaSimpleConsumer;
 import com.lunex.eventprocessor.handler.processor.EventConsumer;
@@ -97,10 +98,15 @@ public class KafkaReader implements EventReader {
     Event event = null;
     byte contentype = message[0];
     switch (contentype) {
-      case 1:
+      case 1: // JSON
         message = Arrays.copyOfRange(message, 1, message.length);
         try {
-          event = new Event(new String(message, "UTF-8"));
+          String payload = new String(message, "UTF-8");
+          if (!StringUtils.isJSONValid(payload)) {
+            logger.error("Invalid Json");
+            return;
+          }
+          event = new Event(System.currentTimeMillis(), payload);
         } catch (UnsupportedEncodingException e) {
           logger.error(e.getMessage());
         }

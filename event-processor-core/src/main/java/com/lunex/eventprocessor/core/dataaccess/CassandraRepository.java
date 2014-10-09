@@ -31,6 +31,7 @@ import com.lunex.eventprocessor.core.EventProperty;
 import com.lunex.eventprocessor.core.EventQuery;
 import com.lunex.eventprocessor.core.EventResult;
 import com.lunex.eventprocessor.core.utils.Constants;
+import com.lunex.eventprocessor.core.utils.StringUtils;
 
 public class CassandraRepository {
 
@@ -151,11 +152,13 @@ public class CassandraRepository {
    * @throws Exception
    */
   public void insertEventToDB(Event event) throws Exception {
-    String sql = "INSERT INTO event (event_name, time, event) VALUES (?, ?, ?);";
+    String sql = "INSERT INTO event (event_name, time, event, hashkey) VALUES (?, ?, ?, ?);";
     List<Object> params = new ArrayList<Object>();
     params.add(event.getEvtName());
     params.add(event.getTime());
     params.add(event.getEvent());
+    params.add((event.getPayLoadStr() != null && !Constants.EMPTY_STRING.equals(event
+        .getPayLoadStr())) ? StringUtils.md5Java(event.getPayLoadStr()) : "");
     execute(sql, params);
   }
 

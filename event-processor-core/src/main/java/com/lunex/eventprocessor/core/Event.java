@@ -17,6 +17,7 @@ public class Event implements Serializable {
   private long time = System.currentTimeMillis();
   private String evtName;
   private Map<String, Object> event = new HashMap<String, Object>();
+  private String payLoadStr;
 
   public Event() {}
 
@@ -31,11 +32,12 @@ public class Event implements Serializable {
     this.event = event;
   }
 
-  public Event(String jsonStr) {
+  public Event(long time, String jsonStr) {
     try {
       JSONObject jsonObject = new JSONObject(jsonStr);
       this.evtName = jsonObject.getString("evtName");
       this.event = JsonHelper.toMap(jsonObject);
+      this.payLoadStr = jsonStr;
     } catch (Exception ex) {
       this.evtName = null;
       this.event = null;
@@ -69,5 +71,13 @@ public class Event implements Serializable {
   @Override
   public String toString() {
     return "time: " + this.time + ", name: " + this.evtName + ", event: " + this.event.toString();
+  }
+
+  public String getPayLoadStr() {
+    return payLoadStr;
+  }
+
+  public void setPayLoadStr(String payLoadStr) {
+    this.payLoadStr = payLoadStr;
   }
 }

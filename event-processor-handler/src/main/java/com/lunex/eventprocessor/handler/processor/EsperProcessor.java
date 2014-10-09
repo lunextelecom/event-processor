@@ -2,6 +2,9 @@ package com.lunex.eventprocessor.handler.processor;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPAdministrator;
 import com.espertech.esper.client.EPServiceProvider;
@@ -17,8 +20,11 @@ import com.lunex.eventprocessor.core.QueryHierarchy;
 import com.lunex.eventprocessor.core.listener.ResultListener;
 import com.lunex.eventprocessor.core.utils.Constants;
 import com.lunex.eventprocessor.core.utils.EventQueryProcessor;
+import com.lunex.eventprocessor.handler.output.DataAccessOutput;
 
 public class EsperProcessor implements Processor {
+
+  static final Logger logger = LoggerFactory.getLogger(EsperProcessor.class);
 
   private QueryHierarchy queryHierarchy;
   private EPServiceProvider sericeProvider;
@@ -71,6 +77,7 @@ public class EsperProcessor implements Processor {
     }
     System.out.println("Start consume event:" + event.toString());
     sericeProvider.getEPRuntime().sendEvent(event.getEvent(), event.getEvtName());
+    DataAccessOutput.insertRawEvent(event);
   }
 
   public QueryHierarchy getHierarchy() {
