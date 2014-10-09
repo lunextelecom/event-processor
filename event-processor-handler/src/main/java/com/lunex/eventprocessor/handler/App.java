@@ -17,6 +17,7 @@ import com.lunex.eventprocessor.core.listener.ResultListener;
 import com.lunex.eventprocessor.core.utils.EventQueryProcessor;
 import com.lunex.eventprocessor.handler.listener.ConsoleOutput;
 import com.lunex.eventprocessor.handler.processor.EsperProcessor;
+import com.lunex.eventprocessor.handler.processor.KairosDBProcessor;
 import com.lunex.eventprocessor.handler.processor.Processor;
 import com.lunex.eventprocessor.handler.reader.EventReader;
 import com.lunex.eventprocessor.handler.reader.KafkaReader;
@@ -26,9 +27,9 @@ import com.lunex.eventprocessor.handler.utils.Configurations;
  * Setup KafkaReader Setup EsperProcessor
  */
 public class App {
-  
+
   static final Logger logger = LoggerFactory.getLogger(App.class);
-  
+
   public static List<EventProperty> listEventProperty;
   public static QueryHierarchy hierarchy;
   public static KairosDBClient kairosDB;
@@ -54,10 +55,7 @@ public class App {
       // get Eventproperties
       listEventProperty = EventQueryProcessor.processEventProperyForEventQuery(listEventQuery);
 
-      // create processor
-      Processor processor = new EsperProcessor(listEventProperty, listEventQuery);
       hierarchy = new QueryHierarchy();
-      processor.setHierarchy(hierarchy);
       for (int i = 0; i < grouping.size(); i++) {
         List<EventQuery> subList = grouping.get(i);
         for (int j = 0; j < subList.size(); j++) {
@@ -67,10 +65,30 @@ public class App {
         }
       }
 
+      // create esper processor
+      final Processor processor = new EsperProcessor(listEventProperty, listEventQuery);
+      processor.setHierarchy(hierarchy);
       // create event reader
-      EventReader reader = new KafkaReader(-1);
+      final EventReader reader = new KafkaReader(-1);
       // reader read event and send to processor
-      reader.read(processor);
+      Thread esper = new Thread(new Runnable() {
+        public void run() {
+//          reader.read(processor);
+        }
+      });
+      esper.start();
+
+      // create kairos processor
+      final KairosDBProcessor kairosDBProcessor = new KairosDBProcessor();
+      kairosDBProcessor.setHierarchy(hierarchy);
+      // read event and send to processor
+      final EventReader reader2 = new KafkaReader(-1);
+      Thread kairos = new Thread(new Runnable() {
+        public void run() {
+          reader2.read(kairosDBProcessor);
+        }
+      });
+      kairos.start();
 
     } catch (Exception ex) {
       logger.error(ex.getMessage(), ex);

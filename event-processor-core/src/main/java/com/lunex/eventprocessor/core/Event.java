@@ -21,26 +21,43 @@ public class Event implements Serializable {
 
   public Event() {}
 
-  public Event(String evtName, Map<String, Object> event) {
-    this.evtName = evtName;
-    this.event = event;
-  }
-
   public Event(long time, String evtName, Map<String, Object> event) {
     this.time = time;
     this.evtName = evtName;
     this.event = event;
   }
 
-  public Event(long time, String jsonStr) {
+  public Event(String evtName, Map<String, Object> event) {
+    this.evtName = evtName;
+    this.event = event;
+    this.time = (Long) event.get("time");
+  }
+
+  public Event(long time, String payLoad) {
     try {
-      JSONObject jsonObject = new JSONObject(jsonStr);
+      JSONObject jsonObject = new JSONObject(payLoad);
+      this.time = time;
       this.evtName = jsonObject.getString("evtName");
       this.event = JsonHelper.toMap(jsonObject);
-      this.payLoadStr = jsonStr;
+      this.payLoadStr = payLoad;
     } catch (Exception ex) {
       this.evtName = null;
       this.event = null;
+      this.time = -1;
+    }
+  }
+
+  public Event(String payLoad) {
+    try {
+      JSONObject jsonObject = new JSONObject(payLoad);
+      this.time = jsonObject.getLong("time");;
+      this.evtName = jsonObject.getString("evtName");
+      this.event = JsonHelper.toMap(jsonObject);
+      this.payLoadStr = payLoad;
+    } catch (Exception ex) {
+      this.evtName = null;
+      this.event = null;
+      this.time = -1;
     }
   }
 
