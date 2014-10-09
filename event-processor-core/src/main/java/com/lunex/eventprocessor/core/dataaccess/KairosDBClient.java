@@ -51,6 +51,7 @@ public class KairosDBClient {
     }
     MetricBuilder builder = MetricBuilder.getInstance();
     Metric metric = builder.addMetric(metricName);
+    // add tag to metric
     if (tags != null && !tags.isEmpty()) {
       Iterator<String> keys = tags.keySet().iterator();
       String key = null;
@@ -59,7 +60,9 @@ public class KairosDBClient {
         metric.addTag(key, tags.get(key));
       }
     }
+    // add value metric
     metric.addDataPoint(timestamp, value);
+    // connect and push metric to kairos db
     HttpClient client = new HttpClient(kairosDbUrl);
     client.pushMetrics(builder);
     client.shutdown();
@@ -85,6 +88,7 @@ public class KairosDBClient {
     }
     MetricBuilder builder = MetricBuilder.getInstance();
     Metric metric = builder.addMetric(metricName);
+    // add tag to metric
     if (tags != null && !tags.isEmpty()) {
       Iterator<String> keys = tags.keySet().iterator();
       String key = null;
@@ -93,11 +97,13 @@ public class KairosDBClient {
         metric.addTag(key, tags.get(key));
       }
     }
+    // add value metric
     Iterator<Long> keys = points.keySet().iterator();
     while (keys.hasNext()) {
       long key = keys.next();
       metric.addDataPoint(key, points.get(key));
     }
+    // connect and push metric to kairos db
     HttpClient client = new HttpClient(kairosDbUrl);
     client.pushMetrics(builder);
     client.shutdown();
@@ -137,6 +143,7 @@ public class KairosDBClient {
         || Constants.EMPTY_STRING.equals(kairosDbUrl)) {
       return null;
     }
+    // create query builder and query metric
     QueryBuilder builder = QueryBuilder.getInstance();
     if (startDuration != -1) {
       builder = builder.setStart(startDuration, startTimeunit);
@@ -145,12 +152,13 @@ public class KairosDBClient {
       builder = builder.setEnd(endDuration, endTimeunit);
     }
     QueryMetric queryMetric = builder.addMetric(metricName);
-
+    // add Aggregator for query metric
     if (listAggregator != null && listAggregator.size() > 0) {
       for (int i = 0, size = listAggregator.size(); i < size; i++) {
         queryMetric.addAggregator(listAggregator.get(i));
       }
     }
+    // connect and get metric from kairos db
     HttpClient client = new HttpClient(kairosDbUrl);
     QueryResponse response = client.query(builder);
     client.shutdown();
