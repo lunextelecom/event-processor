@@ -11,8 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
-import com.lunex.eventprocessor.input.enums.ContentTypeEnum;
 import com.lunex.eventprocessor.input.exception.InternalServerErrorException;
+import com.lunex.eventprocessor.input.netty.ContentTypeEnum;
 import com.lunex.eventprocessor.input.utils.Constant;
 
 import kafka.javaapi.producer.Producer;

@@ -1,4 +1,4 @@
-package com.lunex.eventprocessor.input.enums;
+package com.lunex.eventprocessor.input.netty;
 
 public enum ContentTypeEnum {
 
