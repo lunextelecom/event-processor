@@ -8,7 +8,7 @@ import com.lunex.eventprocessor.core.EventQuery;
 
 import junit.framework.TestCase;
 
-public class StringUtilsTest extends TestCase {
+public class EventQueryProcessorTest extends TestCase {
 
   public void testProcessEventQuery() {
     assertEquals(true, true);
@@ -25,8 +25,8 @@ public class StringUtilsTest extends TestCase {
   public void testProcessEventProperyForEventQuery() {
     List<EventQuery> testData = new ArrayList<EventQuery>();
     EventQuery eventQuery = new EventQuery();
-    eventQuery.setEventName("new-order");
-    eventQuery.setData("NewOrder");
+    eventQuery.setEventName("new_order");
+    eventQuery.setData("new_order");
     eventQuery.setFields("sum(amount:double), count(txId:long), acctNum:string");
     eventQuery.setFilters("amount > 10 AND acctNum = 'PC01D001'");
     eventQuery.setAggregateField("acctNum:string");
@@ -34,8 +34,8 @@ public class StringUtilsTest extends TestCase {
     testData.add(eventQuery);
     
     eventQuery = new EventQuery();
-    eventQuery.setEventName("new-order");
-    eventQuery.setData("NewOrder");
+    eventQuery.setEventName("new_order");
+    eventQuery.setData("new_order");
     eventQuery.setFields("sum(amount:double), count(txId:long), acctNum:string, sku:string");
     eventQuery.setFilters("amount > 10 AND acctNum = 'PC01D001'");
     eventQuery.setAggregateField("acctNum:string");
