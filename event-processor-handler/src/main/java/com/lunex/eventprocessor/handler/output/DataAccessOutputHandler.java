@@ -218,7 +218,7 @@ public class DataAccessOutputHandler {
               String key = keys.next();
               Object exception = eventQueryException.getConditionFilter().get(key);
               if (exception != null) {
-                if (exception == properties.get(key)) {
+                if (exception.equals(properties.get(key))) {
                   numMappingException++;
                 }
               }

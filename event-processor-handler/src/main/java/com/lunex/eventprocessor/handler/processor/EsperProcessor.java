@@ -1,6 +1,7 @@
 package com.lunex.eventprocessor.handler.processor;
 
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,10 +64,19 @@ public class EsperProcessor implements Processor {
       statement.addListener(new UpdateListener() {
         public void update(EventBean[] newEvents, EventBean[] oldEvents) {
           // TODO: trigger event and process
+          if (newEvents == null || newEvents.length == 0) {
+            return;
+          }
           QueryFuture queryFuture = new QueryFuture(newEvents, eventQuery);
-          ResultListener[] listener =
-              queryHierarchy.getHierarchy().get(eventQuery.getEventName()).get(eventQuery);
-          queryHierarchy.bindOutput(queryFuture, listener);
+          String eventName = eventQuery.getEventName();
+          Map<EventQuery, ResultListener[]> mapResultListener =
+              queryHierarchy.getHierarchy().get(eventName);
+          if (mapResultListener != null) {
+            ResultListener[] listener = mapResultListener.get(eventQuery);
+            if (listener != null && listener.length > 0) {
+              queryHierarchy.bindOutput(queryFuture, listener);
+            }
+          }
         }
       });
     }

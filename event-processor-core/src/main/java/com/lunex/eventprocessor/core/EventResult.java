@@ -56,9 +56,12 @@ public class EventResult implements Serializable {
     this.eventName = eventName;
     this.hashKey = hashkey;
     List<String> results = new ArrayList<String>();
-    results.add(result);
+    if (result != null)
+      results.add(result);
     this.result = results;
     List<String> filteredResults = new ArrayList<String>();
+    if (filteredResult != null)
+      filteredResults.add(filteredResult);
     this.filteredResult = filteredResults;
   }
 

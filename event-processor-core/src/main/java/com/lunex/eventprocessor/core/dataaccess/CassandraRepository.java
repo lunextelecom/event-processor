@@ -251,7 +251,7 @@ public class CassandraRepository {
       String ruleName = row.getString("rule_name");
       ExptionAction action =
           EventQueryException.ExptionAction.getContentType(row.getString("action"));
-      Date expiredDate = row.getDate("condition_filter");
+      Date expiredDate = row.getDate("expired_date");
       Map<String, Object> conditionFilter =
           JsonHelper.toMap(new JSONObject(row.getString("condition_filter")));
       eventQueryException =
