@@ -53,7 +53,7 @@ public class App {
       // get EventQuery
       List<EventQuery> listEventQuery =
           CassandraRepository.getInstance().getEventQueryFromDB(-1, "", "");
-      List<List<EventQuery>> grouping = EventQueryProcessor.groupEventQuery(listEventQuery);
+      List<List<EventQuery>> grouping = EventQueryProcessor.groupEventQueryByEventName(listEventQuery);
       // get Eventproperties
       listEventProperty = EventQueryProcessor.processEventProperyForEventQuery(listEventQuery);
 

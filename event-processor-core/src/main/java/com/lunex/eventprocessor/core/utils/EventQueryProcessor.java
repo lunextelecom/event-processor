@@ -15,6 +15,12 @@ import net.hydromatic.linq4j.function.*;
 
 public class EventQueryProcessor {
 
+  /**
+   * Create new EventQuery object which is removed datatype from properties
+   * 
+   * @param oldEventQuery
+   * @return
+   */
   public static EventQuery processEventQuery(EventQuery oldEventQuery) {
     EventQuery newEventQuery = new EventQuery();
 
@@ -28,6 +34,12 @@ public class EventQueryProcessor {
     return newEventQuery;
   }
 
+  /**
+   * Process remove datatype from String
+   * 
+   * @param fieldStr
+   * @return
+   */
   public static String processStringFieldForEventQuery(String fieldStr) {
     String[] fields = fieldStr.split(",");
     StringBuilder fieldBuilder = new StringBuilder();
@@ -46,6 +58,12 @@ public class EventQueryProcessor {
     return fieldBuilder.toString();
   }
 
+  /**
+   * Get datatype for properties from String
+   * 
+   * @param fieldStr
+   * @return
+   */
   public static Map<String, Object> processStringFieldDataTypeForEventQuery(String fieldStr) {
     String[] fields = fieldStr.split(",");
     Map<String, Object> map = new HashMap<String, Object>();
@@ -64,7 +82,13 @@ public class EventQueryProcessor {
     return map;
   }
 
-  public static List<List<EventQuery>> groupEventQuery(List<EventQuery> list) {
+  /**
+   * Group EventQuery by eventName
+   * 
+   * @param list
+   * @return
+   */
+  public static List<List<EventQuery>> groupEventQueryByEventName(List<EventQuery> list) {
     if (list == null || list.size() == 0) {
       return null;
     }
@@ -88,6 +112,12 @@ public class EventQueryProcessor {
     return results;
   }
 
+  /**
+   * Get all properties with datatype for Event
+   * 
+   * @param list
+   * @return
+   */
   public static List<EventProperty> processEventProperyForEventQuery(List<EventQuery> list) {
     List<EventProperty> results = new ArrayList<EventProperty>();
     // group

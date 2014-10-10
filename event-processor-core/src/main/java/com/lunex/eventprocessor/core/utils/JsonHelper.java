@@ -11,6 +11,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class JsonHelper {
+
+  /**
+   * Convert Object to Json
+   */
   public static Object toJSON(Object object) throws JSONException {
     if (object instanceof Map) {
       JSONObject json = new JSONObject();
@@ -30,14 +34,23 @@ public class JsonHelper {
     }
   }
 
+  /**
+   * Check object is empty
+   */
   public static boolean isEmptyObject(JSONObject object) {
     return object.names() == null;
   }
 
+  /**
+   * Get Map from JsonObject with key
+   */
   public static Map<String, Object> getMap(JSONObject object, String key) throws JSONException {
     return toMap(object.getJSONObject(key));
   }
 
+  /**
+   * Convert JsonObject to map
+   */
   public static Map<String, Object> toMap(JSONObject object) throws JSONException {
     Map<String, Object> map = new HashMap<String, Object>();
     Iterator<?> keys = object.keys();
@@ -56,6 +69,9 @@ public class JsonHelper {
     return list;
   }
 
+  /**
+   * Get Object from Json
+   */
   private static Object fromJson(Object json) throws JSONException {
     if (json == JSONObject.NULL) {
       return null;
@@ -67,9 +83,35 @@ public class JsonHelper {
       return json;
     }
   }
-  
-  public static String toJSonString(Map<String, Object> map) {
-    JSONObject json = new JSONObject(map);
-    return json.toString();
+
+  /**
+   * Convert Map to JSonString
+   * 
+   * @param map
+   * @return
+   * @throws Exception
+   */
+  public static String toJSonString(Map<String, Object> map) throws Exception {
+    try {
+      JSONObject json = new JSONObject(map);
+      return json.toString();
+    } catch (Exception ex) {
+      throw ex;
+    }
+  }
+
+  /**
+   * Convert Map to JsonObject
+   * 
+   * @param map
+   * @return
+   * @throws Exception
+   */
+  public static JSONObject toJSonObject(Map<String, Object> map) throws Exception {
+    try {
+      return new JSONObject(map);
+    } catch (Exception ex) {
+      throw ex;
+    }
   }
 }

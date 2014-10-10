@@ -34,7 +34,6 @@ import com.lunex.eventprocessor.core.EventQueryException.ExptionAction;
 import com.lunex.eventprocessor.core.EventResult;
 import com.lunex.eventprocessor.core.utils.Constants;
 import com.lunex.eventprocessor.core.utils.JsonHelper;
-import com.lunex.eventprocessor.core.utils.StringUtils;
 
 public class CassandraRepository {
 

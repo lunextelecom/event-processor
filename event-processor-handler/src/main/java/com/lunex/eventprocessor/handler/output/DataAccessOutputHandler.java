@@ -254,14 +254,16 @@ public class DataAccessOutputHandler {
               ScriptEngineManager mgr = new ScriptEngineManager();
               ScriptEngine engine = mgr.getEngineByName("JavaScript");
               try {
+                // check condition for EventQuery
                 boolean checked = (Boolean) engine.eval(eventQueryCondition);
                 if (checked) {// if violate(meet condition)
                   logger.info("Result:" + checked + " - " + item.getProperties().toString());
+                  String jsonStr = JsonHelper.toJSonString(item.getProperties());
                   EventResult eventResult =
                       new EventResult(eventQuery.getEventName(),
                           String.valueOf(item.get("hashKey")), "{\"result\": " + checked
                               + ", \"result-event\": "
-                              + JsonHelper.toJSonString(item.getProperties()) + ", \"rule\":\""
+                              + jsonStr + ", \"rule\":\""
                               + eventQuery.getRuleName() + "\"}", null);
                   CassandraRepository.getInstance().updateResults(eventResult);
                 }
