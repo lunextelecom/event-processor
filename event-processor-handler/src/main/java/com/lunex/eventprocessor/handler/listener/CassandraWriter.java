@@ -20,6 +20,7 @@ public class CassandraWriter implements ResultListener {
   public void onEvent(Object[] result) {
     // *******************************//
     // * Write result into cassandra *//
+    // * result is data of last time window(rolling window) *
     // *******************************//
     EventQuery eventQuery = null;
     if (queryFuture != null) {

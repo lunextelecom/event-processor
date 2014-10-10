@@ -88,7 +88,9 @@ public class EsperProcessor implements Processor {
       return;
     }
     logger.info("Start consume event:" + event.toString());
+    // save raw event
     DataAccessOutputHandler.insertRawEventToCassandra(event);
+    // send to esper
     sericeProvider.getEPRuntime().sendEvent(event.getEvent(), event.getEvtName());
   }
 

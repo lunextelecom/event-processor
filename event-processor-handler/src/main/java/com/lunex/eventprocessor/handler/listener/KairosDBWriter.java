@@ -23,6 +23,7 @@ public class KairosDBWriter implements ResultListener {
   public void onEvent(Object[] result) {
     // ******************************//
     // * Write result into KairosDB *//
+    // * result is data of last time window(rolling window) //
     // ******************************//
 
     EventQuery eventQuery = null;
