@@ -34,37 +34,40 @@ public class ConsoleOutput implements ResultListener {
   }
 
   public void onEvent(Object[] result) {
-    EventQuery eventQuery = null;
-    if (queryFuture != null) {
-      eventQuery = queryFuture.getEventQuery();
-    } else {
-      return;
-    }
-    String eventQueryCondition = eventQuery.getConditions();
+    // **************************************//
+    // * Only show result on console screen *//
+    // **************************************//
+    // EventQuery eventQuery = null;
+    // if (queryFuture != null) {
+    // eventQuery = queryFuture.getEventQuery();
+    // } else {
+    // return;
+    // }
+    // String eventQueryCondition = eventQuery.getConditions();
     for (int i = 0; i < result.length; i++) {
       MapEventBean item = (MapEventBean) result[i];
-      if (eventQueryCondition != null && !Constants.EMPTY_STRING.equals(eventQueryCondition)) {
-        if (!item.getProperties().keySet().isEmpty()) {
-          Map<String, Object> properties = item.getProperties();
-          Iterator<String> keys = item.getProperties().keySet().iterator();
-          while (keys.hasNext()) {
-            String key = keys.next();
-            eventQueryCondition =
-                eventQueryCondition.replace(key, String.valueOf(properties.get(key)));
-          }
-          ScriptEngineManager mgr = new ScriptEngineManager();
-          ScriptEngine engine = mgr.getEngineByName("JavaScript");
-          try {
-            boolean checked = (Boolean) engine.eval(eventQueryCondition);
-            System.out.println("Result:" + checked);
-            System.out.println(item.getProperties().toString());
-          } catch (ScriptException e) {
-            logger.error(e.getMessage(), e);
-          }
-        }
-      } else {
-        System.out.println(item.getProperties().toString());
-      }
+      // if (eventQueryCondition != null && !Constants.EMPTY_STRING.equals(eventQueryCondition)) {
+      // if (!item.getProperties().keySet().isEmpty()) {
+      // Map<String, Object> properties = item.getProperties();
+      // Iterator<String> keys = item.getProperties().keySet().iterator();
+      // while (keys.hasNext()) {
+      // String key = keys.next();
+      // eventQueryCondition =
+      // eventQueryCondition.replace(key, String.valueOf(properties.get(key)));
+      // }
+      // ScriptEngineManager Mr = new ScriptEngineManager();
+      // ScriptEngine engine = mgr.getEngineByName("JavaScript");
+      // try {
+      // boolean checked = (Boolean) engine.eval(eventQueryCondition);
+      // System.out.println("Result:" + checked);
+      // System.out.println(item.getProperties().toString());
+      // } catch (ScriptException e) {
+      // logger.error(e.getMessage(), e);
+      // }
+      // }
+      // } else {
+      System.out.println(item.getProperties().toString());
+      // }
     }
   }
 }

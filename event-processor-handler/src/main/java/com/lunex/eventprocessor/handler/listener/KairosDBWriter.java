@@ -32,6 +32,10 @@ public class KairosDBWriter implements ResultListener {
   }
 
   public void onEvent(Object[] result) {
+    // ******************************//
+    // * Write result into KairosDB *//
+    // ******************************//
+
     EventQuery eventQuery = null;
     if (queryFuture != null) {
       eventQuery = queryFuture.getEventQuery();
