@@ -19,8 +19,8 @@ import com.lunex.eventprocessor.core.listener.ResultListener;
 import com.lunex.eventprocessor.core.utils.EventQueryProcessor;
 import com.lunex.eventprocessor.handler.utils.Configurations;
 
-public class KairosDBOutput implements ResultListener {
-  static final Logger logger = LoggerFactory.getLogger(KairosDBOutput.class);
+public class KairosDBWriter implements ResultListener {
+  static final Logger logger = LoggerFactory.getLogger(KairosDBWriter.class);
   private QueryFuture queryFuture;
 
   public void setQueryFuture(QueryFuture queryFuture) {
