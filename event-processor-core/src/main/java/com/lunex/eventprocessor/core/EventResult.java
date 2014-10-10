@@ -1,6 +1,8 @@
 package com.lunex.eventprocessor.core;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class EventResult implements Serializable {
 
@@ -11,8 +13,8 @@ public class EventResult implements Serializable {
 
   private String eventName;
   private String hashKey;
-  private String result;
-  private String filteredResult;
+  private List<String> result;
+  private List<String> filteredResult;
 
   public String getEventName() {
     return eventName;
@@ -30,19 +32,19 @@ public class EventResult implements Serializable {
     this.hashKey = hashKey;
   }
 
-  public String getResult() {
+  public List<String> getResult() {
     return result;
   }
 
-  public void setResult(String result) {
+  public void setResult(List<String> result) {
     this.result = result;
   }
 
-  public String getFilteredResult() {
+  public List<String> getFilteredResult() {
     return filteredResult;
   }
 
-  public void setFilteredResult(String filteredResult) {
+  public void setFilteredResult(List<String> filteredResult) {
     this.filteredResult = filteredResult;
   }
 
@@ -53,8 +55,11 @@ public class EventResult implements Serializable {
   public EventResult(String eventName, String hashkey, String result, String filteredResult) {
     this.eventName = eventName;
     this.hashKey = hashkey;
-    this.result = result;
-    this.filteredResult = filteredResult;
+    List<String> results = new ArrayList<String>();
+    results.add(result);
+    this.result = results;
+    List<String> filteredResults = new ArrayList<String>();
+    this.filteredResult = filteredResults;
   }
 
 }

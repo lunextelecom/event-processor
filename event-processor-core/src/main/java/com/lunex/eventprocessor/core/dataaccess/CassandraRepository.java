@@ -297,12 +297,16 @@ public class CassandraRepository {
     List<Object> params = new ArrayList<Object>();
     params.add(eventResult.getEventName());
     params.add(eventResult.getHashKey());
-    List<String> result = new ArrayList<String>();
-    result.add(eventResult.getResult());
-    params.add(result);
-    result = new ArrayList<String>();
-    result.add(eventResult.getFilteredResult());
-    params.add(result);
+    if (eventResult.getResult() != null && eventResult.getResult().size() > 0) {
+      params.add(eventResult.getResult());
+    } else {
+      params.add(null);
+    }
+    if (eventResult.getResult() != null && eventResult.getResult().size() > 0) {
+      params.add(eventResult.getFilteredResult());
+    } else {
+      params.add(null);
+    }
     execute(sql, params);
   }
 
@@ -319,13 +323,16 @@ public class CassandraRepository {
             + ".results SET result = result + ?, filtered_result = filtered_result + ? where event_name = ? and hashkey = ?";
     List<Object> params = new ArrayList<Object>();
     List<String> result = new ArrayList<String>();
-    if (eventResult.getResult() != null)
-      result.add(eventResult.getResult());
-    params.add(result);
-    result = new ArrayList<String>();
-    if (eventResult.getFilteredResult() != null)
-      result.add(eventResult.getFilteredResult());
-    params.add(result);
+    if (eventResult.getResult() != null && eventResult.getResult().size() > 0) {
+      params.add(eventResult.getResult());
+    } else {
+      params.add(result);
+    }
+    if (eventResult.getFilteredResult() != null && eventResult.getFilteredResult().size() > 0) {
+      params.add(eventResult.getFilteredResult());
+    } else {
+      params.add(result);
+    }
     params.add(eventResult.getEventName());
     params.add(eventResult.getHashKey());
     execute(sql, params);
@@ -352,8 +359,9 @@ public class CassandraRepository {
         results = new ArrayList<EventResult>();
       }
       eventResult =
-          new EventResult(row.getString("event_name"), row.getString("hashkey"),
-              row.getList("result", String.class).toString(), row.getList("filtered_result", String.class).toString());
+          new EventResult(row.getString("event_name"), row.getString("hashkey"), row.getList(
+              "result", String.class).toString(), row.getList("filtered_result", String.class)
+              .toString());
       results.add(eventResult);
     }
     return results;
