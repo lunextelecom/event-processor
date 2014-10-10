@@ -65,6 +65,9 @@ public class EventQueryProcessor {
   }
 
   public static List<List<EventQuery>> groupEventQuery(List<EventQuery> list) {
+    if (list == null || list.size() == 0) {
+      return null;
+    }
     List<List<EventQuery>> results = new ArrayList<List<EventQuery>>();
     // group
     Function1<EventQuery, String> EMP_DEPTNO_SELECTOR = new Function1<EventQuery, String>() {

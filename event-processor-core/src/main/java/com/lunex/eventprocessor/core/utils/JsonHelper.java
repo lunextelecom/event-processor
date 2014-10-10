@@ -67,4 +67,9 @@ public class JsonHelper {
       return json;
     }
   }
+  
+  public static String toJSonString(Map<String, Object> map) {
+    JSONObject json = new JSONObject(map);
+    return json.toString();
+  }
 }

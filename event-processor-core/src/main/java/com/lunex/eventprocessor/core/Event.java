@@ -7,6 +7,7 @@ import java.util.Map;
 import org.json.JSONObject;
 
 import com.lunex.eventprocessor.core.utils.JsonHelper;
+import com.lunex.eventprocessor.core.utils.StringUtils;
 
 public class Event implements Serializable {
   /**
@@ -18,20 +19,21 @@ public class Event implements Serializable {
   private String evtName;
   private Map<String, Object> event = new HashMap<String, Object>();
   private String payLoadStr;
+  private String hashKey;
 
   public Event() {}
 
-  public Event(long time, String evtName, Map<String, Object> event) {
-    this.time = time;
-    this.evtName = evtName;
-    this.event = event;
-  }
+//  public Event(long time, String evtName, Map<String, Object> event) {
+//    this.time = time;
+//    this.evtName = evtName;
+//    this.event = event;
+//  }
 
-  public Event(String evtName, Map<String, Object> event) {
-    this.evtName = evtName;
-    this.event = event;
-    this.time = (Long) event.get("time");
-  }
+//  public Event(String evtName, Map<String, Object> event) {
+//    this.evtName = evtName;
+//    this.event = event;
+//    this.time = (Long) event.get("time");
+//  }
 
   public Event(long time, String payLoad) {
     try {
@@ -40,6 +42,8 @@ public class Event implements Serializable {
       this.evtName = jsonObject.getString("evtName");
       this.event = JsonHelper.toMap(jsonObject);
       this.payLoadStr = payLoad;
+      this.hashKey = StringUtils.md5Java(this.payLoadStr);
+      this.event.put("hashKey", this.hashKey);
     } catch (Exception ex) {
       this.evtName = null;
       this.event = null;
@@ -54,6 +58,8 @@ public class Event implements Serializable {
       this.evtName = jsonObject.getString("evtName");
       this.event = JsonHelper.toMap(jsonObject);
       this.payLoadStr = payLoad;
+      this.hashKey = StringUtils.md5Java(this.payLoadStr);
+      this.event.put("hashKey", this.hashKey);
     } catch (Exception ex) {
       this.evtName = null;
       this.event = null;
@@ -97,4 +103,9 @@ public class Event implements Serializable {
   public void setPayLoadStr(String payLoadStr) {
     this.payLoadStr = payLoadStr;
   }
+
+  public String getHashKey() {
+    return hashKey;
+  }
+
 }

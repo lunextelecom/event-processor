@@ -15,6 +15,7 @@ import com.lunex.eventprocessor.core.dataaccess.CassandraRepository;
 import com.lunex.eventprocessor.core.dataaccess.KairosDBClient;
 import com.lunex.eventprocessor.core.listener.ResultListener;
 import com.lunex.eventprocessor.core.utils.EventQueryProcessor;
+import com.lunex.eventprocessor.handler.listener.CassandraWriter;
 import com.lunex.eventprocessor.handler.listener.ConsoleOutput;
 import com.lunex.eventprocessor.handler.listener.KairosDBWriter;
 import com.lunex.eventprocessor.handler.processor.EsperProcessor;
@@ -62,7 +63,7 @@ public class App {
         for (int j = 0; j < subList.size(); j++) {
           EventQuery query = subList.get(j);
           hierarchy.addQuery(query.getEventName(), query,
-              new ResultListener[] {new ConsoleOutput(), new KairosDBWriter()});
+              new ResultListener[] {new ConsoleOutput(), new KairosDBWriter(), new CassandraWriter()});
         }
       }
 

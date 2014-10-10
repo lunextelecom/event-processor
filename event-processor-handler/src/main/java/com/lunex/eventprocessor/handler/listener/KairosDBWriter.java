@@ -43,7 +43,7 @@ public class KairosDBWriter implements ResultListener {
     } else {
       return;
     }
-    DataAccessOutputHandler.writeKairosDB(result, eventQuery);
+    DataAccessOutputHandler.writeResultToKairosDB(result, eventQuery);
     
   }
 }

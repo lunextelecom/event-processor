@@ -34,6 +34,7 @@ public class EsperProcessor implements Processor {
     EventProperty propeties = null;
     for (int i = 0, size = eventProperty.size(); i < size; i++) {
       propeties = eventProperty.get(i);
+      propeties.getProperties().put("hashKey", "string");
       config.addEventType(propeties.getEvtDataName(), propeties.getProperties());
     }
     sericeProvider = EPServiceProviderManager.getProvider("event-processor-engine", config);
@@ -48,7 +49,7 @@ public class EsperProcessor implements Processor {
 
       EPStatement statement =
           admin.createEPL(String.format(
-              "SELECT %s FROM %s%s WHERE %s %s %s",
+              "SELECT %s,hashKey FROM %s%s WHERE %s %s %s",
               newEventQuery.getFields(),
               newEventQuery.getData(),
               timeSeries,
@@ -77,8 +78,8 @@ public class EsperProcessor implements Processor {
       return;
     }
     logger.info("Start consume event:" + event.toString());
+    DataAccessOutputHandler.insertRawEventToCassandra(event);
     sericeProvider.getEPRuntime().sendEvent(event.getEvent(), event.getEvtName());
-    DataAccessOutputHandler.insertRawEvent(event);
   }
 
   public QueryHierarchy getHierarchy() {

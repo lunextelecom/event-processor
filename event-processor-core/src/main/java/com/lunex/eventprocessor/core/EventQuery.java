@@ -13,6 +13,7 @@ package com.lunex.eventprocessor.core;
 public class EventQuery {
 
   private String eventName;
+  private String ruleName;
   private String data;
   // Ex: from new_order
   private String fields;
@@ -90,5 +91,13 @@ public class EventQuery {
 
   public void setConditions(String conditions) {
     this.conditions = conditions;
+  }
+
+  public String getRuleName() {
+    return ruleName;
+  }
+
+  public void setRuleName(String ruleName) {
+    this.ruleName = ruleName;
   }
 }
