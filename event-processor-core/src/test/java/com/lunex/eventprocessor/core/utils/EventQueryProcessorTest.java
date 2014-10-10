@@ -6,9 +6,9 @@ import java.util.List;
 import com.lunex.eventprocessor.core.EventProperty;
 import com.lunex.eventprocessor.core.EventQuery;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
-public class EventQueryProcessorTest extends TestCase {
+public class EventQueryProcessorTest {
 
   public void testProcessEventQuery() {
     assertEquals(true, true);
@@ -32,7 +32,7 @@ public class EventQueryProcessorTest extends TestCase {
     eventQuery.setAggregateField("acctNum:string");
     eventQuery.setTimeSeries(null);
     testData.add(eventQuery);
-    
+
     eventQuery = new EventQuery();
     eventQuery.setEventName("new_order");
     eventQuery.setData("new_order");
@@ -43,7 +43,7 @@ public class EventQueryProcessorTest extends TestCase {
     testData.add(eventQuery);
 
     List<EventProperty> temp = EventQueryProcessor.processEventProperyForEventQuery(testData);
-    
+
     assertEquals(temp.size(), 1);
   }
 
