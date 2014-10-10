@@ -20,7 +20,7 @@ import com.lunex.eventprocessor.core.QueryHierarchy;
 import com.lunex.eventprocessor.core.listener.ResultListener;
 import com.lunex.eventprocessor.core.utils.Constants;
 import com.lunex.eventprocessor.core.utils.EventQueryProcessor;
-import com.lunex.eventprocessor.handler.output.DataAccessOutput;
+import com.lunex.eventprocessor.handler.output.DataAccessOutputHandler;
 
 public class EsperProcessor implements Processor {
 
@@ -78,7 +78,7 @@ public class EsperProcessor implements Processor {
     }
     logger.info("Start consume event:" + event.toString());
     sericeProvider.getEPRuntime().sendEvent(event.getEvent(), event.getEvtName());
-    DataAccessOutput.insertRawEvent(event);
+    DataAccessOutputHandler.insertRawEvent(event);
   }
 
   public QueryHierarchy getHierarchy() {

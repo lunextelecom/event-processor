@@ -17,6 +17,7 @@ import com.lunex.eventprocessor.core.QueryFuture;
 import com.lunex.eventprocessor.core.dataaccess.KairosDBClient;
 import com.lunex.eventprocessor.core.listener.ResultListener;
 import com.lunex.eventprocessor.core.utils.EventQueryProcessor;
+import com.lunex.eventprocessor.handler.output.DataAccessOutputHandler;
 import com.lunex.eventprocessor.handler.utils.Configurations;
 
 public class KairosDBWriter implements ResultListener {
@@ -42,67 +43,7 @@ public class KairosDBWriter implements ResultListener {
     } else {
       return;
     }
-
-    // create list EventQuery
-    List<EventQuery> listEventQuery = new ArrayList<EventQuery>();
-    listEventQuery.add(eventQuery);
-    // get list datatype of properties of this event
-    List<EventProperty> properties =
-        EventQueryProcessor.processEventProperyForEventQuery(listEventQuery);
-    // create a map
-    Map<String, Object> map = properties.get(0).getProperties();
-    Map<String, String> tags = new HashMap<String, String>();
-    tags.put("event-processor", eventQuery.getEventName());
-
-    KairosDBClient client = new KairosDBClient(Configurations.kairosDBUrl);
-    for (int i = 0; i < result.length; i++) {
-      try {
-        MapEventBean item = (MapEventBean) result[i];
-        Map<String, Object> resultPropeties = item.getProperties();
-        // loop to create metric from data of event
-        Iterator<String> keys = map.keySet().iterator();
-        String metric = eventQuery.getEventName();
-        // create metric name
-        while (keys.hasNext()) {
-          String key = keys.next();
-          if (map.get(key).equals("string")) {
-            for (Entry<String, Object> e : resultPropeties.entrySet()) {
-              if (e.getKey().indexOf(key) == 0) {
-                metric += "." + key + "." + resultPropeties.get(key);
-                break;
-              }
-            }
-          }
-        }
-        // write metric to kairos DB
-        keys = map.keySet().iterator();
-        while (keys.hasNext()) {
-          String key = keys.next();
-          if (map.get(key).equals("string")) {
-            Object value = null;
-            for (Entry<String, Object> e : resultPropeties.entrySet()) {
-              if (e.getKey().indexOf(key) > 0) {
-                value = e.getValue();
-                client.sendMetric(metric + "." + e.getKey().replace("(", ".").replace(")", ""),
-                    System.currentTimeMillis(), value, tags);
-                break;
-              }
-            }
-          } else {
-            Object value = null;
-            for (Entry<String, Object> e : resultPropeties.entrySet()) {
-              if (e.getKey().indexOf(key) > 0) {
-                value = e.getValue();
-                client.sendMetric(metric + "." + e.getKey().replace("(", ".").replace(")", ""),
-                    System.currentTimeMillis(), value, tags);
-                break;
-              }
-            }
-          }
-        }
-      } catch (Exception ex) {
-        logger.error(ex.getMessage(), ex);
-      }
-    }
+    DataAccessOutputHandler.writeKairosDB(result, eventQuery);
+    
   }
 }

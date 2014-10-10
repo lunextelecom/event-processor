@@ -19,6 +19,8 @@ public class CassandraWriter implements ResultListener {
     // *******************************//
     // * Write result into cassandra *//
     // *******************************//
+    
+    
   }
 
 }
