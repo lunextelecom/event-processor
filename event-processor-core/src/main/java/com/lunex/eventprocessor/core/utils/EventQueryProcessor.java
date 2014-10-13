@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.lunex.eventprocessor.core.EventProperty;
 import com.lunex.eventprocessor.core.EventQuery;
@@ -27,13 +29,13 @@ public class EventQueryProcessor {
     newEventQuery.setEventName(oldEventQuery.getEventName());
     newEventQuery.setRuleName(oldEventQuery.getRuleName());
     newEventQuery.setData(oldEventQuery.getData());
-    newEventQuery.setFilters(oldEventQuery.getFilters());
+    newEventQuery.setFilters(processStringFieldForEventQuery(oldEventQuery.getFilters()));
     newEventQuery.setTimeSeries(oldEventQuery.getTimeSeries());
     newEventQuery.setFields(processStringFieldForEventQuery(oldEventQuery.getFields()));
     newEventQuery.setAggregateField(processStringFieldForEventQuery(oldEventQuery
         .getAggregateField()));
-    newEventQuery.setHaving(oldEventQuery.getHaving());
-    newEventQuery.setConditions(oldEventQuery.getConditions());
+    newEventQuery.setHaving(processStringFieldForEventQuery(oldEventQuery.getHaving()));
+    newEventQuery.setConditions(processStringFieldForEventQuery(oldEventQuery.getConditions()));
 
     return newEventQuery;
   }
@@ -45,21 +47,23 @@ public class EventQueryProcessor {
    * @return
    */
   public static String processStringFieldForEventQuery(String fieldStr) {
-    String[] fields = fieldStr.split(",");
-    StringBuilder fieldBuilder = new StringBuilder();
-    for (int i = 0; i < fields.length; i++) {
-      String field = fields[i].trim();
-      String[] temp = field.split(":");
-      if (temp.length == 1 || temp.length == 2) {
-        fieldBuilder.append(temp[0]);
-        if (temp[0].contains("(")) {
-          fieldBuilder.append(")");
-        }
-        fieldBuilder.append(",");
-      }
-    }
-    fieldBuilder.deleteCharAt(fieldBuilder.length() - 1);
-    return fieldBuilder.toString();
+    // String[] fields = fieldStr.split(",");
+    // StringBuilder fieldBuilder = new StringBuilder();
+    // for (int i = 0; i < fields.length; i++) {
+    // String field = fields[i].trim();
+    // String[] temp = field.split(":");
+    // if (temp.length == 1 || temp.length == 2) {
+    // fieldBuilder.append(temp[0]);
+    // if (temp[0].contains("(")) {
+    // fieldBuilder.append(")");
+    // }
+    // fieldBuilder.append(",");
+    // }
+    // }
+    // fieldBuilder.deleteCharAt(fieldBuilder.length() - 1);
+    // return fieldBuilder.toString();
+    String replace = fieldStr.replaceAll(":[a-zA-Z]+", "");
+    return replace;
   }
 
   /**
@@ -69,19 +73,27 @@ public class EventQueryProcessor {
    * @return
    */
   public static Map<String, Object> processStringFieldDataTypeForEventQuery(String fieldStr) {
-    String[] fields = fieldStr.split(",");
+    // String[] fields = fieldStr.split(",");
+    // Map<String, Object> map = new HashMap<String, Object>();
+    // for (int i = 0; i < fields.length; i++) {
+    // String field = fields[i].trim();
+    // if (field.contains("(")) {
+    // field = field.substring(field.indexOf("(") + 1, field.indexOf(")"));
+    // }
+    // String[] temp = field.split(":");
+    // if (temp.length == 1) {
+    // map.put(temp[0], "string");
+    // } else if (temp.length == 2) {
+    // map.put(temp[0], temp[1]);
+    // }
+    // }
+    // return map;
     Map<String, Object> map = new HashMap<String, Object>();
-    for (int i = 0; i < fields.length; i++) {
-      String field = fields[i].trim();
-      if (field.contains("(")) {
-        field = field.substring(field.indexOf("(") + 1, field.indexOf(")"));
-      }
-      String[] temp = field.split(":");
-      if (temp.length == 1) {
-        map.put(temp[0], "string");
-      } else if (temp.length == 2) {
-        map.put(temp[0], temp[1]);
-      }
+    Pattern pattern = Pattern.compile("[a-zA-Z]+:[a-zA-Z]+");
+    Matcher matcher = pattern.matcher(fieldStr);
+    while (matcher.find()) {
+      String[] temp = matcher.group(0).split(":");
+      map.put(temp[0], temp[1]);
     }
     return map;
   }
@@ -148,6 +160,12 @@ public class EventQueryProcessor {
         map.putAll(properties);
         String groups = eventQuery.getAggregateField();
         properties = processStringFieldDataTypeForEventQuery(groups);
+        map.putAll(properties);
+        String filter = eventQuery.getFilters();
+        properties = processStringFieldDataTypeForEventQuery(filter);
+        map.putAll(properties);
+        String having = eventQuery.getHaving();
+        properties = processStringFieldDataTypeForEventQuery(having);
         map.putAll(properties);
       }
       eventProperty.setProperties(map);

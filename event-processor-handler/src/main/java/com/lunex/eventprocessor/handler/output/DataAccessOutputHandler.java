@@ -131,10 +131,11 @@ public class DataAccessOutputHandler {
     Map<String, String> tags = new HashMap<String, String>();
     tags.put("event-processor", eventQuery.getEventName());
 
+    Map<String, Object> resultPropeties = null;
     KairosDBClient client = new KairosDBClient(Configurations.kairosDBUrl);
     for (int i = 0; i < result.length; i++) {
       try {
-        Map<String, Object> resultPropeties = (Map<String, Object>) result[i];
+        resultPropeties = (Map<String, Object>) result[i];
         // loop to create metric from data of event
         Iterator<String> keys = map.keySet().iterator();
         String metric = eventQuery.getEventName();
@@ -219,7 +220,9 @@ public class DataAccessOutputHandler {
       String hashKey = null;
       for (int i = 0; i < result.length; i++) {
         properties = (Map<String, Object>) result[i];
-        hashKey = String.valueOf(properties.get("hashKey") == null ? Constants.EMPTY_STRING : properties.get("hashKey"));
+        hashKey =
+            String.valueOf(properties.get("hashKey") == null ? Constants.EMPTY_STRING : properties
+                .get("hashKey"));
         if (properties == null || properties.isEmpty() || Constants.EMPTY_STRING.equals(hashKey)) {
           continue;
         }
