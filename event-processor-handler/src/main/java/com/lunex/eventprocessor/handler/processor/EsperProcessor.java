@@ -33,6 +33,41 @@ public class EsperProcessor implements Processor {
   private EPServiceProvider sericeProvider;
 
   public EsperProcessor(List<EventProperty> eventProperty, List<EventQuery> listEventQuery) {
+    this.intiConfig(eventProperty, System.currentTimeMillis());
+    this.initEPL(listEventQuery);
+  }
+
+  public void consume(Event event) {
+    if (event == null) {
+      logger.error("Event is null");
+      return;
+    }
+    logger.info("Start consume event:" + event.toString());
+    // save raw event
+    DataAccessOutputHandler.insertRawEventToCassandra(event);
+
+    // Process send event to esper
+    // move forward time by event Time
+    sericeProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(event.getTime()));
+    // send event
+    sericeProvider.getEPRuntime().sendEvent(event.getEvent(), event.getEvtName());
+  }
+
+  public QueryHierarchy getHierarchy() {
+    return queryHierarchy;
+  }
+
+  public void setHierarchy(QueryHierarchy hierarchy) {
+    this.queryHierarchy = hierarchy;
+  }
+
+  /**
+   * Init config for Esper
+   * 
+   * @param eventProperty
+   * @param startTime
+   */
+  public void intiConfig(List<EventProperty> eventProperty, long startTime) {
     Configuration config = new Configuration();
     EventProperty propeties = null;
     for (int i = 0, size = eventProperty.size(); i < size; i++) {
@@ -45,8 +80,10 @@ public class EsperProcessor implements Processor {
     // config.getEngineDefaults().getViewResources().setShareViews(false);
     sericeProvider = EPServiceProviderManager.getProvider("event-processor-engine", config);
     // set start time when start esper
-    sericeProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(System.currentTimeMillis()));
+    sericeProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(startTime));
+  }
 
+  void initEPL(List<EventQuery> listEventQuery) {
     EPAdministrator admin = sericeProvider.getEPAdministrator();
     for (int i = 0, size = listEventQuery.size(); i < size; i++) {
       final EventQuery eventQuery = listEventQuery.get(i);
@@ -85,30 +122,6 @@ public class EsperProcessor implements Processor {
         }
       });
     }
-  }
-
-  public void consume(Event event) {
-    if (event == null) {
-      logger.error("Event is null");
-      return;
-    }
-    logger.info("Start consume event:" + event.toString());
-    // save raw event
-    DataAccessOutputHandler.insertRawEventToCassandra(event);
-
-    // Process send event to esper
-    // move forward time by event Time
-    sericeProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(event.getTime()));
-    // send event
-    sericeProvider.getEPRuntime().sendEvent(event.getEvent(), event.getEvtName());
-  }
-
-  public QueryHierarchy getHierarchy() {
-    return queryHierarchy;
-  }
-
-  public void setHierarchy(QueryHierarchy hierarchy) {
-    this.queryHierarchy = hierarchy;
   }
 
   /**
