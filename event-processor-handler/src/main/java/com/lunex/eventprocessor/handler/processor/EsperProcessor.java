@@ -20,6 +20,7 @@ import com.lunex.eventprocessor.core.EventProperty;
 import com.lunex.eventprocessor.core.EventQuery;
 import com.lunex.eventprocessor.core.QueryFuture;
 import com.lunex.eventprocessor.core.QueryHierarchy;
+import com.lunex.eventprocessor.core.dataaccess.CassandraRepository;
 import com.lunex.eventprocessor.core.listener.ResultListener;
 import com.lunex.eventprocessor.core.utils.Constants;
 import com.lunex.eventprocessor.core.utils.EventQueryProcessor;
@@ -33,8 +34,12 @@ public class EsperProcessor implements Processor {
   private EPServiceProvider sericeProvider;
 
   public EsperProcessor(List<EventProperty> eventProperty, List<EventQuery> listEventQuery) {
-    this.intiConfig(eventProperty, System.currentTimeMillis());
-    this.initEPL(listEventQuery);
+    try {
+      this.intiConfig(eventProperty);
+      this.initEPLNoBackFill(listEventQuery, false, System.currentTimeMillis());
+    } catch (Exception ex) {
+      logger.error(ex.getMessage(), ex);
+    }
   }
 
   public void consume(Event event) {
@@ -67,7 +72,7 @@ public class EsperProcessor implements Processor {
    * @param eventProperty
    * @param startTime
    */
-  public void intiConfig(List<EventProperty> eventProperty, long startTime) {
+  private void intiConfig(List<EventProperty> eventProperty) {
     Configuration config = new Configuration();
     EventProperty propeties = null;
     for (int i = 0, size = eventProperty.size(); i < size; i++) {
@@ -79,11 +84,25 @@ public class EsperProcessor implements Processor {
     config.getEngineDefaults().getThreading().setInternalTimerEnabled(false);
     // config.getEngineDefaults().getViewResources().setShareViews(false);
     sericeProvider = EPServiceProviderManager.getProvider("event-processor-engine", config);
-    // set start time when start esper
-    sericeProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(startTime));
   }
 
-  void initEPL(List<EventQuery> listEventQuery) {
+  /**
+   * Create EPL to start process(no backfill)
+   * 
+   * @param listEventQuery -> list Event Query to build EPL
+   * @param backFill: true: process -> backfill, false -> no process backfill
+   * @param startTime: time to determine how far to backfill, if backFill is false --> default is
+   *        system current time
+   * @throws Exception
+   */
+  public void initEPLNoBackFill(List<EventQuery> listEventQuery, boolean backFill, long startTime)
+      throws Exception {
+    // set start time when start esper
+    if (backFill == true) {
+      sericeProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(startTime));
+    } else {
+      sericeProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(System.currentTimeMillis()));
+    }
     EPAdministrator admin = sericeProvider.getEPAdministrator();
     for (int i = 0, size = listEventQuery.size(); i < size; i++) {
       final EventQuery eventQuery = listEventQuery.get(i);
@@ -121,6 +140,29 @@ public class EsperProcessor implements Processor {
           }
         }
       });
+    }
+
+    // if this init is backfill mode
+    if (backFill) {
+      if (startTime == -1) {
+        logger.error("No define how far to backfill");
+        return;
+      }
+      this.feedHistoricalEvent(startTime);
+    }
+  }
+
+  public void feedHistoricalEvent(long startTime) throws Exception {
+    // get historical event from DB
+    List<Event> listEvent = CassandraRepository.getInstance().getEvent(startTime);
+    Event historicalEvent = null;
+    for (int i = 0, size = listEvent.size(); i < size; i++) {
+      historicalEvent = listEvent.get(i);
+      // move forward time by event Time
+      sericeProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(historicalEvent.getTime()));
+      // send event
+      sericeProvider.getEPRuntime().sendEvent(historicalEvent.getEvent(),
+          historicalEvent.getEvtName());
     }
   }
 
