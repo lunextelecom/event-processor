@@ -36,7 +36,7 @@ public class EsperProcessor implements Processor {
   public EsperProcessor(List<EventProperty> eventProperty, List<EventQuery> listEventQuery) {
     try {
       this.intiConfig(eventProperty);
-      this.initEPLNoBackFill(listEventQuery, false, System.currentTimeMillis());
+      this.initEPL(listEventQuery, false, System.currentTimeMillis());
     } catch (Exception ex) {
       logger.error(ex.getMessage(), ex);
     }
@@ -73,6 +73,12 @@ public class EsperProcessor implements Processor {
    * @param startTime
    */
   private void intiConfig(List<EventProperty> eventProperty) {
+    // detroy firstly to reset config
+    if (sericeProvider != null) {
+      sericeProvider.destroy();
+    }
+
+    // add new config
     Configuration config = new Configuration();
     EventProperty propeties = null;
     for (int i = 0, size = eventProperty.size(); i < size; i++) {
@@ -95,8 +101,11 @@ public class EsperProcessor implements Processor {
    *        system current time
    * @throws Exception
    */
-  public void initEPLNoBackFill(List<EventQuery> listEventQuery, boolean backFill, long startTime)
+  public void initEPL(List<EventQuery> listEventQuery, boolean backFill, long startTime)
       throws Exception {
+    // detroy all statement firstly to reset
+    sericeProvider.getEPAdministrator().destroyAllStatements();
+
     // set start time when start esper
     if (backFill == true) {
       sericeProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(startTime));
@@ -152,6 +161,12 @@ public class EsperProcessor implements Processor {
     }
   }
 
+  /**
+   * Send historical Event to Esper
+   * 
+   * @param startTime
+   * @throws Exception
+   */
   public void feedHistoricalEvent(long startTime) throws Exception {
     // get historical event from DB
     List<Event> listEvent = CassandraRepository.getInstance().getEvent(startTime);
@@ -172,6 +187,9 @@ public class EsperProcessor implements Processor {
    * @param propeties
    */
   public void updateEsperEventTypeOnRuntime(EventProperty propeties) {
+    if (this.sericeProvider == null) {
+      return;
+    }
     EPAdministrator admin = this.sericeProvider.getEPAdministrator();
     propeties.getProperties().put("hashKey", "string");
     propeties.getProperties().put("time", "long");
@@ -185,6 +203,9 @@ public class EsperProcessor implements Processor {
    * @param propeties
    */
   public void addEsperContenTypeOnRunTime(EventProperty propeties) {
+    if (this.sericeProvider == null) {
+      return;
+    }
     EPAdministrator admin = this.sericeProvider.getEPAdministrator();
     propeties.getProperties().put("hashKey", "string");
     propeties.getProperties().put("time", "long");
