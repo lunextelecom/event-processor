@@ -148,15 +148,17 @@ public class EventQueryProcessor {
     // create EventProperty
     EventProperty eventProperty = null;
     Map<String, Object> map = null;
+    Map<String, Object> properties = null;
     for (int i = 0; i < temp.size(); i++) {
       String eventDataName = temp.get(i).getKey();
       eventProperty = new EventProperty(eventDataName, null);
       map = new HashMap<String, Object>();
       Enumerator<EventQuery> enumerator = temp.get(i).enumerator();
+      properties = null;
       while (enumerator.moveNext()) {
         EventQuery eventQuery = enumerator.current();
         String fields = eventQuery.getFields();
-        Map<String, Object> properties = processStringFieldDataTypeForEventQuery(fields);
+        properties = processStringFieldDataTypeForEventQuery(fields);
         map.putAll(properties);
         String groups = eventQuery.getAggregateField();
         properties = processStringFieldDataTypeForEventQuery(groups);
