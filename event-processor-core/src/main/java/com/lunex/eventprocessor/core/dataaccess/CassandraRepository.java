@@ -174,6 +174,59 @@ public class CassandraRepository {
     execute(sql, params);
   }
 
+  public List<Event> getEvent(long startTime) throws Exception {
+    String sql = "SELECT * FROM " + keyspace + ".events where time > ? ALLOW FILTERING;";
+    List<Object> params = new ArrayList<Object>();
+    params.add(startTime);
+    ResultSet rows = execute(sql, params);
+    List<Event> results = null;
+    Event event = null;
+    for (Row row : rows) {
+      if (results == null) {
+        results = new ArrayList<Event>();
+      }
+      event = new Event(row.getLong("time"), row.getString("event"));
+      results.add(event);
+    }
+    return results;
+  }
+
+  public List<Event> getEvent(long startTime, String eventName) throws Exception {
+    String sql =
+        "SELECT * FROM " + keyspace + ".events where event_name = ? and time > ? ALLOW FILTERING;";
+    List<Object> params = new ArrayList<Object>();
+    params.add(eventName);
+    params.add(startTime);
+    ResultSet rows = execute(sql, params);
+    List<Event> results = null;
+    Event event = null;
+    for (Row row : rows) {
+      if (results == null) {
+        results = new ArrayList<Event>();
+      }
+      event = new Event(row.getLong("time"), row.getString("event"));
+      results.add(event);
+    }
+    return results;
+  }
+
+  public List<Event> getEvent(String hashkey) throws Exception {
+    String sql = "SELECT * FROM " + keyspace + ".events where hashkey = ? ALLOW FILTERING;";
+    List<Object> params = new ArrayList<Object>();
+    params.add(hashkey);
+    ResultSet rows = execute(sql, params);
+    List<Event> results = null;
+    Event event = null;
+    for (Row row : rows) {
+      if (results == null) {
+        results = new ArrayList<Event>();
+      }
+      event = new Event(row.getLong("time"), row.getString("event"));
+      results.add(event);
+    }
+    return results;
+  }
+
   /**
    * Get event query (rule) from DB
    * 
