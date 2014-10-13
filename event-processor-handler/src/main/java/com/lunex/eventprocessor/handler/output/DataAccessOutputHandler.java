@@ -134,8 +134,7 @@ public class DataAccessOutputHandler {
     KairosDBClient client = new KairosDBClient(Configurations.kairosDBUrl);
     for (int i = 0; i < result.length; i++) {
       try {
-        MapEventBean item = (MapEventBean) result[i];
-        Map<String, Object> resultPropeties = item.getProperties();
+        Map<String, Object> resultPropeties = (Map<String, Object>) result[i];
         // loop to create metric from data of event
         Iterator<String> keys = map.keySet().iterator();
         String metric = eventQuery.getEventName();
@@ -155,7 +154,7 @@ public class DataAccessOutputHandler {
         keys = map.keySet().iterator();
         while (keys.hasNext()) {
           String key = keys.next();
-          if (map.get(key).equals("string")) {
+          if (map.get(key).equals("string")) { // create metric name from fields of event
             Object value = null;
             for (Entry<String, Object> e : resultPropeties.entrySet()) {
               if (e.getKey().indexOf(key) > 0) {
@@ -165,7 +164,7 @@ public class DataAccessOutputHandler {
                 break;
               }
             }
-          } else {
+          } else {// create and send value from fields of event
             Object value = null;
             for (Entry<String, Object> e : resultPropeties.entrySet()) {
               if (e.getKey().indexOf(key) > 0) {
@@ -191,9 +190,9 @@ public class DataAccessOutputHandler {
    * @throws PropertyAccessException
    * @throws Exception
    */
-  public static void writeResultComputation(MapEventBean item, EventQuery eventQuery)
+  public static void writeResultComputation(Map<String, Object> item, EventQuery eventQuery)
       throws PropertyAccessException, Exception {
-    String jsonStr = JsonHelper.toJSonString(item.getProperties());
+    String jsonStr = JsonHelper.toJSonString(item);
     CassandraRepository.getInstance().insertResultComputation(eventQuery.getEventName(),
         eventQuery.getRuleName(), (Long) item.get("time"), String.valueOf(item.get("hashKey")),
         jsonStr);
@@ -217,18 +216,16 @@ public class DataAccessOutputHandler {
 
       String eventQueryCondition = eventQuery.getConditions();
       Map<String, Object> properties = null;
-      MapEventBean item = null;
       String hashKey = null;
       for (int i = 0; i < result.length; i++) {
-        item = (MapEventBean) result[i];
-        properties = item.getProperties();
-        hashKey = String.valueOf(item.get("hashKey") == null ? "" : item.get("hashKey"));
+        properties = (Map<String, Object>) result[i];
+        hashKey = String.valueOf(properties.get("hashKey") == null ? Constants.EMPTY_STRING : properties.get("hashKey"));
         if (properties == null || properties.isEmpty() || Constants.EMPTY_STRING.equals(hashKey)) {
           continue;
         }
 
         // Write result of computation
-        writeResultComputation(item, eventQuery);
+        writeResultComputation(properties, eventQuery);
 
         // check condition exception
         // write result check violation -> Condition truncate the resulting data into a bool

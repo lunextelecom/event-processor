@@ -1,5 +1,6 @@
 package com.lunex.eventprocessor.handler.processor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -14,6 +15,7 @@ import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.UpdateListener;
 import com.espertech.esper.client.time.CurrentTimeEvent;
+import com.espertech.esper.event.map.MapEventBean;
 import com.lunex.eventprocessor.core.Event;
 import com.lunex.eventprocessor.core.EventProperty;
 import com.lunex.eventprocessor.core.EventQuery;
@@ -236,7 +238,12 @@ public class EsperProcessor implements Processor {
       if (newEvents == null || newEvents.length == 0 || !enable) {
         return;
       }
-      QueryFuture queryFuture = new QueryFuture(newEvents, eventQuery);
+      List<Map<String, Object>> objectArray = new ArrayList<Map<String, Object>>();
+      for (int i = 0; i < newEvents.length; i++) {
+        MapEventBean eventbean = (MapEventBean) newEvents[i];
+        objectArray.add(eventbean.getProperties());
+      }
+      QueryFuture queryFuture = new QueryFuture(objectArray.toArray(), eventQuery);
       String eventName = eventQuery.getEventName();
       Map<EventQuery, ResultListener[]> mapResultListener =
           queryHierarchy.getHierarchy().get(eventName);

@@ -1,5 +1,7 @@
 package com.lunex.eventprocessor.handler.listener;
 
+import java.util.Map;
+
 import com.espertech.esper.event.map.MapEventBean;
 import com.lunex.eventprocessor.core.QueryFuture;
 import com.lunex.eventprocessor.core.listener.ResultListener;
@@ -29,8 +31,8 @@ public class ConsoleOutput implements ResultListener {
     // * Only show result on console screen *//
     // **************************************//
     for (int i = 0; i < result.length; i++) {
-      MapEventBean item = (MapEventBean) result[i];
-      System.out.println(item.getProperties().toString());
+      Map<String, Object> item = (Map<String, Object>) result[i];
+      System.out.println(item.toString());
     }
   }
 }
