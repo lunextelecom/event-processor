@@ -43,7 +43,8 @@ public class StringUtils {
    * @throws UnsupportedEncodingException
    * @throws NoSuchAlgorithmException
    */
-  public static String md5Java(String message) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+  public static String md5Java(String message) throws UnsupportedEncodingException,
+      NoSuchAlgorithmException {
     String digest = null;
     try {
       MessageDigest md = MessageDigest.getInstance("MD5");
@@ -60,5 +61,42 @@ public class StringUtils {
       throw ex;
     }
     return digest;
+  }
+
+  public enum BackFillEnum {
+    day, month, year, hour, minute, second
+  }
+
+  // # N day, n month, n year, n hour, n minute, n second
+  public static long getBackFillTime(String backfillTime) {
+    try {
+      String[] temp = backfillTime.split(" ");
+      long time = 1000L;
+      switch (BackFillEnum.valueOf(temp[1])) {
+        case second:
+          time *= Integer.valueOf(temp[0]);
+          break;
+        case minute:
+          time *= Integer.valueOf(temp[0]) * 60;
+          break;
+        case hour:
+          time *= Integer.valueOf(temp[0]) * 60 * 60;
+          break;
+        case day:
+          time *= Integer.valueOf(temp[0]) * 60 * 60 * 24;
+          break;
+        case month:
+          time *= Integer.valueOf(temp[0]) * 60 * 60 * 24 * 30;
+          break;
+        case year:
+          time *= Integer.valueOf(temp[0]) * 60 * 60 * 24 * 30 * 12;
+          break;
+        default:
+          return -1;
+      }
+      return System.currentTimeMillis() - time;
+    } catch (Exception ex) {
+      return -1;
+    }
   }
 }

@@ -13,6 +13,7 @@ public class Configurations {
   public static String kafkaTopic;
   public static int kafkaTopicNumPartition;
   public static String kairosDBUrl;
+  public static String backfillDefault = "";
 
   public static void getPropertiesValues(String propFileName) throws Exception {
     try {
@@ -40,7 +41,9 @@ public class Configurations {
       kafkaTopicNumPartition = Integer.valueOf(prop.getProperty("kafka.topic.count.partition"));
 
       kairosDBUrl = prop.getProperty("kairosdb.url");
-      
+
+      backfillDefault = prop.getProperty("esper.backfill.howfar.default");
+
     } catch (Exception e) {
       throw e;
     }

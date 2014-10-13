@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPAdministrator;
 import com.espertech.esper.client.EPServiceProvider;
-import com.espertech.esper.client.EPServiceProviderIsolated;
 import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
@@ -33,10 +32,12 @@ public class EsperProcessor implements Processor {
   private QueryHierarchy queryHierarchy;
   private EPServiceProvider sericeProvider;
 
-  public EsperProcessor(List<EventProperty> eventProperty, List<EventQuery> listEventQuery) {
+  public EsperProcessor(QueryHierarchy queryHierarchy, List<EventProperty> eventProperty,
+      List<EventQuery> listEventQuery, boolean backFill, long startTime) {
     try {
+      this.queryHierarchy = queryHierarchy;
       this.intiConfig(eventProperty);
-      this.initEPL(listEventQuery, false, System.currentTimeMillis());
+      this.initEPL(listEventQuery, backFill, startTime);
     } catch (Exception ex) {
       logger.error(ex.getMessage(), ex);
     }
@@ -53,13 +54,13 @@ public class EsperProcessor implements Processor {
 
     // Process send event to esper
     // move forward time by event Time
-    sericeProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(event.getTime()));
+    this.sericeProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(event.getTime()));
     // send event
-    sericeProvider.getEPRuntime().sendEvent(event.getEvent(), event.getEvtName());
+    this.sericeProvider.getEPRuntime().sendEvent(event.getEvent(), event.getEvtName());
   }
 
   public QueryHierarchy getHierarchy() {
-    return queryHierarchy;
+    return this.queryHierarchy;
   }
 
   public void setHierarchy(QueryHierarchy hierarchy) {
@@ -74,8 +75,8 @@ public class EsperProcessor implements Processor {
    */
   private void intiConfig(List<EventProperty> eventProperty) {
     // detroy firstly to reset config
-    if (sericeProvider != null) {
-      sericeProvider.destroy();
+    if (this.sericeProvider != null) {
+      this.sericeProvider.destroy();
     }
 
     // add new config
@@ -89,7 +90,7 @@ public class EsperProcessor implements Processor {
     }
     config.getEngineDefaults().getThreading().setInternalTimerEnabled(false);
     // config.getEngineDefaults().getViewResources().setShareViews(false);
-    sericeProvider = EPServiceProviderManager.getProvider("event-processor-engine", config);
+    this.sericeProvider = EPServiceProviderManager.getProvider("event-processor-engine", config);
   }
 
   /**
@@ -104,14 +105,16 @@ public class EsperProcessor implements Processor {
   public void initEPL(List<EventQuery> listEventQuery, boolean backFill, long startTime)
       throws Exception {
     // detroy all statement firstly to reset
-    sericeProvider.getEPAdministrator().destroyAllStatements();
+    this.sericeProvider.getEPAdministrator().destroyAllStatements();
 
     // set start time when start esper
     if (backFill == true) {
-      sericeProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(startTime));
+      this.sericeProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(startTime));
     } else {
-      sericeProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(System.currentTimeMillis()));
+      this.sericeProvider.getEPRuntime()
+          .sendEvent(new CurrentTimeEvent(System.currentTimeMillis()));
     }
+    // Create EPL
     EPAdministrator admin = sericeProvider.getEPAdministrator();
     for (int i = 0, size = listEventQuery.size(); i < size; i++) {
       final EventQuery eventQuery = listEventQuery.get(i);
@@ -121,7 +124,7 @@ public class EsperProcessor implements Processor {
               + newEventQuery.getTimeSeries() + ")";
 
       String epl =
-          String.format("SELECT %s,hashKey,time FROM %s%s %s %s %s", newEventQuery.getFields(),
+          String.format("SELECT %s, hashKey, time FROM %s%s %s %s %s", newEventQuery.getFields(),
               newEventQuery.getData(), timeSeries,
               (newEventQuery.getFilters() == null || Constants.EMPTY_STRING.equals(newEventQuery
                   .getFilters())) ? "" : "WHERE " + newEventQuery.getFilters(), (newEventQuery
@@ -130,25 +133,8 @@ public class EsperProcessor implements Processor {
               (newEventQuery.getHaving() == null || Constants.EMPTY_STRING.equals(newEventQuery
                   .getHaving())) ? "" : "HAVING " + newEventQuery.getHaving());
       EPStatement statement = admin.createEPL(epl);
-
-      statement.addListener(new UpdateListener() {
-        public void update(EventBean[] newEvents, EventBean[] oldEvents) {
-          // TODO: trigger event and process
-          if (newEvents == null || newEvents.length == 0) {
-            return;
-          }
-          QueryFuture queryFuture = new QueryFuture(newEvents, eventQuery);
-          String eventName = eventQuery.getEventName();
-          Map<EventQuery, ResultListener[]> mapResultListener =
-              queryHierarchy.getHierarchy().get(eventName);
-          if (mapResultListener != null) {
-            ResultListener[] listener = mapResultListener.get(eventQuery);
-            if (listener != null && listener.length > 0) {
-              queryHierarchy.bindOutput(queryFuture, listener);
-            }
-          }
-        }
-      });
+      // Add listener, default listener is enable = false
+      statement.addListener(new EsperListener(eventQuery));
     }
 
     // if this init is backfill mode
@@ -159,6 +145,27 @@ public class EsperProcessor implements Processor {
       }
       this.feedHistoricalEvent(startTime);
     }
+
+    // start listener enable = true
+    this.startListener();
+  }
+
+  /**
+   * Start listener for Esper
+   */
+  public void startListener() {
+    EPAdministrator admin = sericeProvider.getEPAdministrator();
+    String[] statements = admin.getStatementNames();
+    EPStatement statement = null;
+    EsperListener lisnter = null;
+    for (int i = 0, length = statements.length; i < length; i++) {
+      statement = admin.getStatement(statements[i]);
+      if (statement.getUpdateListeners().hasNext()) {
+        lisnter = (EsperListener) statement.getUpdateListeners().next();
+        lisnter.setEnable(true);
+      }
+    }
+    System.out.println("EPL is ready");
   }
 
   /**
@@ -173,11 +180,8 @@ public class EsperProcessor implements Processor {
     Event historicalEvent = null;
     for (int i = 0, size = listEvent.size(); i < size; i++) {
       historicalEvent = listEvent.get(i);
-      // move forward time by event Time
-      sericeProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(historicalEvent.getTime()));
-      // send event
-      sericeProvider.getEPRuntime().sendEvent(historicalEvent.getEvent(),
-          historicalEvent.getEvtName());
+      // consume event but not process listener
+      this.consume(historicalEvent);
     }
   }
 
@@ -212,22 +216,43 @@ public class EsperProcessor implements Processor {
     admin.getConfiguration().addEventType(propeties.getEvtDataName(), propeties.getProperties());
   }
 
-  public void addHistoryEvent(long backfillTime, List<Event> listHistoryEvent) {
-    // create a isolated statment
-    EPServiceProviderIsolated isolatedService =
-        sericeProvider.getEPServiceIsolated("suspendedStmts");
-    isolatedService.getEPRuntime().sendEvent(new CurrentTimeEvent(backfillTime));
+  /**
+   * Class process listener for esper
+   *
+   */
+  public class EsperListener implements UpdateListener {
 
-    Event historyEvent = null;
-    for (int i = 0, size = listHistoryEvent.size(); i < size; i++) {
-      historyEvent = listHistoryEvent.get(i);
-      if (historyEvent.getTime() < backfillTime) {
-        continue;
-      }
-      isolatedService.getEPRuntime().sendEvent(new CurrentTimeEvent(historyEvent.getTime()));
-      isolatedService.getEPRuntime().sendEvent(historyEvent);
-      // repeat the above advancing time until no more events
+    private EventQuery eventQuery;
+
+    private boolean enable = false;
+
+    public EsperListener(EventQuery eventQuery) {
+      this.eventQuery = eventQuery;
     }
-    // isolatedService.getEPAdministrator().re
+
+    public void update(EventBean[] newEvents, EventBean[] oldEvents) {
+      if (newEvents == null || newEvents.length == 0 || !enable) {
+        return;
+      }
+      QueryFuture queryFuture = new QueryFuture(newEvents, eventQuery);
+      String eventName = eventQuery.getEventName();
+      Map<EventQuery, ResultListener[]> mapResultListener =
+          queryHierarchy.getHierarchy().get(eventName);
+      if (mapResultListener != null) {
+        ResultListener[] listener = mapResultListener.get(eventQuery);
+        if (listener != null && listener.length > 0) {
+          queryHierarchy.bindOutput(queryFuture, listener);
+        }
+      }
+    }
+
+    public boolean isEnable() {
+      return enable;
+    }
+
+    public void setEnable(boolean enable) {
+      this.enable = enable;
+    }
+
   }
 }

@@ -195,7 +195,7 @@ public class DataAccessOutputHandler {
       throws PropertyAccessException, Exception {
     String jsonStr = JsonHelper.toJSonString(item.getProperties());
     CassandraRepository.getInstance().insertResultComputation(eventQuery.getEventName(),
-        eventQuery.getRuleName(), System.currentTimeMillis(), String.valueOf(item.get("hashKey")),
+        eventQuery.getRuleName(), (Long) item.get("time"), String.valueOf(item.get("hashKey")),
         jsonStr);
   }
 

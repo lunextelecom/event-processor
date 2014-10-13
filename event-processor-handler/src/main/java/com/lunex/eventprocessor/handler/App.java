@@ -15,6 +15,7 @@ import com.lunex.eventprocessor.core.dataaccess.CassandraRepository;
 import com.lunex.eventprocessor.core.dataaccess.KairosDBClient;
 import com.lunex.eventprocessor.core.listener.ResultListener;
 import com.lunex.eventprocessor.core.utils.EventQueryProcessor;
+import com.lunex.eventprocessor.core.utils.StringUtils;
 import com.lunex.eventprocessor.handler.listener.CassandraWriter;
 import com.lunex.eventprocessor.handler.listener.ConsoleOutput;
 import com.lunex.eventprocessor.handler.listener.KairosDBWriter;
@@ -69,8 +70,9 @@ public class App {
       }
 
       // create esper processor
-      final Processor processor = new EsperProcessor(listEventProperty, listEventQuery);
-      processor.setHierarchy(hierarchy);
+      final Processor processor =
+          new EsperProcessor(hierarchy, listEventProperty, listEventQuery, true,
+              StringUtils.getBackFillTime(Configurations.backfillDefault));
       // create event reader
       final EventReader reader = new KafkaReader(-1);
       // reader read event and send to processor
