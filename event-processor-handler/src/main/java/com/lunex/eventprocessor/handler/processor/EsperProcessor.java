@@ -101,4 +101,26 @@ public class EsperProcessor implements Processor {
   public void setHierarchy(QueryHierarchy hierarchy) {
     this.queryHierarchy = hierarchy;
   }
+
+  /**
+   * Update existed EventType for Esper at runtime
+   * 
+   * @param propeties
+   */
+  public void updateEsperEventTypeOnRuntime(EventProperty propeties) {
+    EPAdministrator admin = this.sericeProvider.getEPAdministrator();
+    propeties.getProperties().put("hashKey", "string");
+    admin.getConfiguration().updateMapEventType(propeties.getEvtDataName(),
+        propeties.getProperties());
+  }
+
+  /**
+   * Add new EventType for Esper at runtime
+   * @param propeties
+   */
+  public void addEsperContenTypeOnRunTime(EventProperty propeties) {
+    EPAdministrator admin = this.sericeProvider.getEPAdministrator();
+    propeties.getProperties().put("hashKey", "string");
+    admin.getConfiguration().addEventType(propeties.getEvtDataName(), propeties.getProperties());
+  }
 }

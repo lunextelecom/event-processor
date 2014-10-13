@@ -30,9 +30,9 @@ public class JsonHelperTest {
   @Test
   public void testToJSonString() throws Exception {
     Map<String, Object> map = new HashMap<String, Object>();
-    map.put("eventName", "new_order");
+    map.put("eventName(text)", "new_order");
     String result = JsonHelper.toJSonString(map);
-    assertEquals(result, "{\"eventName\":\"new_order\"}");
+    assertEquals(result, "{\"eventName(text)\":\"new_order\"}");
   }
 
   @Test

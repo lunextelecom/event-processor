@@ -261,6 +261,21 @@ public class CassandraRepository {
     return results;
   }
 
+  public void insertResultComputation(String eventName, String rule, long time, String hashKey,
+      String result) throws Exception {
+    String sql =
+        "INSERT INTO "
+            + keyspace
+            + ".result_computation (event_name, rule_name, time, hashkey, result) VALUES (?,?,?,?,?);";
+    List<Object> params = new ArrayList<Object>();
+    params.add(eventName);
+    params.add(rule);
+    params.add(time);
+    params.add(hashKey);
+    params.add(result);
+    execute(sql, params);
+  }
+
   /**
    * Insert result into db
    * 

@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.espertech.esper.client.PropertyAccessException;
 import com.espertech.esper.event.map.MapEventBean;
 import com.google.common.collect.Lists;
 import com.lunex.eventprocessor.core.Event;
@@ -183,6 +184,22 @@ public class DataAccessOutputHandler {
   }
 
   /**
+   * Write result computation from continuous query to cassandra
+   * 
+   * @param item
+   * @param eventQuery
+   * @throws PropertyAccessException
+   * @throws Exception
+   */
+  public static void writeResultComputation(MapEventBean item, EventQuery eventQuery)
+      throws PropertyAccessException, Exception {
+    String jsonStr = JsonHelper.toJSonString(item.getProperties());
+    CassandraRepository.getInstance().insertResultComputation(eventQuery.getEventName(),
+        eventQuery.getRuleName(), System.currentTimeMillis(), String.valueOf(item.get("hashKey")),
+        jsonStr);
+  }
+
+  /**
    * Write result into cassandra
    * 
    * @param result
@@ -199,24 +216,41 @@ public class DataAccessOutputHandler {
               ExptionAction.VERIFIED.toString());
 
       String eventQueryCondition = eventQuery.getConditions();
+      Map<String, Object> properties = null;
+      MapEventBean item = null;
+      String hashKey = null;
       for (int i = 0; i < result.length; i++) {
-        MapEventBean item = (MapEventBean) result[i];
+        item = (MapEventBean) result[i];
+        properties = item.getProperties();
+        hashKey = String.valueOf(item.get("hashKey") == null ? "" : item.get("hashKey"));
+        if (properties == null || properties.isEmpty() || Constants.EMPTY_STRING.equals(hashKey)) {
+          continue;
+        }
+
+        // Write result of computation
+        writeResultComputation(item, eventQuery);
 
         // check condition exception
+        // write result check violation -> Condition truncate the resulting data into a bool
+        // The first: get exception if it exist
         boolean eventException = false;
-        EventQueryException eventQueryException = null;
-        if (condtionExceptions != null) {
+        if (condtionExceptions != null && condtionExceptions.size() > 0) {
+          EventQueryException eventQueryException = null;
+          Iterator<String> keys = null;
+          String key = null;
+          Object exception = null;
           for (int j = 0; j < condtionExceptions.size(); j++) {
             eventQueryException = condtionExceptions.get(j);
             if (eventQueryException.getConditionFilter() == null) {
               continue;
             }
-            Map<String, Object> properties = item.getProperties();
-            Iterator<String> keys = properties.keySet().iterator();
+            keys = properties.keySet().iterator();
             int numMappingException = 0;
+            key = null;
+            exception = null;
             while (keys.hasNext()) {
-              String key = keys.next();
-              Object exception = eventQueryException.getConditionFilter().get(key);
+              key = keys.next();
+              exception = eventQueryException.getConditionFilter().get(key);
               if (exception != null) {
                 if (exception.equals(properties.get(key))) {
                   numMappingException++;
@@ -231,20 +265,20 @@ public class DataAccessOutputHandler {
           }
         }
 
-        // if exception
+        // if exception is existed
         if (eventException) {
           // result is false (no violate)
-          logger.info("Result:" + false + " - " + item.getProperties().toString());
+          logger.info("Result:" + false + " - " + properties.toString());
           EventResult eventResult =
-              new EventResult(eventQuery.getEventName(), String.valueOf(item.get("hashKey")), null,
-                  "{\"result\": false, \"result-event\": {" + item.getProperties().toString()
+              new EventResult(eventQuery.getEventName(), hashKey, null,
+                  "{\"result\": false, \"result-event\": {" + properties.toString()
                       + "}, \"rule\":\"" + eventQuery.getRuleName() + "\"}");
           CassandraRepository.getInstance().updateResults(eventResult);
-        } else { // if not exception
-          // check condition to get final result
+        } else { // if not exception is exist
+          // check condition to get final result. When this condition is met, check will return true
+          // else false
           if (eventQueryCondition != null && !Constants.EMPTY_STRING.equals(eventQueryCondition)) {
-            if (!item.getProperties().keySet().isEmpty()) {
-              Map<String, Object> properties = item.getProperties();
+            if (!properties.keySet().isEmpty()) {
               Iterator<String> keys = properties.keySet().iterator();
               while (keys.hasNext()) {
                 String key = keys.next();
@@ -257,20 +291,18 @@ public class DataAccessOutputHandler {
                 // check condition for EventQuery
                 boolean checked = (Boolean) engine.eval(eventQueryCondition);
                 if (checked) {// if violate(meet condition)
-                  logger.info("Result:" + checked + " - " + item.getProperties().toString());
-                  String jsonStr = JsonHelper.toJSonString(item.getProperties());
+                  logger.info("Result:" + checked + " - " + properties.toString());
+                  String jsonStr = JsonHelper.toJSonString(properties);
                   EventResult eventResult =
-                      new EventResult(eventQuery.getEventName(),
-                          String.valueOf(item.get("hashKey")), "{\"result\": " + checked
-                              + ", \"result-event\": "
-                              + jsonStr + ", \"rule\":\""
-                              + eventQuery.getRuleName() + "\"}", null);
+                      new EventResult(eventQuery.getEventName(), String.valueOf(hashKey),
+                          "{\"result\": " + checked + ", \"result-event\": " + jsonStr
+                              + ", \"rule\":\"" + eventQuery.getRuleName() + "\"}", null);
                   CassandraRepository.getInstance().updateResults(eventResult);
                 }
               } catch (Exception e) {
                 logger.error(e.getMessage(), e);
                 EventResult eventResult =
-                    new EventResult(eventQuery.getEventName(), String.valueOf(item.get("hashKey")),
+                    new EventResult(eventQuery.getEventName(), String.valueOf(hashKey),
                         "{\"result\": false, \"exception\": \"" + e.getMessage()
                             + "\", \"reult\": \"" + eventQuery.getRuleName() + "\"}", null);
                 CassandraRepository.getInstance().updateResults(eventResult);
