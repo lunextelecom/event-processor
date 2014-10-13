@@ -177,11 +177,13 @@ public class EsperProcessor implements Processor {
   public void feedHistoricalEvent(long startTime) throws Exception {
     // get historical event from DB
     List<Event> listEvent = CassandraRepository.getInstance().getEvent(startTime);
-    Event historicalEvent = null;
-    for (int i = 0, size = listEvent.size(); i < size; i++) {
-      historicalEvent = listEvent.get(i);
-      // consume event but not process listener
-      this.consume(historicalEvent);
+    if (listEvent != null) {
+      Event historicalEvent = null;
+      for (int i = 0, size = listEvent.size(); i < size; i++) {
+        historicalEvent = listEvent.get(i);
+        // consume event but not process listener
+        this.consume(historicalEvent);
+      }
     }
   }
 
