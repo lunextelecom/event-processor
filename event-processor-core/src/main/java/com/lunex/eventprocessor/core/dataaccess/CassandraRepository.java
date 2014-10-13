@@ -220,6 +220,7 @@ public class CassandraRepository {
       eventQuery.setTimeSeries(row.getString("time_series"));
       eventQuery.setConditions(row.getString("conditions"));
       eventQuery.setRuleName(row.getString("rule_name"));
+      eventQuery.setHaving(row.getString("having"));
       results.add(eventQuery);
     }
     return results;

@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.lunex.eventprocessor.core.Event;
+import com.lunex.eventprocessor.core.utils.Constants;
 import com.lunex.eventprocessor.core.utils.StringUtils;
 import com.lunex.eventprocessor.handler.kafka.KafkaMessageProcessor;
 import com.lunex.eventprocessor.handler.kafka.KafkaSimpleConsumer;
@@ -117,7 +118,9 @@ public class KafkaReader implements EventReader {
         logger.error("Content-type is invalid");
         break;
     }
-    if (event != null) {
+    if (event != null && event.getTime() != -1
+        && !Constants.EMPTY_STRING.equals(event.getEvtName())
+        && !Constants.EMPTY_STRING.equals(event.getEvent())) {
       consumer.consume(event);
     }
   }

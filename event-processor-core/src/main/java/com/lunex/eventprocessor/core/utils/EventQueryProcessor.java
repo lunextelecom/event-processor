@@ -24,12 +24,16 @@ public class EventQueryProcessor {
   public static EventQuery processEventQuery(EventQuery oldEventQuery) {
     EventQuery newEventQuery = new EventQuery();
 
+    newEventQuery.setEventName(oldEventQuery.getEventName());
+    newEventQuery.setRuleName(oldEventQuery.getRuleName());
     newEventQuery.setData(oldEventQuery.getData());
     newEventQuery.setFilters(oldEventQuery.getFilters());
     newEventQuery.setTimeSeries(oldEventQuery.getTimeSeries());
     newEventQuery.setFields(processStringFieldForEventQuery(oldEventQuery.getFields()));
     newEventQuery.setAggregateField(processStringFieldForEventQuery(oldEventQuery
         .getAggregateField()));
+    newEventQuery.setHaving(oldEventQuery.getHaving());
+    newEventQuery.setConditions(oldEventQuery.getConditions());
 
     return newEventQuery;
   }

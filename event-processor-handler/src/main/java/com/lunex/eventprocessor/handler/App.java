@@ -53,7 +53,8 @@ public class App {
       // get EventQuery
       List<EventQuery> listEventQuery =
           CassandraRepository.getInstance().getEventQueryFromDB(-1, "", "");
-      List<List<EventQuery>> grouping = EventQueryProcessor.groupEventQueryByEventName(listEventQuery);
+      List<List<EventQuery>> grouping =
+          EventQueryProcessor.groupEventQueryByEventName(listEventQuery);
       // get Eventproperties
       listEventProperty = EventQueryProcessor.processEventProperyForEventQuery(listEventQuery);
 
@@ -62,8 +63,8 @@ public class App {
         List<EventQuery> subList = grouping.get(i);
         for (int j = 0; j < subList.size(); j++) {
           EventQuery query = subList.get(j);
-          hierarchy.addQuery(query.getEventName(), query,
-              new ResultListener[] {new ConsoleOutput(), new KairosDBWriter(), new CassandraWriter()});
+          hierarchy.addQuery(query.getEventName(), query, new ResultListener[] {
+              new ConsoleOutput(), new KairosDBWriter(), new CassandraWriter()});
         }
       }
 
