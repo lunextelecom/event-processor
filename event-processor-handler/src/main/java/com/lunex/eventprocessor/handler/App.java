@@ -1,5 +1,9 @@
 package com.lunex.eventprocessor.handler;
 
+import io.dropwizard.Application;
+import io.dropwizard.setup.Bootstrap;
+import io.dropwizard.setup.Environment;
+
 import java.io.FileInputStream;
 import java.util.List;
 import java.util.Properties;
@@ -29,7 +33,7 @@ import com.lunex.eventprocessor.handler.utils.Configurations;
 /**
  * Setup KafkaReader Setup EsperProcessor
  */
-public class App {
+public class App extends Application<WebConfiguration> {
 
   static final Logger logger = LoggerFactory.getLogger(App.class);
 
@@ -59,6 +63,7 @@ public class App {
       // get Eventproperties
       listEventProperty = EventQueryProcessor.processEventProperyForEventQuery(listEventQuery);
 
+      // Create QueryHierarchy
       hierarchy = new QueryHierarchy();
       for (int i = 0; i < grouping.size(); i++) {
         List<EventQuery> subList = grouping.get(i);
@@ -74,11 +79,11 @@ public class App {
           new EsperProcessor(hierarchy, listEventProperty, listEventQuery, true,
               StringUtils.getBackFillTime(Configurations.backfillDefault));
       // create event reader
-      final EventReader reader = new KafkaReader(-1);
+      final EventReader readerEsperProcessor = new KafkaReader(-1);
       // reader read event and send to processor
       Thread esper = new Thread(new Runnable() {
         public void run() {
-          reader.read(processor);
+          readerEsperProcessor.read(processor);
         }
       });
       esper.start();
@@ -87,16 +92,32 @@ public class App {
       final KairosDBProcessor kairosDBProcessor = new KairosDBProcessor();
       kairosDBProcessor.setHierarchy(hierarchy);
       // read event and send to processor
-      final EventReader reader2 = new KafkaReader(-1);
+      final EventReader readerForKairosDBProcessor = new KafkaReader(-1);
       Thread kairos = new Thread(new Runnable() {
         public void run() {
-          reader2.read(kairosDBProcessor);
+          readerForKairosDBProcessor.read(kairosDBProcessor);
         }
       });
       kairos.start();
 
+
+      // start rest api service
+      String[] temp = new String[] {"server", "config.yaml"};
+      new App().run(temp);
     } catch (Exception ex) {
       logger.error(ex.getMessage(), ex);
     }
+  }
+
+  @Override
+  public void initialize(Bootstrap<WebConfiguration> bootstrap) {
+    // TODO Auto-generated method stub
+
+  }
+
+  @Override
+  public void run(WebConfiguration configuration, Environment environment) throws Exception {
+    final EventHandlerApiServiceResource serviceResource = new EventHandlerApiServiceResource();
+    environment.jersey().register(serviceResource);
   }
 }
