@@ -1,0 +1,36 @@
+server:
+  applicationConnectors:
+    - type: http
+      port: 8085
+  adminConnectors:
+    - type: http
+      port: 8081
+logging:
+  level: ERROR
+  appenders:
+    - type: console
+      #threshold: WARN
+      threshold: ERROR
+      target: stderr
+    - type: file
+      # The file to which current statements will be logged.
+      currentLogFilename: D://test/logs/example.log
+
+      # When the log file rotates, the archived log will be renamed to this and gzipped. The
+      # %d is replaced with the previous day (yyyy-MM-dd). Custom rolling windows can be created
+      # by passing a SimpleDateFormat-compatible format as an argument: "%d{yyyy-MM-dd-hh}".
+      archivedLogFilenamePattern: ./logs/example-%d.log.gz
+
+      # The number of archived files to keep.
+      archivedFileCount: 5
+
+      # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
+      timeZone: UTC
+app:
+  dbName: event-processor
+  dbHost: localhost
+  dbUsername: 
+  dbPassword: 
+  cacheConfig: 
+  statsdHost: 
+  statsdAppPrefix:  
