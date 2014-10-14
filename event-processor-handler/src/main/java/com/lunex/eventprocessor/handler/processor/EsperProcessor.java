@@ -122,8 +122,8 @@ public class EsperProcessor implements Processor {
       final EventQuery eventQuery = listEventQuery.get(i);
       EventQuery newEventQuery = EventQueryProcessor.processEventQuery(eventQuery);
       String timeSeries =
-          (Constants.EMPTY_STRING.equals(eventQuery.getTimeSeries())) ? "" : ".win:time("
-              + newEventQuery.getTimeSeries() + ")";
+          (Constants.EMPTY_STRING.equals(eventQuery.getSmallBucket())) ? "" : ".win:time("
+              + newEventQuery.getSmallBucket() + ")";
 
       String epl =
           String.format("SELECT %s, hashKey, time FROM %s%s %s %s %s", newEventQuery.getFields(),

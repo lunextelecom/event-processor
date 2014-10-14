@@ -109,7 +109,7 @@ public class CassandraRepository {
         String sql =
             "CREATE TABLE "
                 + instance.keyspace
-                + ".rules (id uuid, event_name text, rule_name text, data text,  fields text, filters text, aggregate_field text, having text, time_series text, conditions text, "
+                + ".rules (id uuid, event_name text, rule_name text, data text,  fields text, filters text, aggregate_field text, having text, small_bucket text, big_bucket text, conditions text, "
                 + "PRIMARY KEY (id, event_name, rule_name))";
         instance.session.execute(sql);
       }
@@ -270,7 +270,8 @@ public class CassandraRepository {
       eventQuery.setFields(row.getString("fields"));
       eventQuery.setFilters(row.getString("filters"));
       eventQuery.setAggregateField(row.getString("aggregate_field"));
-      eventQuery.setTimeSeries(row.getString("time_series"));
+      eventQuery.setSmallBucket(row.getString("small_bucket"));
+      eventQuery.setBigBucket(row.getString("big_bucket"));
       eventQuery.setConditions(row.getString("conditions"));
       eventQuery.setRuleName(row.getString("rule_name"));
       eventQuery.setHaving(row.getString("having"));

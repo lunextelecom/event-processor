@@ -30,7 +30,8 @@ public class EventQueryProcessor {
     newEventQuery.setRuleName(oldEventQuery.getRuleName());
     newEventQuery.setData(oldEventQuery.getData());
     newEventQuery.setFilters(processStringFieldForEventQuery(oldEventQuery.getFilters()));
-    newEventQuery.setTimeSeries(oldEventQuery.getTimeSeries());
+    newEventQuery.setSmallBucket(oldEventQuery.getSmallBucket());
+    newEventQuery.setBigBucket(oldEventQuery.getBigBucket());
     newEventQuery.setFields(processStringFieldForEventQuery(oldEventQuery.getFields()));
     newEventQuery.setAggregateField(processStringFieldForEventQuery(oldEventQuery
         .getAggregateField()));

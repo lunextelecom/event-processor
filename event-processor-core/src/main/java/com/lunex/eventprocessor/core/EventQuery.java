@@ -24,8 +24,10 @@ public class EventQuery {
   // Ex: group by seller
   private String having;
   // Ex: esper select sum(amount:double), count(txId:long), seller:string from new_order.win:time(10 second) where seller = 'AAA' and amount > 5 having sum(amount) > 10 group by seller 
-  private String timeSeries;
-  // Ex: timeSeries = "10 second" --> in esper: select sum(amount) from new_order.win:time(10 second)
+  private String smallBucket;// for every timeframe
+  // Ex: timeSeries = "10 second" --> in esper: select sum(amount) from new_order.win_batch:time(10 second)
+  private String bigBucket;// for last timeframe
+  // Ex: timeSeries = "1 minute" --> in esper: select sum(amount) from new_order.win:time(10 minute)
   private String conditions;
   // Ex: sum(amount) > 100 & count(txId) > 5
 
@@ -61,12 +63,12 @@ public class EventQuery {
     this.aggregateField = aggregateField;
   }
 
-  public String getTimeSeries() {
-    return timeSeries;
+  public String getSmallBucket() {
+    return smallBucket;
   }
 
-  public void setTimeSeries(String timeSeries) {
-    this.timeSeries = timeSeries;
+  public void setSmallBucket(String smallBucket) {
+    this.smallBucket = smallBucket;
   }
 
   public String getEventName() {
@@ -99,5 +101,13 @@ public class EventQuery {
 
   public void setRuleName(String ruleName) {
     this.ruleName = ruleName;
+  }
+
+  public String getBigBucket() {
+    return bigBucket;
+  }
+
+  public void setBigBucket(String bigBucket) {
+    this.bigBucket = bigBucket;
   }
 }

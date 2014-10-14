@@ -30,7 +30,7 @@ public class EventQueryProcessorTest {
     eventQuery.setFields("sum(amount:double), count(txId:long), acctNum:string");
     eventQuery.setFilters("amount > 10 AND acctNum = 'PC01D001'");
     eventQuery.setAggregateField("acctNum:string");
-    eventQuery.setTimeSeries(null);
+    eventQuery.setSmallBucket(null);
     testData.add(eventQuery);
 
     eventQuery = new EventQuery();
@@ -39,7 +39,7 @@ public class EventQueryProcessorTest {
     eventQuery.setFields("sum(amount:double), count(txId:long), acctNum:string, sku:string");
     eventQuery.setFilters("amount > 10 AND acctNum = 'PC01D001'");
     eventQuery.setAggregateField("acctNum:string");
-    eventQuery.setTimeSeries(null);
+    eventQuery.setSmallBucket(null);
     testData.add(eventQuery);
 
     List<EventProperty> temp = EventQueryProcessor.processEventProperyForEventQuery(testData);
