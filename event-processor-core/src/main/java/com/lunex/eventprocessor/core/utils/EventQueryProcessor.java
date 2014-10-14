@@ -47,21 +47,6 @@ public class EventQueryProcessor {
    * @return
    */
   public static String processStringFieldForEventQuery(String fieldStr) {
-    // String[] fields = fieldStr.split(",");
-    // StringBuilder fieldBuilder = new StringBuilder();
-    // for (int i = 0; i < fields.length; i++) {
-    // String field = fields[i].trim();
-    // String[] temp = field.split(":");
-    // if (temp.length == 1 || temp.length == 2) {
-    // fieldBuilder.append(temp[0]);
-    // if (temp[0].contains("(")) {
-    // fieldBuilder.append(")");
-    // }
-    // fieldBuilder.append(",");
-    // }
-    // }
-    // fieldBuilder.deleteCharAt(fieldBuilder.length() - 1);
-    // return fieldBuilder.toString();
     String replace = fieldStr.replaceAll(":[a-zA-Z]+", "");
     return replace;
   }
@@ -73,21 +58,6 @@ public class EventQueryProcessor {
    * @return
    */
   public static Map<String, Object> processStringFieldDataTypeForEventQuery(String fieldStr) {
-    // String[] fields = fieldStr.split(",");
-    // Map<String, Object> map = new HashMap<String, Object>();
-    // for (int i = 0; i < fields.length; i++) {
-    // String field = fields[i].trim();
-    // if (field.contains("(")) {
-    // field = field.substring(field.indexOf("(") + 1, field.indexOf(")"));
-    // }
-    // String[] temp = field.split(":");
-    // if (temp.length == 1) {
-    // map.put(temp[0], "string");
-    // } else if (temp.length == 2) {
-    // map.put(temp[0], temp[1]);
-    // }
-    // }
-    // return map;
     Map<String, Object> map = new HashMap<String, Object>();
     Pattern pattern = Pattern.compile("[a-zA-Z]+:[a-zA-Z]+");
     Matcher matcher = pattern.matcher(fieldStr);
