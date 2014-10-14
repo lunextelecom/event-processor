@@ -28,6 +28,7 @@ import com.lunex.eventprocessor.core.listener.ResultListener;
 import com.lunex.eventprocessor.core.utils.Constants;
 import com.lunex.eventprocessor.core.utils.EventQueryProcessor;
 import com.lunex.eventprocessor.core.utils.JsonHelper;
+import com.lunex.eventprocessor.core.utils.StringUtils;
 import com.lunex.eventprocessor.handler.utils.Configurations;
 
 import javax.script.ScriptEngine;
@@ -160,7 +161,7 @@ public class DataAccessOutputHandler {
             for (Entry<String, Object> e : resultPropeties.entrySet()) {
               if (e.getKey().indexOf(key) > 0) {
                 value = e.getValue();
-                client.sendMetric(metric + "." + e.getKey().replace("(", ".").replace(")", ""),
+                client.sendMetric(metric + "." + e.getKey().replace("_", "."),
                     System.currentTimeMillis(), value, tags);
                 break;
               }
@@ -170,7 +171,7 @@ public class DataAccessOutputHandler {
             for (Entry<String, Object> e : resultPropeties.entrySet()) {
               if (e.getKey().indexOf(key) > 0) {
                 value = e.getValue();
-                client.sendMetric(metric + "." + e.getKey().replace("(", ".").replace(")", ""),
+                client.sendMetric(metric + "." + e.getKey().replace("_", "."),
                     System.currentTimeMillis(), value, tags);
                 break;
               }
@@ -282,6 +283,7 @@ public class DataAccessOutputHandler {
               Iterator<String> keys = properties.keySet().iterator();
               while (keys.hasNext()) {
                 String key = keys.next();
+                key = StringUtils.revertSingleField(key);
                 eventQueryCondition =
                     eventQueryCondition.replace(key, String.valueOf(properties.get(key)));
               }

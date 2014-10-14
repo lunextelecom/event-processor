@@ -70,13 +70,13 @@ public class App extends Application<WebConfiguration> {
         for (int j = 0; j < subList.size(); j++) {
           EventQuery query = subList.get(j);
           hierarchy.addQuery(query.getEventName(), query, new ResultListener[] {
-              new ConsoleOutput(), new KairosDBWriter(), new CassandraWriter()});
+              new ConsoleOutput()/*, new KairosDBWriter(), new CassandraWriter()*/});
         }
       }
 
       // create esper processor
       final Processor processor =
-          new EsperProcessor(hierarchy, listEventProperty, listEventQuery, true,
+          new EsperProcessor(hierarchy, listEventProperty, listEventQuery, false,
               StringUtils.getBackFillTime(Configurations.backfillDefault));
       // create event reader
       final EventReader readerEsperProcessor = new KafkaReader(-1);

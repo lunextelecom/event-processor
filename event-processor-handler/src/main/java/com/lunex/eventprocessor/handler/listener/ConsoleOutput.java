@@ -1,5 +1,6 @@
 package com.lunex.eventprocessor.handler.listener;
 
+import java.util.Date;
 import java.util.Map;
 
 import com.espertech.esper.event.map.MapEventBean;
@@ -32,7 +33,7 @@ public class ConsoleOutput implements ResultListener {
     // **************************************//
     for (int i = 0; i < result.length; i++) {
       Map<String, Object> item = (Map<String, Object>) result[i];
-      System.out.println(item.toString());
+      System.out.println(item.toString() + " - " + new Date());
     }
   }
 }

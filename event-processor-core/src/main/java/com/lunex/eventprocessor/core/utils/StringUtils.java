@@ -63,6 +63,56 @@ public class StringUtils {
     return digest;
   }
 
+  /**
+   * Convert sum(amount), count(txId) -> sum(amount) as sum_amount, count(txId) as count_txId
+   * 
+   * @param field
+   * @return
+   */
+  public static String convertField(String field) {
+    String[] fields = field.split(",");
+    StringBuilder builder = new StringBuilder();
+    for (int i = 0; i < fields.length; i++) {
+      String temp = fields[i].replaceAll("[(]+", "_");
+      temp = temp.replace(")", "");
+      builder.append(fields[i] + " as " + temp);
+      if (i < fields.length - 1)
+        builder.append(", ");
+    }
+    return builder.toString();
+  }
+
+  /**
+   * Convert sum(amount), count(txId) -> sum(sum_amount), sum(count_txId)
+   * 
+   * @param field
+   * @return
+   */
+  public static String convertField2(String field) {
+    String[] fields = field.split(",");
+    StringBuilder builder = new StringBuilder();
+    for (int i = 0; i < fields.length; i++) {
+      String temp = fields[i].trim().replaceAll("[(]+", "_");
+      temp = temp.replace(")", "");
+      if (fields[i].contains("count")) {
+        fields[i] = fields[i].replace("count", "sum");
+      }
+      builder.append(fields[i].replaceAll("\\([a-zA-Z]+\\)", "(" + temp + ")") + " as " + temp);
+      if (i < fields.length - 1)
+        builder.append(", ");
+    }
+    return builder.toString();
+  }
+
+  /**
+   * Revert sum_amount-> sum(amount) or count_txId -> count(txid)
+   * @param field
+   * @return
+   */
+  public static String revertSingleField(String field) {
+    return field.replace("_", "(") + ")";
+  }
+
   public enum BackFillEnum {
     day, month, year, hour, minute, second
   }
