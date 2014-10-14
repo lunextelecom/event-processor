@@ -147,19 +147,24 @@ public class EsperProcessor implements Processor {
         String context = tempTable + "_Per_" + smallBucket.replace(" ", "_");
         String smallBucketWindow = tempTable + "_" + smallBucket.replace(" ", "_");
         // create EPL for context
-        epl = "create context " + context + " start @now end after " + smallBucket;
-        epl = epl.replaceAll(" +", " ");
-        admin.createEPL(epl);
+        // epl = "create context " + context + " start @now end after " + smallBucket;
+        // epl = epl.replaceAll(" +", " ");
+        // admin.createEPL(epl);
         // create smallbucket aggregation
+        // epl =
+        // String
+        // .format(
+        // "context "
+        // + context
+        // + " insert into "
+        // + smallBucketWindow
+        // +
+        // " SELECT %s, hashKey as hashKey, time as time FROM %s %s %s %s output snapshot when terminated",
+        // StringUtils.convertField(select), from, "", group, "");
         epl =
-            String
-                .format(
-                    "context "
-                        + context
-                        + " insert into "
-                        + smallBucketWindow
-                        + " SELECT %s, hashKey as hashKey, time as time FROM %s %s %s %s output snapshot when terminated",
-                    StringUtils.convertField(select), from, "", group, "");
+            "insert into " + smallBucketWindow + " select " + StringUtils.convertField(select)
+                + ", hashKey as hashKey, time as time from " + from + ".win:time(" + smallBucket
+                + ") " + "" + " " + group + " " + "" + " output last every " + smallBucket;
         epl = epl.replaceAll(" +", " ");
         admin.createEPL(epl);
         // create EPL for big bucket and add listener for statement
