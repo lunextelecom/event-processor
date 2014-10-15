@@ -198,8 +198,19 @@ public class EsperProcessor implements Processor {
       } else if ((bigBucket == null || Constants.EMPTY_STRING.equals(bigBucket))
           && (smallBucket != null && !Constants.EMPTY_STRING.equals(smallBucket))) {
         String tempTable = StringUtils.md5Java(eventQuery.getRuleName());
-        String context = tempTable + "_Per_" + smallBucket.replace(" ", "_");
-        epl = "create context " + context + " start @now end after " + smallBucket;
+        String context = tempTable + "_Per_" + smallBucket.replaceAll(" |:", "_");
+        List<String> crontabs = StringUtils.convertCrontab(smallBucket);
+        if (crontabs.size() == 2) {
+          smallBucket = smallBucket.substring(0, smallBucket.indexOf(":"));
+          epl =
+              "create context " + context + " initiated by @now and pattern [every timer:at("
+                  + crontabs.get(0) + ")] terminated by pattern [every timer:at(" + crontabs.get(1)
+                  + ")]";
+        } else {
+          epl =
+              "create context " + context + " initiated by @now and pattern [every timer:interval("
+                  + smallBucket + ")] terminated after " + smallBucket;
+        }
         epl = epl.replaceAll(" +", " ");
         admin.createEPL(epl);
         // create smallbucket aggregation
@@ -208,11 +219,13 @@ public class EsperProcessor implements Processor {
                 .format(
                     "context "
                         + context
-                        + " SELECT %s, hashKey as hashKey, time as time FROM %s %s %s %s output snapshot when terminated",
-                    StringUtils.convertField(select), from, where, group, having);
+                        + " SELECT %s, hashKey as hashKey, time as time FROM %s %s %s %s output last every 1 second",
+                    StringUtils.convertField(select), from + ".win:time(" + smallBucket + ")",
+                    where, group, having);
         epl = epl.replaceAll(" +", " ");
-        EPStatement statementInsert = admin.createEPL(epl);
-        statementInsert.addListener(new EsperListener(eventQuery));
+        EPStatement statement = admin.createEPL(epl, eventQuery.getRuleName());
+        statement.addListener(new EsperListener(eventQuery));
+        listStatement.add(statement);
       } else {
         // TODO nothing to do to create EPL for this rule, this rule is invalid
       }

@@ -3,6 +3,8 @@ package com.lunex.eventprocessor.core.utils;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -106,11 +108,65 @@ public class StringUtils {
 
   /**
    * Revert sum_amount-> sum(amount) or count_txId -> count(txid)
+   * 
    * @param field
    * @return
    */
   public static String revertSingleField(String field) {
     return field.replace("_", "(") + ")";
+  }
+
+  /**
+   * Create crontab for every timeframe
+   * 
+   * @param smallBucket
+   */
+  public static List<String> convertCrontab(String smallBucket) {
+    List<String> result = new ArrayList<String>();
+    if (smallBucket.contains(":truncate")) {
+      String startTime = "";
+      String endTime = "";
+      smallBucket = smallBucket.replaceAll(" +s", " ");
+      String temp[] = smallBucket.split(":");
+      if (temp.length > 1) {
+        smallBucket = temp[0];
+        temp = smallBucket.split(" ");
+        if (temp.length > 1) {
+          String time = temp[0];
+          String label = temp[1];
+          switch (label) {
+            case "minute":
+            case "minutes":
+              startTime = "*/" + time + ", *, *, *, *";
+              endTime = "*/" + time + ", *, *, * , *, 0";
+              break;
+            case "hours":
+            case "hour":
+              startTime = "*, */" + time + ", *, *, *";
+              endTime = "0, */" + time + ", *, * , *, 0";
+              break;
+            case "days":
+            case "day":
+              startTime = "*, *, */" + time + ", *, *";
+              endTime = "0, 0, */" + time + ", * , *, 0";
+              break;
+            case "week":
+            case "weeks":
+              startTime = "*, *, *, *, MON/" + time + "";
+              endTime = "0, 0, *, * , MON/" + time + ", 0";
+              break;
+            default:
+              break;
+          }
+        }
+      }
+      result.add(startTime);
+      result.add(endTime);
+      return result;
+    } else {
+      result.add(smallBucket);
+      return result;
+    }
   }
 
   public enum BackFillEnum {
