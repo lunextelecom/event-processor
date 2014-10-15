@@ -40,6 +40,7 @@ public class EsperProcessor implements Processor {
 
   private QueryHierarchy queryHierarchy;
   private EPServiceProvider sericeProvider;
+  List<EPStatement> listStatement = new ArrayList<EPStatement>();
 
   public EsperProcessor(QueryHierarchy queryHierarchy, List<EventProperty> eventProperty,
       List<EventQuery> listEventQuery, boolean backFill, long startTime) {
@@ -132,7 +133,6 @@ public class EsperProcessor implements Processor {
     // --------------------------------------------
     // ----------- Creaet EPL --------------------
     // --------------------------------------------
-    // List<EPStatement> listStatement = new ArrayList<EPStatement>();
     EPAdministrator admin = sericeProvider.getEPAdministrator();
     for (int i = 0, size = listEventQuery.size(); i < size; i++) {
       final EventQuery eventQuery = listEventQuery.get(i);
@@ -179,25 +179,40 @@ public class EsperProcessor implements Processor {
         // + smallBucket + ") " + where + " " + group + " " + having;// + " output last every " +
         // // smallBucket;
         epl = epl.replaceAll(" +", " ");
-        EPStatement statementInsert = admin.createEPL(epl);
-        // listStatement.add(statementInsert);
+        EPStatement statementInsert = admin.createEPL(epl, eventQuery.getRuleName());
+        listStatement.add(statementInsert);
         // create EPL for big bucket and add listener for statement
         epl =
             " " + "select " + StringUtils.convertField2(select)
                 + ", hashKey as hashKey, time as time FROM " + smallBucketWindow + ".win:time("
                 + bigBucket + ") " + group;
         epl = epl.replaceAll(" +", " ");
-        EPStatement statement = admin.createEPL(epl, "test");
-        // listStatement.add(statement);
+        EPStatement statement = admin.createEPL(epl, eventQuery.getRuleName());
+        listStatement.add(statement);
         // Add listener, default listener is enable = false
         statement.addListener(new EsperListener(eventQuery));
 
 
 
         // EPL for window every timeframe
-      } else if ((bigBucket == null || !Constants.EMPTY_STRING.equals(bigBucket))
+      } else if ((bigBucket == null || Constants.EMPTY_STRING.equals(bigBucket))
           && (smallBucket != null && !Constants.EMPTY_STRING.equals(smallBucket))) {
-        //TODO
+        String tempTable = StringUtils.md5Java(eventQuery.getRuleName());
+        String context = tempTable + "_Per_" + smallBucket.replace(" ", "_");
+        epl = "create context " + context + " start @now end after " + smallBucket;
+        epl = epl.replaceAll(" +", " ");
+        admin.createEPL(epl);
+        // create smallbucket aggregation
+        epl =
+            String
+                .format(
+                    "context "
+                        + context
+                        + " SELECT %s, hashKey as hashKey, time as time FROM %s %s %s %s output snapshot when terminated",
+                    StringUtils.convertField(select), from, where, group, having);
+        epl = epl.replaceAll(" +", " ");
+        EPStatement statementInsert = admin.createEPL(epl);
+        statementInsert.addListener(new EsperListener(eventQuery));
       } else {
         // TODO nothing to do to create EPL for this rule, this rule is invalid
       }
@@ -246,6 +261,42 @@ public class EsperProcessor implements Processor {
     // start listener enable = true
     // ---------------------------------------
     this.startListener();
+  }
+
+  /**
+   * Start all statement
+   */
+  public void startAllStatement() {
+    for (int i = 0, size = listStatement.size(); i < size; i++) {
+      listStatement.get(i).start();
+    }
+  }
+
+  /**
+   * Stop all statement
+   */
+  public void stopAllStatement() {
+    for (int i = 0, size = listStatement.size(); i < size; i++) {
+      listStatement.get(i).stop();
+    }
+  }
+
+  /**
+   * Stop statement
+   * 
+   * @param statementName
+   */
+  public void stopStatement(String statementName) {
+    sericeProvider.getEPAdministrator().getStatement(statementName).stop();
+  }
+
+  /**
+   * Start statement
+   * 
+   * @param statementName
+   */
+  public void startStatement(String statementName) {
+    sericeProvider.getEPAdministrator().getStatement(statementName).start();
   }
 
   /**
