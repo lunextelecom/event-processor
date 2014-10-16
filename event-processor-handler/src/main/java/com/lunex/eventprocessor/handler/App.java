@@ -40,6 +40,10 @@ public class App extends Application<WebConfiguration> {
   public static List<EventProperty> listEventProperty;
   public static QueryHierarchy hierarchy;
   public static KairosDBClient kairosDB;
+  public static Processor esperProcessor;
+  public static Processor kairosDBProcessor;
+  public static EventReader readerEsperProcessor;
+  public static EventReader readerKairosDBProcessor;
 
   public static void main(String[] args) {
     System.out.println("Hello World!");
@@ -75,27 +79,27 @@ public class App extends Application<WebConfiguration> {
       }
 
       // create esper processor
-      final Processor processor =
+      esperProcessor =
           new EsperProcessor(hierarchy, listEventProperty, listEventQuery, true,
               StringUtils.getBackFillTime(Configurations.backfillDefault));
       // create event reader
-      final EventReader readerEsperProcessor = new KafkaReader(-1);
+      readerEsperProcessor = new KafkaReader();
       // reader read event and send to processor
       Thread esper = new Thread(new Runnable() {
         public void run() {
-          readerEsperProcessor.read(processor);
+          readerEsperProcessor.read(esperProcessor);
         }
       });
       esper.start();
 
       // create kairos processor
-      final KairosDBProcessor kairosDBProcessor = new KairosDBProcessor();
+      kairosDBProcessor = new KairosDBProcessor();
       kairosDBProcessor.setHierarchy(hierarchy);
       // read event and send to processor
-      final EventReader readerForKairosDBProcessor = new KafkaReader(-1);
+      readerKairosDBProcessor = new KafkaReader();
       Thread kairos = new Thread(new Runnable() {
         public void run() {
-          readerForKairosDBProcessor.read(kairosDBProcessor);
+          readerKairosDBProcessor.read(kairosDBProcessor);
         }
       });
       kairos.start();
@@ -112,7 +116,6 @@ public class App extends Application<WebConfiguration> {
   @Override
   public void initialize(Bootstrap<WebConfiguration> bootstrap) {
     // TODO Auto-generated method stub
-
   }
 
   @Override

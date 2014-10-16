@@ -11,7 +11,7 @@ public class Configurations {
   public static List<String> listZookeeper = new ArrayList<String>();
   public static List<String> kafkaCluster = new ArrayList<String>();
   public static String kafkaTopic;
-  public static int kafkaTopicNumPartition;
+  public static List<Integer> kafkaTopicPartitionList;
   public static String kairosDBUrl;
   public static String backfillDefault = "";
 
@@ -38,7 +38,15 @@ public class Configurations {
         }
       }
       kafkaTopic = prop.getProperty("kafka.topic.name");
-      kafkaTopicNumPartition = Integer.valueOf(prop.getProperty("kafka.topic.count.partition"));
+      kafkaTopicPartitionList = new ArrayList<Integer>();
+      String kafkaTopicNumPartitionStr = prop.getProperty("kafka.topic.partition").trim();
+      if (kafkaTopicNumPartitionStr.length() > 0) {
+        String[] temp = kafkaTopicNumPartitionStr.split(",");
+        for (int i = 0, length = temp.length; i < length; i++) {
+          kafkaTopicPartitionList.add(Integer.valueOf(temp[i]));
+        }
+      }
+
 
       kairosDBUrl = prop.getProperty("kairosdb.url");
 

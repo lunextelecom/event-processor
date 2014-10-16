@@ -21,16 +21,14 @@ public class KafkaReader implements EventReader {
   static final Logger logger = LoggerFactory.getLogger(KafkaReader.class);
 
   private List<KafkaSimpleConsumer> listConsumers;
-  private int partitionIndex = -1;
 
   /**
    * Contructor
    * 
    * @param partitionIndex : if = -1 --> read message from all partion of topic
    */
-  public KafkaReader(int partitionIndex) {
+  public KafkaReader() {
     this.listConsumers = new ArrayList<KafkaSimpleConsumer>();
-    this.partitionIndex = partitionIndex;
   }
 
   public Event readNext() {
@@ -39,36 +37,10 @@ public class KafkaReader implements EventReader {
   }
 
   public void read(final EventConsumer consumer) {
-    if (partitionIndex == -1) {
-      for (int i = 0; i < Configurations.kafkaTopicNumPartition; i++) {
-        final KafkaSimpleConsumer kafkaConsumer =
-            new KafkaSimpleConsumer(Configurations.kafkaCluster, Configurations.kafkaTopic, i, -1,
-                new KafkaMessageProcessor() {
-                  public Object processMessage(byte[] message) {
-                    sendEventToConsumer(message, consumer);
-                    return null;
-                  }
-                });
-        listConsumers.add(kafkaConsumer);
-        try {
-          Thread thread = new Thread(new Runnable() {
-            public void run() {
-              try {
-                kafkaConsumer.readKafka(kafka.api.OffsetRequest.LatestTime());
-              } catch (Exception e) {
-                logger.error("Function read: " + e.getMessage(), e);
-              }
-            }
-          });
-          thread.start();
-        } catch (Exception e) {
-          logger.error("Function read: " + e.getMessage(), e);
-        }
-      }
-    } else {
-      KafkaSimpleConsumer kafkaConsumer =
+    for (int i = 0; i < Configurations.kafkaTopicPartitionList.size(); i++) {
+      final KafkaSimpleConsumer kafkaConsumer =
           new KafkaSimpleConsumer(Configurations.kafkaCluster, Configurations.kafkaTopic,
-              partitionIndex, -1, new KafkaMessageProcessor() {
+              Configurations.kafkaTopicPartitionList.get(i), -1, new KafkaMessageProcessor() {
                 public Object processMessage(byte[] message) {
                   sendEventToConsumer(message, consumer);
                   return null;
@@ -76,9 +48,18 @@ public class KafkaReader implements EventReader {
               });
       listConsumers.add(kafkaConsumer);
       try {
-        kafkaConsumer.readKafka(kafka.api.OffsetRequest.LatestTime());
+        Thread thread = new Thread(new Runnable() {
+          public void run() {
+            try {
+              kafkaConsumer.readKafka(kafka.api.OffsetRequest.LatestTime());
+            } catch (Exception e) {
+              logger.error("Function read: " + e.getMessage(), e);
+            }
+          }
+        });
+        thread.start();
       } catch (Exception e) {
-        logger.error(e.getMessage(), e);
+        logger.error("Function read: " + e.getMessage(), e);
       }
     }
   }
