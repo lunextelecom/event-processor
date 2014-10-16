@@ -54,7 +54,7 @@ public class CassandraRepository {
   public static CassandraRepository getInstance() throws Exception {
     if (instance == null) {
       Properties prop = new Properties();
-      InputStream inputStream = new FileInputStream("src/main/resources/app.properties");
+      InputStream inputStream = new FileInputStream("conf/app.properties");
       prop.load(inputStream);
       String host = prop.getProperty("cassandra.host");
       String keyspace = prop.getProperty("cassandra.keyspace");

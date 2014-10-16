@@ -50,11 +50,11 @@ public class App extends Application<WebConfiguration> {
     try {
       // load log properties
       Properties props = new Properties();
-      props.load(new FileInputStream("src/main/resources/log4j.properties"));
+      props.load(new FileInputStream("conf/log4j.properties"));
       PropertyConfigurator.configure(props);
 
       // Load config
-      Configurations.getPropertiesValues("src/main/resources/app.properties");
+      Configurations.getPropertiesValues("conf/app.properties");
 
       // kairosdb
       kairosDB = new KairosDBClient(Configurations.kairosDBUrl);
@@ -83,7 +83,7 @@ public class App extends Application<WebConfiguration> {
 
       // create esper processor
       esperProcessor =
-          new EsperProcessor(hierarchy, listEventProperty, listEventQuery, true,
+          new EsperProcessor(hierarchy, listEventProperty, listEventQuery, Configurations.esperBackfill,
               StringUtils.getBackFillTime(Configurations.esperBackfillDefault));
       // create event reader
       readerEsperProcessor = new KafkaReader();
@@ -109,7 +109,7 @@ public class App extends Application<WebConfiguration> {
 
 
       // start rest api service
-      String[] temp = new String[] {"server", "src/main/resources/config.yaml"};
+      String[] temp = new String[] {"server", "conf/config.yaml"};
       new App().run(temp);
     } catch (Exception ex) {
       logger.error(ex.getMessage(), ex);

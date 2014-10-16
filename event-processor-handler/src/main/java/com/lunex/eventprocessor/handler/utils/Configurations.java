@@ -14,7 +14,8 @@ public class Configurations {
   public static List<Integer> kafkaTopicPartitionList = new ArrayList<Integer>();
   public static List<String> kafkaEventReaderList = new ArrayList<String>();
   public static String kairosDBUrl;
-  public static String esperBackfillDefault = "";
+  public static boolean esperBackfill = false;
+  public static String esperBackfillDefault = "1 hour";
   public static List<String> ruleList = new ArrayList<String>();
 
   public static void getPropertiesValues(String propFileName) throws Exception {
@@ -67,7 +68,7 @@ public class Configurations {
 
       // Esper config
       esperBackfillDefault = prop.getProperty("esper.backfill.howfar.default");
-
+      esperBackfill = Boolean.valueOf(prop.getProperty("esper.backfill"));
 
 
       // Rule config
