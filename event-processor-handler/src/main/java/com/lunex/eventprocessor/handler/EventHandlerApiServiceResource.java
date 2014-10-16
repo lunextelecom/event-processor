@@ -35,6 +35,15 @@ public class EventHandlerApiServiceResource {
   }
 
 
+  /**
+   * Update rule when it is running
+   * 
+   * @param eventName
+   * @param ruleName
+   * @param backfill
+   * @param backfillTime
+   * @return
+   */
   @POST
   @Path("/changerule")
   @Produces(MediaType.APPLICATION_JSON)
@@ -61,6 +70,13 @@ public class EventHandlerApiServiceResource {
     }
   }
 
+  /**
+   * Stop a rule which is running
+   * 
+   * @param eventName
+   * @param ruleName
+   * @return
+   */
   @POST
   @Path("/stoprule")
   @Produces(MediaType.APPLICATION_JSON)
@@ -77,7 +93,9 @@ public class EventHandlerApiServiceResource {
         }
         boolean result = App.esperProcessor.stopRule(rule);
         if (result) {
-          return new ServiceResponse("Change successfully", true);
+          rule.setStatus(EventQueryStatus.STOP);
+          CassandraRepository.getInstance().changeEventQueryStatus(rule);
+          return new ServiceResponse("Change successfully", true);          
         } else {
           return new ServiceResponse("Change unsuccessfully", false);
         }
@@ -89,6 +107,15 @@ public class EventHandlerApiServiceResource {
     }
   }
 
+  /**
+   * Start a stoped rule
+   * 
+   * @param eventName
+   * @param ruleName
+   * @param backfill
+   * @param backfillTime
+   * @return
+   */
   @POST
   @Path("/startrule")
   @Produces(MediaType.APPLICATION_JSON)
@@ -107,6 +134,8 @@ public class EventHandlerApiServiceResource {
 
         boolean result = App.esperProcessor.startRule(rule, backfill, backfillTime);
         if (result) {
+          rule.setStatus(EventQueryStatus.RUNNING);
+          CassandraRepository.getInstance().changeEventQueryStatus(rule);
           return new ServiceResponse("Change successfully", true);
         } else {
           return new ServiceResponse("Change unsuccessfully", false);

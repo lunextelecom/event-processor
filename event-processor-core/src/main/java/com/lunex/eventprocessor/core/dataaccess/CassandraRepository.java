@@ -275,6 +275,15 @@ public class CassandraRepository {
     return results;
   }
 
+  public void changeEventQueryStatus(EventQuery eventQuery) throws Exception {
+    String sql = "UPDATE " + keyspace + ".rules set status = ? where event_name = ? and rule_name = ?";
+    List<Object> params = new ArrayList<Object>();
+    params.add(eventQuery.getStatus().toString());
+    params.add(eventQuery.getEventName());
+    params.add(eventQuery.getRuleName());
+    execute(sql, params);
+  }
+  
   public void insertEventQuery() {
     // TODO
   }
