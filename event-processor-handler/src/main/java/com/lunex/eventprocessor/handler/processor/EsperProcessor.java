@@ -35,6 +35,7 @@ import com.lunex.eventprocessor.core.utils.Constants;
 import com.lunex.eventprocessor.core.utils.EventQueryProcessor;
 import com.lunex.eventprocessor.core.utils.StringUtils;
 import com.lunex.eventprocessor.handler.output.DataAccessOutputHandler;
+import com.lunex.eventprocessor.handler.utils.Configurations;
 
 public class EsperProcessor implements Processor {
 
@@ -131,6 +132,11 @@ public class EsperProcessor implements Processor {
     // --------------------------------------------
     for (int i = 0, size = listEventQuery.size(); i < size; i++) {
       final EventQuery eventQuery = listEventQuery.get(i);
+      // filter rule by config
+      if (!Configurations.ruleList.isEmpty()
+          && !Configurations.ruleList.contains(eventQuery.getRuleName())) {
+        continue;
+      }
       EventQuery newEventQuery = EventQueryProcessor.processEventQuery(eventQuery);
 
       // create EPServiceProvider for EventQuery

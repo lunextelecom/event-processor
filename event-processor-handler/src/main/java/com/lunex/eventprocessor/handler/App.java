@@ -81,7 +81,7 @@ public class App extends Application<WebConfiguration> {
       // create esper processor
       esperProcessor =
           new EsperProcessor(hierarchy, listEventProperty, listEventQuery, true,
-              StringUtils.getBackFillTime(Configurations.backfillDefault));
+              StringUtils.getBackFillTime(Configurations.esperBackfillDefault));
       // create event reader
       readerEsperProcessor = new KafkaReader();
       // reader read event and send to processor

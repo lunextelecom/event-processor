@@ -11,10 +11,11 @@ public class Configurations {
   public static List<String> listZookeeper = new ArrayList<String>();
   public static List<String> kafkaCluster = new ArrayList<String>();
   public static String kafkaTopic;
-  public static List<Integer> kafkaTopicPartitionList;
-  public static List<String> kafkaEventReaderList;
+  public static List<Integer> kafkaTopicPartitionList = new ArrayList<Integer>();
+  public static List<String> kafkaEventReaderList = new ArrayList<String>();
   public static String kairosDBUrl;
-  public static String backfillDefault = "";
+  public static String esperBackfillDefault = "";
+  public static List<String> ruleList = new ArrayList<String>();
 
   public static void getPropertiesValues(String propFileName) throws Exception {
     try {
@@ -42,16 +43,14 @@ public class Configurations {
       }
       kafkaTopic = prop.getProperty("kafka.topic.name");
 
-      kafkaTopicPartitionList = new ArrayList<Integer>();
       String kafkaTopicNumPartitionStr = prop.getProperty("kafka.topic.partition.list").trim();
       if (kafkaTopicNumPartitionStr.length() > 0) {
         String[] temp = kafkaTopicNumPartitionStr.split(",");
         for (int i = 0, length = temp.length; i < length; i++) {
-          kafkaTopicPartitionList.add(Integer.valueOf(temp[i]));
+          kafkaTopicPartitionList.add(Integer.valueOf(temp[i].trim()));
         }
       }
 
-      kafkaEventReaderList = new ArrayList<String>();
       String kafkaEventReaderListStr = prop.getProperty("kafka.event.reader.list").trim();
       if (kafkaEventReaderListStr.length() > 0) {
         String[] temp = kafkaEventReaderListStr.split(",");
@@ -60,15 +59,21 @@ public class Configurations {
         }
       }
 
-
+      String ruleNameList = prop.getProperty("esper.rule.list").trim();
+      if (ruleNameList.length() > 0) {
+        String[] temp = ruleNameList.split(",");
+        for (int i = 0, length = temp.length; i < length; i++) {
+          ruleList.add(temp[i]);
+        }
+      }
 
       // KairosDB config
-      kairosDBUrl = prop.getProperty("kafka.event.reader.list");
+      kairosDBUrl = prop.getProperty("kairosdb.url");
 
 
 
       // Esper config
-      backfillDefault = prop.getProperty("esper.backfill.howfar.default");
+      esperBackfillDefault = prop.getProperty("esper.backfill.howfar.default");
 
     } catch (Exception e) {
       throw e;
