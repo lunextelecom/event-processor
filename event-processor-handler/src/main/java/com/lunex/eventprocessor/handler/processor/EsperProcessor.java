@@ -2,6 +2,8 @@ package com.lunex.eventprocessor.handler.processor;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -39,15 +41,16 @@ public class EsperProcessor implements Processor {
   static final Logger logger = LoggerFactory.getLogger(EsperProcessor.class);
 
   private QueryHierarchy queryHierarchy;
-  private EPServiceProvider sericeProvider;
-  List<EPStatement> listStatement = new ArrayList<EPStatement>();
+  private Map<String, EPServiceProvider> mapServiceProvider;
+  private Configuration config;
 
   public EsperProcessor(QueryHierarchy queryHierarchy, List<EventProperty> eventProperty,
       List<EventQuery> listEventQuery, boolean backFill, long startTime) {
     try {
+      mapServiceProvider = new HashMap<String, EPServiceProvider>();
       this.queryHierarchy = queryHierarchy;
-      this.intiConfig(eventProperty);
-      this.initEPL(listEventQuery, backFill, startTime);
+      this.config = this.intiConfig(eventProperty);
+      this.initEPL(config, listEventQuery, backFill, startTime);
     } catch (Exception ex) {
       logger.error(ex.getMessage(), ex);
     }
@@ -64,12 +67,17 @@ public class EsperProcessor implements Processor {
 
     // Process send event to esper
     // move forward time by event Time
-    this.sericeProvider.getEPRuntime().sendEvent(new TimerControlEvent(ClockType.CLOCK_EXTERNAL));
-    this.sericeProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(event.getTime()));
-    // send event
-    System.out.println("Send event " + event.getEvent() + " - " + new Date());
-    this.sericeProvider.getEPRuntime().sendEvent(event.getEvent(), event.getEvtName());
-    this.sericeProvider.getEPRuntime().sendEvent(new TimerControlEvent(ClockType.CLOCK_INTERNAL));
+    Iterator<String> iterator = mapServiceProvider.keySet().iterator();
+    while (iterator.hasNext()) {
+      String key = iterator.next();
+      EPServiceProvider sericeProvider = mapServiceProvider.get(key);
+      sericeProvider.getEPRuntime().sendEvent(new TimerControlEvent(ClockType.CLOCK_EXTERNAL));
+      sericeProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(event.getTime()));
+      // send event
+      System.out.println("Send event " + event.getEvent() + " - " + new Date());
+      sericeProvider.getEPRuntime().sendEvent(event.getEvent(), event.getEvtName());
+      sericeProvider.getEPRuntime().sendEvent(new TimerControlEvent(ClockType.CLOCK_INTERNAL));
+    }
   }
 
   public QueryHierarchy getHierarchy() {
@@ -86,11 +94,11 @@ public class EsperProcessor implements Processor {
    * @param eventProperty
    * @param startTime
    */
-  private void intiConfig(List<EventProperty> eventProperty) {
+  private Configuration intiConfig(List<EventProperty> eventProperty) {
     // detroy firstly to reset config
-    if (this.sericeProvider != null) {
-      this.sericeProvider.destroy();
-    }
+    // if (this.sericeProvider != null) {
+    // this.sericeProvider.destroy();
+    // }
 
     // add new config
     Configuration config = new Configuration();
@@ -104,7 +112,7 @@ public class EsperProcessor implements Processor {
     config.getEngineDefaults().getThreading().setInternalTimerEnabled(false);
     config.getEngineDefaults().getThreading().setInternalTimerMsecResolution(1000);
     // config.getEngineDefaults().getViewResources().setShareViews(false);
-    this.sericeProvider = EPServiceProviderManager.getProvider("event-processor-engine", config);
+    return config;
   }
 
   /**
@@ -116,28 +124,27 @@ public class EsperProcessor implements Processor {
    *        system current time
    * @throws Exception
    */
-  public void initEPL(List<EventQuery> listEventQuery, boolean backFill, long startTime)
-      throws Exception {
-    // detroy all statement firstly to reset
-    this.sericeProvider.getEPAdministrator().destroyAllStatements();
-
-    // this.sericeProvider.getEPRuntime().sendEvent(
-    // new TimerControlEvent(TimerControlEvent.ClockType.CLOCK_EXTERNAL));
-    EPRuntime epRuntime = this.sericeProvider.getEPRuntime();
-    epRuntime.sendEvent(new CurrentTimeEvent(0));
-    // EPServiceProviderIsolated isolatedService =
-    // sericeProvider.getEPServiceIsolated("suspendedStmts");
-    // EPRuntimeIsolated runtimIsolated = isolatedService.getEPRuntime();
-    // runtimIsolated.sendEvent(new TimerControlEvent(ClockType.CLOCK_EXTERNAL));
-    // runtimIsolated.sendEvent(new CurrentTimeEvent(0));
+  public void initEPL(Configuration config, List<EventQuery> listEventQuery, boolean backFill,
+      long startTime) throws Exception {
     // --------------------------------------------
     // ----------- Creaet EPL --------------------
     // --------------------------------------------
-    EPAdministrator admin = sericeProvider.getEPAdministrator();
     for (int i = 0, size = listEventQuery.size(); i < size; i++) {
       final EventQuery eventQuery = listEventQuery.get(i);
       EventQuery newEventQuery = EventQueryProcessor.processEventQuery(eventQuery);
 
+      // create EPServiceProvider for EventQuery
+      String serviceProviderURI = eventQuery.getEventName() + eventQuery.getRuleName();
+      EPServiceProvider serviceProvider =
+          EPServiceProviderManager.getProvider(serviceProviderURI, config);
+      EPAdministrator admin = serviceProvider.getEPAdministrator();
+      admin.destroyAllStatements();
+      // Control timer start timer for esper
+      EPRuntime epRuntime = serviceProvider.getEPRuntime();
+      epRuntime.sendEvent(new CurrentTimeEvent(0));
+      mapServiceProvider.put(serviceProviderURI, serviceProvider);
+
+      // Create statement
       String smallBucket = newEventQuery.getSmallBucket();
       String bigBucket = newEventQuery.getBigBucket();
       String select = newEventQuery.getFields();
@@ -156,7 +163,8 @@ public class EsperProcessor implements Processor {
       if (bigBucket != null && smallBucket != null && !Constants.EMPTY_STRING.equals(bigBucket)
           && !Constants.EMPTY_STRING.equals(smallBucket)) {
 
-        String tempTable = StringUtils.md5Java(eventQuery.getRuleName());
+        String tempTable =
+            StringUtils.md5Java(eventQuery.getRuleName() + eventQuery.getEventName());
         String context = tempTable + "_Per_" + smallBucket.replace(" ", "_");
         String smallBucketWindow = tempTable + "_" + smallBucket.replace(" ", "_");
         // create EPL for context
@@ -173,14 +181,8 @@ public class EsperProcessor implements Processor {
                         + smallBucketWindow
                         + " SELECT %s, hashKey as hashKey, time as time FROM %s %s %s %s output snapshot when terminated",
                     StringUtils.convertField(select), from, where, group, having);
-        // epl =
-        // "insert into " + smallBucketWindow + " select " + StringUtils.convertField(select)
-        // + ", hashKey as hashKey, time as time from " + from + ".win:time_batch("
-        // + smallBucket + ") " + where + " " + group + " " + having;// + " output last every " +
-        // // smallBucket;
         epl = epl.replaceAll(" +", " ");
-        EPStatement statementInsert = admin.createEPL(epl, eventQuery.getRuleName());
-        listStatement.add(statementInsert);
+        admin.createEPL(epl);
         // create EPL for big bucket and add listener for statement
         epl =
             " " + "select " + StringUtils.convertField2(select)
@@ -188,16 +190,15 @@ public class EsperProcessor implements Processor {
                 + bigBucket + ") " + group;
         epl = epl.replaceAll(" +", " ");
         EPStatement statement = admin.createEPL(epl, eventQuery.getRuleName());
-        listStatement.add(statement);
         // Add listener, default listener is enable = false
         statement.addListener(new EsperListener(eventQuery));
-
 
 
         // EPL for window every timeframe
       } else if ((bigBucket == null || Constants.EMPTY_STRING.equals(bigBucket))
           && (smallBucket != null && !Constants.EMPTY_STRING.equals(smallBucket))) {
-        String tempTable = StringUtils.md5Java(eventQuery.getRuleName());
+        String tempTable =
+            StringUtils.md5Java(eventQuery.getRuleName() + eventQuery.getEventName());
         String context = tempTable + "_Per_" + smallBucket.replaceAll(" |:", "_");
         List<String> crontabs = StringUtils.convertCrontab(smallBucket);
         if (crontabs.size() == 2) {
@@ -209,7 +210,7 @@ public class EsperProcessor implements Processor {
         } else {
           epl =
               "create context " + context + " initiated by @now and pattern [every timer:interval("
-                  + smallBucket + ")] terminated after " + smallBucket;
+                  + smallBucket + ")] terminated after " + smallBucket + "";
         }
         epl = epl.replaceAll(" +", " ");
         admin.createEPL(epl);
@@ -219,78 +220,39 @@ public class EsperProcessor implements Processor {
                 .format(
                     "context "
                         + context
-                        + " SELECT %s, hashKey as hashKey, time as time FROM %s %s %s %s output last every 1 second",
+                        + " SELECT %s, hashKey as hashKey, time as time FROM %s %s %s %s output last every 1 second ",
                     StringUtils.convertField(select), from + ".win:time(" + smallBucket + ")",
                     where, group, having);
         epl = epl.replaceAll(" +", " ");
         EPStatement statement = admin.createEPL(epl, eventQuery.getRuleName());
         statement.addListener(new EsperListener(eventQuery));
-        listStatement.add(statement);
       } else {
         // TODO nothing to do to create EPL for this rule, this rule is invalid
       }
-    }
 
-    // --------------------------------------
-    // Control timer start timer for esper
-    // --------------------------------------
+      this.backfill(serviceProvider, startTime, backFill);
+      // ---------------------------------------
+      // start listener enable = true
+      // ---------------------------------------
+      this.startListener(serviceProvider);
+    }
+  }
+
+  private void backfill(EPServiceProvider serviceProvider, long startTime, boolean backFill)
+      throws Exception {
+    EPRuntime epRuntime = serviceProvider.getEPRuntime();
     if (backFill == true) {
       if (startTime == -1) {
         logger.error("No define how far to backfill");
       } else {
-        // this.sericeProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
         // ---------------------------------------
         // Backfill with history event
         // ---------------------------------------
-        // if this init is backfill mode
-        // EPStatement[] array = new EPStatement[listStatement.size()];
-        // listStatement.toArray(array);
-        // EPServiceProviderIsolated isolatedService =
-        // sericeProvider.getEPServiceIsolated("suspendedStmts");
-        // EPRuntimeIsolated runtimIsolated = isolatedService.getEPRuntime();
-        // runtimIsolated.sendEvent(new CurrentTimeEvent(0));
-        // isolatedService.getEPAdministrator().addStatement(array);
         long lastEventTime = this.feedHistoricalEvent(startTime, null, epRuntime);
-        // isolatedService.getEPAdministrator().removeStatement(array);
-        // isolatedService.destroy();
 
-        // Set current time for esper
-        // this.sericeProvider.getEPRuntime().sendEvent(
-        // new TimerControlEvent(ClockType.CLOCK_EXTERNAL));
-        // startTime = System.currentTimeMillis();
         epRuntime.sendEvent(new CurrentTimeEvent(lastEventTime + 1000));
         epRuntime.sendEvent(new TimerControlEvent(ClockType.CLOCK_INTERNAL));
       }
-    } else {
-      // TimerControlEvent(ClockType.CLOCK_EXTERNAL));
-      // startTime = 0;// System.currentTimeMillis();
-      // this.sericeProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(startTime));
-      // this.sericeProvider.getEPRuntime().sendEvent(new
-      // TimerControlEvent(ClockType.CLOCK_INTERNAL));
-    }
-
-
-    // ---------------------------------------
-    // start listener enable = true
-    // ---------------------------------------
-    this.startListener();
-  }
-
-  /**
-   * Start all statement
-   */
-  public void startAllStatement() {
-    for (int i = 0, size = listStatement.size(); i < size; i++) {
-      listStatement.get(i).start();
-    }
-  }
-
-  /**
-   * Stop all statement
-   */
-  public void stopAllStatement() {
-    for (int i = 0, size = listStatement.size(); i < size; i++) {
-      listStatement.get(i).stop();
     }
   }
 
@@ -299,24 +261,24 @@ public class EsperProcessor implements Processor {
    * 
    * @param statementName
    */
-  public void stopStatement(String statementName) {
-    sericeProvider.getEPAdministrator().getStatement(statementName).stop();
-  }
+  // public void stopStatement(String statementName) {
+  // sericeProvider.getEPAdministrator().getStatement(statementName).stop();
+  // }
 
   /**
    * Start statement
    * 
    * @param statementName
    */
-  public void startStatement(String statementName) {
-    sericeProvider.getEPAdministrator().getStatement(statementName).start();
-  }
+  // public void startStatement(String statementName) {
+  // sericeProvider.getEPAdministrator().getStatement(statementName).start();
+  // }
 
   /**
    * Start listener for Esper
    */
-  public void startListener() {
-    EPAdministrator admin = sericeProvider.getEPAdministrator();
+  public void startListener(EPServiceProvider serviceProvider) {
+    EPAdministrator admin = serviceProvider.getEPAdministrator();
     String[] statements = admin.getStatementNames();
     EPStatement statement = null;
     EsperListener lisnter = null;
@@ -368,11 +330,12 @@ public class EsperProcessor implements Processor {
    * 
    * @param propeties
    */
-  public void updateEsperEventTypeOnRuntime(EventProperty propeties) {
-    if (this.sericeProvider == null) {
+  public void updateEsperEventTypeOnRuntime(EPServiceProvider serviceProvider,
+      EventProperty propeties) {
+    if (serviceProvider == null) {
       return;
     }
-    EPAdministrator admin = this.sericeProvider.getEPAdministrator();
+    EPAdministrator admin = serviceProvider.getEPAdministrator();
     propeties.getProperties().put("hashKey", "string");
     propeties.getProperties().put("time", "long");
     admin.getConfiguration().updateMapEventType(propeties.getEvtDataName(),
@@ -384,11 +347,11 @@ public class EsperProcessor implements Processor {
    * 
    * @param propeties
    */
-  public void addEsperContenTypeOnRunTime(EventProperty propeties) {
-    if (this.sericeProvider == null) {
+  public void addEsperContenTypeOnRunTime(EPServiceProvider serviceProvider, EventProperty propeties) {
+    if (serviceProvider == null) {
       return;
     }
-    EPAdministrator admin = this.sericeProvider.getEPAdministrator();
+    EPAdministrator admin = serviceProvider.getEPAdministrator();
     propeties.getProperties().put("hashKey", "string");
     propeties.getProperties().put("time", "long");
     admin.getConfiguration().addEventType(propeties.getEvtDataName(), propeties.getProperties());
