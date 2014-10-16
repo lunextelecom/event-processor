@@ -60,11 +60,6 @@ public class EsperProcessor implements Processor {
       logger.error("Event is null");
       return;
     }
-    if (Configurations.ruleList != null && !Configurations.ruleList.isEmpty()
-        && !Configurations.ruleList.contains(event.getEvtName())) {
-      logger.error("Event is invalid");
-      return;
-    }
     logger.info("Start consume event:" + event.toString());
     // save raw event
     DataAccessOutputHandler.insertRawEventToCassandra(event);
