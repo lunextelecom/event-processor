@@ -1,21 +1,23 @@
 package com.lunex.eventprocessor.handler.listener;
 
-import java.util.Map;
+import kafka.serializer.StringEncoder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.Gson;
 import com.lunex.eventprocessor.core.EventQuery;
 import com.lunex.eventprocessor.core.EventResult;
 import com.lunex.eventprocessor.core.QueryFuture;
-import com.lunex.eventprocessor.core.dataaccess.CassandraRepository;
 import com.lunex.eventprocessor.core.listener.ResultListener;
-import com.lunex.eventprocessor.core.utils.Constants;
+import com.lunex.eventprocessor.handler.kafka.ASCIIPartitioner;
+import com.lunex.eventprocessor.handler.kafka.KafkaProducer;
 import com.lunex.eventprocessor.handler.output.DataAccessOutputHandler;
+import com.lunex.eventprocessor.handler.utils.Configurations;
 
-public class CassandraWriter implements ResultListener {
+public class KafkaWriter implements ResultListener {
 
-  static final Logger logger = LoggerFactory.getLogger(CassandraWriter.class);
+  static final Logger logger = LoggerFactory.getLogger(KafkaWriter.class);
 
   private QueryFuture queryFuture;
 
@@ -29,7 +31,7 @@ public class CassandraWriter implements ResultListener {
 
   public void onEvent(Object[] result) {
     // *******************************//
-    // * Write result into cassandra *//
+    // * Write result into kafka *//
     // *******************************//
     EventQuery eventQuery = null;
     if (queryFuture != null) {
@@ -37,24 +39,15 @@ public class CassandraWriter implements ResultListener {
     } else {
       return;
     }
+
     try {
-      // Write result computation
-      Map<String, Object> properties = null;
-      String hashKey = null;
-      for (int i = 0; i < result.length; i++) {
-        properties = (Map<String, Object>) result[i];
-        hashKey =
-            String.valueOf(properties.get("hashKey") == null ? Constants.EMPTY_STRING : properties
-                .get("hashKey"));
-        if (properties == null || properties.isEmpty() || Constants.EMPTY_STRING.equals(hashKey)) {
-          continue;
-        }
-        // Write result of computation
-        DataAccessOutputHandler.writeResultComputation(properties, eventQuery);
-      }
-      // Write checked condition
       EventResult eventResult = DataAccessOutputHandler.checkCondition(result, eventQuery);
-      CassandraRepository.getInstance().updateResults(eventResult);
+      Gson gson = new Gson();
+      String json = gson.toJson(eventResult);
+      KafkaProducer kafkaProducer =
+          new KafkaProducer(Configurations.kafkaCluster, StringEncoder.class.getName(),
+              ASCIIPartitioner.class.getName(), true);
+      kafkaProducer.sendData(Configurations.kafkaTopic, eventQuery.getEventName(), json);
     } catch (Exception e) {
       logger.error(e.getMessage(), e);
     }
