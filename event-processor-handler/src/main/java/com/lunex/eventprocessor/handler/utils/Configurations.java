@@ -12,6 +12,7 @@ public class Configurations {
   public static List<String> kafkaCluster = new ArrayList<String>();
   public static String kafkaTopic;
   public static List<Integer> kafkaTopicPartitionList;
+  public static List<String> kafkaEventReaderList;
   public static String kairosDBUrl;
   public static String backfillDefault = "";
 
@@ -21,6 +22,8 @@ public class Configurations {
 
       InputStream inputStream = new FileInputStream(propFileName);
       prop.load(inputStream);
+
+
 
       // kafka configuration
       String zookepers = prop.getProperty("zookeepers");
@@ -38,8 +41,9 @@ public class Configurations {
         }
       }
       kafkaTopic = prop.getProperty("kafka.topic.name");
+
       kafkaTopicPartitionList = new ArrayList<Integer>();
-      String kafkaTopicNumPartitionStr = prop.getProperty("kafka.topic.partition").trim();
+      String kafkaTopicNumPartitionStr = prop.getProperty("kafka.topic.partition.list").trim();
       if (kafkaTopicNumPartitionStr.length() > 0) {
         String[] temp = kafkaTopicNumPartitionStr.split(",");
         for (int i = 0, length = temp.length; i < length; i++) {
@@ -47,9 +51,23 @@ public class Configurations {
         }
       }
 
+      kafkaEventReaderList = new ArrayList<String>();
+      String kafkaEventReaderListStr = prop.getProperty("kafka.event.reader.list").trim();
+      if (kafkaEventReaderListStr.length() > 0) {
+        String[] temp = kafkaEventReaderListStr.split(",");
+        for (int i = 0, length = temp.length; i < length; i++) {
+          kafkaEventReaderList.add(temp[i]);
+        }
+      }
 
-      kairosDBUrl = prop.getProperty("kairosdb.url");
 
+
+      // KairosDB config
+      kairosDBUrl = prop.getProperty("kafka.event.reader.list");
+
+
+
+      // Esper config
       backfillDefault = prop.getProperty("esper.backfill.howfar.default");
 
     } catch (Exception e) {

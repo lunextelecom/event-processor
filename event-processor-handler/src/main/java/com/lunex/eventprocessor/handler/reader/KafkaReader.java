@@ -99,6 +99,10 @@ public class KafkaReader implements EventReader {
         logger.error("Content-type is invalid");
         break;
     }
+    if (!Configurations.kafkaEventReaderList.contains(event.getEvtName())) {
+      logger.error("Invalid event name");
+      return;
+    }
     if (event != null && event.getTime() != -1
         && !Constants.EMPTY_STRING.equals(event.getEvtName())
         && !Constants.EMPTY_STRING.equals(event.getEvent())) {
