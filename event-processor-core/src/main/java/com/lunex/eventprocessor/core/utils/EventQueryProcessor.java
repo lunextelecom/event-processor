@@ -146,4 +146,28 @@ public class EventQueryProcessor {
     }
     return results;
   }
+
+  /**
+   * Create single EventProperty for single EventQuery
+   * @param eventQuery
+   * @return
+   */
+  public static EventProperty processEventProperyForEventQuery(EventQuery eventQuery) {
+    Map<String, Object> map = new HashMap<String, Object>();
+    Map<String, Object> properties = null;
+    EventProperty eventProperty = new EventProperty(eventQuery.getEventName(), null);
+    String fields = eventQuery.getFields();
+    properties = processStringFieldDataTypeForEventQuery(fields);
+    map.putAll(properties);
+    String groups = eventQuery.getAggregateField();
+    properties = processStringFieldDataTypeForEventQuery(groups);
+    map.putAll(properties);
+    String filter = eventQuery.getFilters();
+    properties = processStringFieldDataTypeForEventQuery(filter);
+    map.putAll(properties);
+    String having = eventQuery.getHaving();
+    properties = processStringFieldDataTypeForEventQuery(having);
+    map.putAll(properties);
+    return eventProperty;
+  }
 }

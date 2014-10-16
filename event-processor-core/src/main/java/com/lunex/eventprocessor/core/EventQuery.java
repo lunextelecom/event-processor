@@ -12,6 +12,10 @@ package com.lunex.eventprocessor.core;
 */
 public class EventQuery {
 
+  public static enum EventQueryStatus {
+    STOP, RUNNING
+  }
+  
   private String eventName;
   private String ruleName;
   private String data;
@@ -30,6 +34,8 @@ public class EventQuery {
   // Ex: timeSeries = "1 minute" --> in esper: select sum(amount) from new_order.win:time(10 minute)
   private String conditions;
   // Ex: sum(amount) > 100 & count(txId) > 5
+  private String description;
+  private EventQueryStatus status;
 
   public String getData() {
     return data;
@@ -109,5 +115,21 @@ public class EventQuery {
 
   public void setBigBucket(String bigBucket) {
     this.bigBucket = bigBucket;
+  }
+
+  public EventQueryStatus getStatus() {
+    return status;
+  }
+
+  public void setStatus(EventQueryStatus status) {
+    this.status = status;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
   }
 }

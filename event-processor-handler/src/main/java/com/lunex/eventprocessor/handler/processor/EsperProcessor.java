@@ -15,7 +15,6 @@ import com.espertech.esper.client.EPAdministrator;
 import com.espertech.esper.client.EPRuntime;
 import com.espertech.esper.client.EPRuntimeIsolated;
 import com.espertech.esper.client.EPServiceProvider;
-// import com.espertech.esper.client.EPServiceProviderIsolated;
 import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
@@ -43,14 +42,13 @@ public class EsperProcessor implements Processor {
 
   private QueryHierarchy queryHierarchy;
   private Map<String, EPServiceProvider> mapServiceProvider;
-  private Configuration config;
 
   public EsperProcessor(QueryHierarchy queryHierarchy, List<EventProperty> eventProperty,
       List<EventQuery> listEventQuery, boolean backFill, long startTime) {
     try {
       mapServiceProvider = new HashMap<String, EPServiceProvider>();
       this.queryHierarchy = queryHierarchy;
-      this.config = this.intiConfig(eventProperty);
+      Configuration config = this.intiConfig(eventProperty);
       this.initEPL(config, listEventQuery, backFill, startTime);
     } catch (Exception ex) {
       logger.error(ex.getMessage(), ex);
@@ -89,6 +87,69 @@ public class EsperProcessor implements Processor {
     this.queryHierarchy = hierarchy;
   }
 
+  public boolean updateRule(EventQuery eventQuery, boolean backfill, long backFillTime) {
+    String eventName = eventQuery.getEventName();
+    String ruleName = eventQuery.getRuleName();
+
+    String serviceProviderURI = eventName + ruleName;
+    EPServiceProvider serviceProvider = this.mapServiceProvider.get(serviceProviderURI);
+    if (serviceProvider == null) {
+      return false;
+    }
+    this.mapServiceProvider.remove(serviceProvider);
+    serviceProvider.destroy();
+
+    try {
+      // Create EPServiceProvider
+      List<EventProperty> temp = new ArrayList<EventProperty>();
+      temp.add(EventQueryProcessor.processEventProperyForEventQuery(eventQuery));
+      Configuration config = intiConfig(temp);
+      serviceProvider = this.createEPServiceProvider(config, eventQuery, backfill, backFillTime);
+      // Add to Map
+      this.mapServiceProvider.put(serviceProviderURI, serviceProvider);
+    } catch (Exception ex) {
+      logger.error(ex.getMessage(), ex);
+      return false;
+    }
+    return true;
+  }
+
+  public boolean startRule(EventQuery eventQuery, boolean backfill, long backFillTime) {
+    try {
+      String eventName = eventQuery.getEventName();
+      String ruleName = eventQuery.getRuleName();
+      String serviceProviderURI = eventName + ruleName;
+      // Create EPServiceProvider
+      List<EventProperty> temp = new ArrayList<EventProperty>();
+      temp.add(EventQueryProcessor.processEventProperyForEventQuery(eventQuery));
+      Configuration config = intiConfig(temp);
+      EPServiceProvider serviceProvider =
+          this.createEPServiceProvider(config, eventQuery, backfill, backFillTime);
+      // Add to Map
+      this.mapServiceProvider.put(serviceProviderURI, serviceProvider);
+    } catch (Exception ex) {
+      logger.error(ex.getMessage(), ex);
+      return false;
+    }
+    return true;
+  }
+
+  public boolean stopRule(EventQuery eventQuery) {
+    String eventName = eventQuery.getEventName();
+    String ruleName = eventQuery.getRuleName();
+    String serviceProviderURI = eventName + ruleName;
+    // Get EPServiceProvider from Map
+    EPServiceProvider serviceProvider = this.mapServiceProvider.get(serviceProviderURI);
+    if (serviceProvider == null) {
+      return false;
+    }
+    // Remove from Map
+    this.mapServiceProvider.remove(serviceProvider);
+    // and detroy
+    serviceProvider.destroy();
+    return true;
+  }
+
   /**
    * Init config for Esper
    * 
@@ -96,12 +157,7 @@ public class EsperProcessor implements Processor {
    * @param startTime
    */
   private Configuration intiConfig(List<EventProperty> eventProperty) {
-    // detroy firstly to reset config
-    // if (this.sericeProvider != null) {
-    // this.sericeProvider.destroy();
-    // }
-
-    // add new config
+    // create new config
     Configuration config = new Configuration();
     EventProperty propeties = null;
     for (int i = 0, size = eventProperty.size(); i < size; i++) {
@@ -131,119 +187,144 @@ public class EsperProcessor implements Processor {
     // ----------- Creaet EPL --------------------
     // --------------------------------------------
     for (int i = 0, size = listEventQuery.size(); i < size; i++) {
+
       final EventQuery eventQuery = listEventQuery.get(i);
       // filter rule by config
       if (!Configurations.ruleList.isEmpty()
           && !Configurations.ruleList.contains(eventQuery.getRuleName())) {
         continue;
       }
-      EventQuery newEventQuery = EventQueryProcessor.processEventQuery(eventQuery);
-
-      // create EPServiceProvider for EventQuery
       String serviceProviderURI = eventQuery.getEventName() + eventQuery.getRuleName();
       EPServiceProvider serviceProvider =
-          EPServiceProviderManager.getProvider(serviceProviderURI, config);
-      EPAdministrator admin = serviceProvider.getEPAdministrator();
-      admin.destroyAllStatements();
-      // Control timer start timer for esper
-      EPRuntime epRuntime = serviceProvider.getEPRuntime();
-      epRuntime.sendEvent(new CurrentTimeEvent(0));
+          this.createEPServiceProvider(config, eventQuery, backFill, startTime);
       mapServiceProvider.put(serviceProviderURI, serviceProvider);
-
-      // Create statement
-      String smallBucket = newEventQuery.getSmallBucket();
-      String bigBucket = newEventQuery.getBigBucket();
-      String select = newEventQuery.getFields();
-      String from = newEventQuery.getData();
-      String where =
-          (newEventQuery.getFilters() == null || Constants.EMPTY_STRING.equals(newEventQuery
-              .getFilters())) ? "" : "WHERE " + newEventQuery.getFilters();
-      String group =
-          (newEventQuery.getAggregateField() == null || Constants.EMPTY_STRING.equals(newEventQuery
-              .getAggregateField())) ? "" : "GROUP BY " + newEventQuery.getAggregateField();
-      String having =
-          (newEventQuery.getHaving() == null || Constants.EMPTY_STRING.equals(newEventQuery
-              .getHaving())) ? "" : "HAVING " + newEventQuery.getHaving();
-      String epl = Constants.EMPTY_STRING;
-      // EPL for window last timeframe
-      if (bigBucket != null && smallBucket != null && !Constants.EMPTY_STRING.equals(bigBucket)
-          && !Constants.EMPTY_STRING.equals(smallBucket)) {
-
-        String tempTable =
-            StringUtils.md5Java(eventQuery.getRuleName() + eventQuery.getEventName());
-        String context = tempTable + "_Per_" + smallBucket.replace(" ", "_");
-        String smallBucketWindow = tempTable + "_" + smallBucket.replace(" ", "_");
-        // create EPL for context
-        epl = "create context " + context + " start @now end after " + smallBucket;
-        epl = epl.replaceAll(" +", " ");
-        admin.createEPL(epl);
-        // create smallbucket aggregation
-        epl =
-            String
-                .format(
-                    "context "
-                        + context
-                        + " insert into "
-                        + smallBucketWindow
-                        + " SELECT %s, hashKey as hashKey, time as time FROM %s %s %s %s output snapshot when terminated",
-                    StringUtils.convertField(select), from, where, group, having);
-        epl = epl.replaceAll(" +", " ");
-        admin.createEPL(epl);
-        // create EPL for big bucket and add listener for statement
-        epl =
-            " " + "select " + StringUtils.convertField2(select)
-                + ", hashKey as hashKey, time as time FROM " + smallBucketWindow + ".win:time("
-                + bigBucket + ") " + group;
-        epl = epl.replaceAll(" +", " ");
-        EPStatement statement = admin.createEPL(epl, eventQuery.getRuleName());
-        // Add listener, default listener is enable = false
-        statement.addListener(new EsperListener(eventQuery));
-
-
-        // EPL for window every timeframe
-      } else if ((bigBucket == null || Constants.EMPTY_STRING.equals(bigBucket))
-          && (smallBucket != null && !Constants.EMPTY_STRING.equals(smallBucket))) {
-        String tempTable =
-            StringUtils.md5Java(eventQuery.getRuleName() + eventQuery.getEventName());
-        String context = tempTable + "_Per_" + smallBucket.replaceAll(" |:", "_");
-        List<String> crontabs = StringUtils.convertCrontab(smallBucket);
-        if (crontabs.size() == 2) {
-          smallBucket = smallBucket.substring(0, smallBucket.indexOf(":"));
-          epl =
-              "create context " + context + " initiated by @now and pattern [every timer:at("
-                  + crontabs.get(0) + ")] terminated by pattern [every timer:at(" + crontabs.get(1)
-                  + ")]";
-        } else {
-          epl =
-              "create context " + context + " initiated by @now and pattern [every timer:interval("
-                  + smallBucket + ")] terminated after " + smallBucket + "";
-        }
-        epl = epl.replaceAll(" +", " ");
-        admin.createEPL(epl);
-        // create smallbucket aggregation
-        epl =
-            String
-                .format(
-                    "context "
-                        + context
-                        + " SELECT %s, hashKey as hashKey, time as time FROM %s %s %s %s output last every 1 second ",
-                    StringUtils.convertField(select), from + ".win:time(" + smallBucket + ")",
-                    where, group, having);
-        epl = epl.replaceAll(" +", " ");
-        EPStatement statement = admin.createEPL(epl, eventQuery.getRuleName());
-        statement.addListener(new EsperListener(eventQuery));
-      } else {
-        // TODO nothing to do to create EPL for this rule, this rule is invalid
-      }
-
-      this.backfill(serviceProvider, startTime, backFill);
-      // ---------------------------------------
-      // start listener enable = true
-      // ---------------------------------------
-      this.startListener(serviceProvider);
     }
   }
 
+  /**
+   * Create EPServiceProvider runtime from EventQuery
+   * 
+   * @param eventQuery
+   * @param backFill
+   * @param startTime
+   * @return
+   * @throws Exception
+   */
+  private EPServiceProvider createEPServiceProvider(Configuration config, EventQuery eventQuery,
+      boolean backFill, long startTime) throws Exception {
+    // create new EventQuery after process string of filter, data, field, group...
+    EventQuery newEventQuery = EventQueryProcessor.processEventQuery(eventQuery);
+
+    // create EPServiceProvider for EventQuery
+    String serviceProviderURI = eventQuery.getEventName() + eventQuery.getRuleName();
+    EPServiceProvider serviceProvider =
+        EPServiceProviderManager.getProvider(serviceProviderURI, config);
+    EPAdministrator admin = serviceProvider.getEPAdministrator();
+    admin.destroyAllStatements();
+    // Control timer start timer for esper
+    EPRuntime epRuntime = serviceProvider.getEPRuntime();
+    epRuntime.sendEvent(new CurrentTimeEvent(0));
+
+    // Create statement
+    String smallBucket = newEventQuery.getSmallBucket();
+    String bigBucket = newEventQuery.getBigBucket();
+    String select = newEventQuery.getFields();
+    String from = newEventQuery.getData();
+    String where =
+        (newEventQuery.getFilters() == null || Constants.EMPTY_STRING.equals(newEventQuery
+            .getFilters())) ? "" : "WHERE " + newEventQuery.getFilters();
+    String group =
+        (newEventQuery.getAggregateField() == null || Constants.EMPTY_STRING.equals(newEventQuery
+            .getAggregateField())) ? "" : "GROUP BY " + newEventQuery.getAggregateField();
+    String having =
+        (newEventQuery.getHaving() == null || Constants.EMPTY_STRING.equals(newEventQuery
+            .getHaving())) ? "" : "HAVING " + newEventQuery.getHaving();
+    String epl = Constants.EMPTY_STRING;
+    // EPL for window last timeframe
+    if (bigBucket != null && smallBucket != null && !Constants.EMPTY_STRING.equals(bigBucket)
+        && !Constants.EMPTY_STRING.equals(smallBucket)) {
+
+      String tempTable = StringUtils.md5Java(eventQuery.getRuleName() + eventQuery.getEventName());
+      String context = tempTable + "_Per_" + smallBucket.replace(" ", "_");
+      String smallBucketWindow = tempTable + "_" + smallBucket.replace(" ", "_");
+      // create EPL for context
+      epl = "create context " + context + " start @now end after " + smallBucket;
+      epl = epl.replaceAll(" +", " ");
+      admin.createEPL(epl);
+      // create smallbucket aggregation
+      epl =
+          String
+              .format(
+                  "context "
+                      + context
+                      + " insert into "
+                      + smallBucketWindow
+                      + " SELECT %s, hashKey as hashKey, time as time FROM %s %s %s %s output snapshot when terminated",
+                  StringUtils.convertField(select), from, where, group, having);
+      epl = epl.replaceAll(" +", " ");
+      admin.createEPL(epl);
+      // create EPL for big bucket and add listener for statement
+      epl =
+          " " + "select " + StringUtils.convertField2(select)
+              + ", hashKey as hashKey, time as time FROM " + smallBucketWindow + ".win:time("
+              + bigBucket + ") " + group;
+      epl = epl.replaceAll(" +", " ");
+      EPStatement statement = admin.createEPL(epl, eventQuery.getRuleName());
+      // Add listener, default listener is enable = false
+      statement.addListener(new EsperListener(eventQuery));
+
+
+      // EPL for window every timeframe
+    } else if ((bigBucket == null || Constants.EMPTY_STRING.equals(bigBucket))
+        && (smallBucket != null && !Constants.EMPTY_STRING.equals(smallBucket))) {
+      String tempTable = StringUtils.md5Java(eventQuery.getRuleName() + eventQuery.getEventName());
+      String context = tempTable + "_Per_" + smallBucket.replaceAll(" |:", "_");
+      List<String> crontabs = StringUtils.convertCrontab(smallBucket);
+      if (crontabs.size() == 2) {
+        smallBucket = smallBucket.substring(0, smallBucket.indexOf(":"));
+        epl =
+            "create context " + context + " initiated by @now and pattern [every timer:at("
+                + crontabs.get(0) + ")] terminated by pattern [every timer:at(" + crontabs.get(1)
+                + ")]";
+      } else {
+        epl =
+            "create context " + context + " initiated by @now and pattern [every timer:interval("
+                + smallBucket + ")] terminated after " + smallBucket + "";
+      }
+      epl = epl.replaceAll(" +", " ");
+      admin.createEPL(epl);
+      // create smallbucket aggregation
+      epl =
+          String
+              .format(
+                  "context "
+                      + context
+                      + " SELECT %s, hashKey as hashKey, time as time FROM %s %s %s %s output last every 1 second ",
+                  StringUtils.convertField(select), from + ".win:time(" + smallBucket + ")", where,
+                  group, having);
+      epl = epl.replaceAll(" +", " ");
+      EPStatement statement = admin.createEPL(epl, eventQuery.getRuleName());
+      statement.addListener(new EsperListener(eventQuery));
+    } else {
+      // TODO nothing to do to create EPL for this rule, this rule is invalid
+    }
+
+    this.backfill(serviceProvider, startTime, backFill);
+    // ---------------------------------------
+    // start listener enable = true
+    // ---------------------------------------
+    this.startListener(serviceProvider);
+    return serviceProvider;
+  }
+
+  /**
+   * Backfill with history event
+   * 
+   * @param serviceProvider
+   * @param startTime
+   * @param backFill
+   * @throws Exception
+   */
   private void backfill(EPServiceProvider serviceProvider, long startTime, boolean backFill)
       throws Exception {
     EPRuntime epRuntime = serviceProvider.getEPRuntime();
@@ -263,24 +344,6 @@ public class EsperProcessor implements Processor {
   }
 
   /**
-   * Stop statement
-   * 
-   * @param statementName
-   */
-  // public void stopStatement(String statementName) {
-  // sericeProvider.getEPAdministrator().getStatement(statementName).stop();
-  // }
-
-  /**
-   * Start statement
-   * 
-   * @param statementName
-   */
-  // public void startStatement(String statementName) {
-  // sericeProvider.getEPAdministrator().getStatement(statementName).start();
-  // }
-
-  /**
    * Start listener for Esper
    */
   public void startListener(EPServiceProvider serviceProvider) {
@@ -295,7 +358,7 @@ public class EsperProcessor implements Processor {
         lisnter.setEnable(true);
       }
     }
-    System.out.println("EPL is ready");
+    logger.info("EPL is ready");
   }
 
   /**
@@ -304,7 +367,7 @@ public class EsperProcessor implements Processor {
    * @param startTime
    * @throws Exception
    */
-  public long feedHistoricalEvent(long startTime, EPRuntimeIsolated runtimIsolated,
+  private long feedHistoricalEvent(long startTime, EPRuntimeIsolated runtimIsolated,
       EPRuntime epRunTime) throws Exception {
     // get historical event from DB
     List<Event> listEvent = CassandraRepository.getInstance().getEvent(startTime);
@@ -336,7 +399,7 @@ public class EsperProcessor implements Processor {
    * 
    * @param propeties
    */
-  public void updateEsperEventTypeOnRuntime(EPServiceProvider serviceProvider,
+  private void updateEsperEventTypeOnRuntime(EPServiceProvider serviceProvider,
       EventProperty propeties) {
     if (serviceProvider == null) {
       return;
@@ -353,7 +416,8 @@ public class EsperProcessor implements Processor {
    * 
    * @param propeties
    */
-  public void addEsperContenTypeOnRunTime(EPServiceProvider serviceProvider, EventProperty propeties) {
+  private void addEsperContenTypeOnRunTime(EPServiceProvider serviceProvider,
+      EventProperty propeties) {
     if (serviceProvider == null) {
       return;
     }
@@ -367,7 +431,7 @@ public class EsperProcessor implements Processor {
    * Class process listener for esper
    *
    */
-  public class EsperListener implements UpdateListener {
+  private class EsperListener implements UpdateListener {
 
     private EventQuery eventQuery;
 
@@ -406,6 +470,5 @@ public class EsperProcessor implements Processor {
     public void setEnable(boolean enable) {
       this.enable = enable;
     }
-
   }
 }

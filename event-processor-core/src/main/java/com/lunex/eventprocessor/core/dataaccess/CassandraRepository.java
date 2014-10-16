@@ -29,6 +29,7 @@ import com.datastax.driver.core.policies.DowngradingConsistencyRetryPolicy;
 import com.google.common.base.Strings;
 import com.lunex.eventprocessor.core.Event;
 import com.lunex.eventprocessor.core.EventQuery;
+import com.lunex.eventprocessor.core.EventQuery.EventQueryStatus;
 import com.lunex.eventprocessor.core.EventQueryException;
 import com.lunex.eventprocessor.core.EventQueryException.ExptionAction;
 import com.lunex.eventprocessor.core.EventResult;
@@ -109,8 +110,8 @@ public class CassandraRepository {
         String sql =
             "CREATE TABLE "
                 + instance.keyspace
-                + ".rules (id uuid, event_name text, rule_name text, data text,  fields text, filters text, aggregate_field text, having text, small_bucket text, big_bucket text, conditions text, "
-                + "PRIMARY KEY (id, event_name, rule_name))";
+                + ".rules (event_name text, rule_name text, data text,  fields text, filters text, aggregate_field text, having text, small_bucket text, big_bucket text, conditions text, description text, status text,"
+                + "PRIMARY KEY (event_name, rule_name))";
         instance.session.execute(sql);
       }
       if (keyspaceMetadata.getTable("events") == null) {
@@ -230,24 +231,16 @@ public class CassandraRepository {
   /**
    * Get event query (rule) from DB
    * 
-   * @param id
+   * @param id: id=-1 --> skip this field
    * @param eventName
    * @param ruleName
    * @return
    * @throws Exception
    */
-  public List<EventQuery> getEventQueryFromDB(int id, String eventName, String ruleName)
+  public List<EventQuery> getEventQueryFromDB(String eventName, String ruleName)
       throws Exception {
     String sql = "SELECT * FROM " + keyspace + ".rules";
     List<Object> params = new ArrayList<Object>();
-    if (id != -1 || !Constants.EMPTY_STRING.equals(eventName)
-        || !Constants.EMPTY_STRING.equals(ruleName)) {
-      sql += " WHERE 1 = 1 ";
-    }
-    if (id != -1) {
-      sql += " AND id = ? ";
-      params.add(id);
-    }
     if (!Constants.EMPTY_STRING.equals(eventName)) {
       sql += " AND event_name = ? ";
       params.add(eventName);
@@ -275,6 +268,8 @@ public class CassandraRepository {
       eventQuery.setConditions(row.getString("conditions"));
       eventQuery.setRuleName(row.getString("rule_name"));
       eventQuery.setHaving(row.getString("having"));
+      eventQuery.setDescription(row.getString("description"));
+      eventQuery.setStatus(EventQueryStatus.valueOf(row.getString("status")));
       results.add(eventQuery);
     }
     return results;
