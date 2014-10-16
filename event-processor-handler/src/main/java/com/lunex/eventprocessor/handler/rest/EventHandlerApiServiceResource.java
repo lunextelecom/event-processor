@@ -91,7 +91,7 @@ public class EventHandlerApiServiceResource {
           CassandraRepository.getInstance().getEventQueryFromDB(eventName, ruleName);
       if (rules != null && !rules.isEmpty()) {
         EventQuery rule = rules.get(0);
-        if (rule.getStatus() != EventQueryStatus.STOP) {
+        if (rule.getStatus() == EventQueryStatus.STOP) {
           return new ServiceResponse("Rule is stoped", false);
         }
         App.readerEsperProcessor.stop();

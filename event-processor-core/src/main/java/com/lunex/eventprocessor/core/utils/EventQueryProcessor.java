@@ -168,6 +168,7 @@ public class EventQueryProcessor {
     String having = eventQuery.getHaving();
     properties = processStringFieldDataTypeForEventQuery(having);
     map.putAll(properties);
+    eventProperty.setProperties(map);
     return eventProperty;
   }
 }

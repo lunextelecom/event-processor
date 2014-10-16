@@ -34,6 +34,7 @@ import com.lunex.eventprocessor.core.listener.ResultListener;
 import com.lunex.eventprocessor.core.utils.Constants;
 import com.lunex.eventprocessor.core.utils.EventQueryProcessor;
 import com.lunex.eventprocessor.core.utils.StringUtils;
+import com.lunex.eventprocessor.handler.listener.ConsoleOutput;
 import com.lunex.eventprocessor.handler.output.DataAccessOutputHandler;
 import com.lunex.eventprocessor.handler.utils.Configurations;
 
@@ -74,7 +75,7 @@ public class EsperProcessor implements Processor {
       sericeProvider.getEPRuntime().sendEvent(new TimerControlEvent(ClockType.CLOCK_EXTERNAL));
       sericeProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(event.getTime()));
       // send event
-      // System.out.println("Send event " + event.getEvent() + " - " + new Date());
+      System.out.println("Send event " + event.getEvent() + " - " + new Date());
       sericeProvider.getEPRuntime().sendEvent(event.getEvent(), event.getEvtName());
       sericeProvider.getEPRuntime().sendEvent(new TimerControlEvent(ClockType.CLOCK_INTERNAL));
     }
@@ -92,12 +93,13 @@ public class EsperProcessor implements Processor {
     String eventName = eventQuery.getEventName();
     String ruleName = eventQuery.getRuleName();
 
-    String serviceProviderURI = eventName + ruleName;
+    String serviceProviderURI = eventName + ":" + ruleName;
     EPServiceProvider serviceProvider = this.mapServiceProvider.get(serviceProviderURI);
     if (serviceProvider == null) {
       return false;
     }
-    this.mapServiceProvider.remove(serviceProvider);
+    this.mapServiceProvider.remove(serviceProviderURI);
+    this.queryHierarchy.removeQueryHierarchy(eventName, eventQuery);
     serviceProvider.destroy();
 
     try {
@@ -108,6 +110,8 @@ public class EsperProcessor implements Processor {
       serviceProvider = this.createEPServiceProvider(config, eventQuery, backfill, backFillTime);
       // Add to Map
       this.mapServiceProvider.put(serviceProviderURI, serviceProvider);
+      this.queryHierarchy.addQuery(eventName, eventQuery,
+          new ResultListener[] {new ConsoleOutput()});
     } catch (Exception ex) {
       logger.error(ex.getMessage(), ex);
       return false;
@@ -119,7 +123,7 @@ public class EsperProcessor implements Processor {
     try {
       String eventName = eventQuery.getEventName();
       String ruleName = eventQuery.getRuleName();
-      String serviceProviderURI = eventName + ruleName;
+      String serviceProviderURI = eventName + ":" + ruleName;
       // Create EPServiceProvider
       List<EventProperty> temp = new ArrayList<EventProperty>();
       temp.add(EventQueryProcessor.processEventProperyForEventQuery(eventQuery));
@@ -128,6 +132,9 @@ public class EsperProcessor implements Processor {
           this.createEPServiceProvider(config, eventQuery, backfill, backFillTime);
       // Add to Map
       this.mapServiceProvider.put(serviceProviderURI, serviceProvider);
+      // Add to QueryHierarchy
+      this.queryHierarchy.addQuery(eventName, eventQuery,
+          new ResultListener[] {new ConsoleOutput()});
     } catch (Exception ex) {
       logger.error(ex.getMessage(), ex);
       return false;
@@ -138,18 +145,22 @@ public class EsperProcessor implements Processor {
   public boolean stopRule(EventQuery eventQuery) {
     String eventName = eventQuery.getEventName();
     String ruleName = eventQuery.getRuleName();
-    String serviceProviderURI = eventName + ruleName;
+    String serviceProviderURI = eventName + ":" + ruleName;
     // Get EPServiceProvider from Map
     EPServiceProvider serviceProvider = this.mapServiceProvider.get(serviceProviderURI);
     if (serviceProvider == null) {
       return false;
     }
     // Remove from Map
-    this.mapServiceProvider.remove(serviceProvider);
+    this.mapServiceProvider.remove(serviceProviderURI);
     // and detroy
     serviceProvider.destroy();
+    // Remove from QueryHierarchy
+    this.queryHierarchy.removeQueryHierarchy(eventName, eventQuery);
     return true;
   }
+
+
 
   /**
    * Init config for Esper
@@ -195,7 +206,7 @@ public class EsperProcessor implements Processor {
           && !Configurations.ruleList.contains(eventQuery.getRuleName())) {
         continue;
       }
-      String serviceProviderURI = eventQuery.getEventName() + eventQuery.getRuleName();
+      String serviceProviderURI = eventQuery.getEventName() + ":" + eventQuery.getRuleName();
       EPServiceProvider serviceProvider =
           this.createEPServiceProvider(config, eventQuery, backFill, startTime);
       mapServiceProvider.put(serviceProviderURI, serviceProvider);
@@ -219,7 +230,7 @@ public class EsperProcessor implements Processor {
     EventQuery newEventQuery = EventQueryProcessor.processEventQuery(eventQuery);
 
     // create EPServiceProvider for EventQuery
-    String serviceProviderURI = eventQuery.getEventName() + eventQuery.getRuleName();
+    String serviceProviderURI = eventQuery.getEventName() + ":" + eventQuery.getRuleName();
     EPServiceProvider serviceProvider =
         EPServiceProviderManager.getProvider(serviceProviderURI, config);
     EPAdministrator admin = serviceProvider.getEPAdministrator();
@@ -280,7 +291,7 @@ public class EsperProcessor implements Processor {
       // EPL for window every timeframe
     } else if ((bigBucket == null || Constants.EMPTY_STRING.equals(bigBucket))
         && (smallBucket != null && !Constants.EMPTY_STRING.equals(smallBucket))) {
-      String tempTable = StringUtils.md5Java(eventQuery.getRuleName() + eventQuery.getEventName());
+      String tempTable = StringUtils.randomString(10);
       String context = tempTable + "_Per_" + smallBucket.replaceAll(" |:", "_");
       List<String> crontabs = StringUtils.convertCrontab(smallBucket);
       if (crontabs.size() == 2) {
@@ -398,39 +409,6 @@ public class EsperProcessor implements Processor {
   }
 
   /**
-   * Update existed EventType for Esper at runtime
-   * 
-   * @param propeties
-   */
-  private void updateEsperEventTypeOnRuntime(EPServiceProvider serviceProvider,
-      EventProperty propeties) {
-    if (serviceProvider == null) {
-      return;
-    }
-    EPAdministrator admin = serviceProvider.getEPAdministrator();
-    propeties.getProperties().put("hashKey", "string");
-    propeties.getProperties().put("time", "long");
-    admin.getConfiguration().updateMapEventType(propeties.getEvtDataName(),
-        propeties.getProperties());
-  }
-
-  /**
-   * Add new EventType for Esper at runtime
-   * 
-   * @param propeties
-   */
-  private void addEsperContenTypeOnRunTime(EPServiceProvider serviceProvider,
-      EventProperty propeties) {
-    if (serviceProvider == null) {
-      return;
-    }
-    EPAdministrator admin = serviceProvider.getEPAdministrator();
-    propeties.getProperties().put("hashKey", "string");
-    propeties.getProperties().put("time", "long");
-    admin.getConfiguration().addEventType(propeties.getEvtDataName(), propeties.getProperties());
-  }
-
-  /**
    * Class process listener for esper
    *
    */
@@ -445,7 +423,8 @@ public class EsperProcessor implements Processor {
     }
 
     public void update(EventBean[] newEvents, EventBean[] oldEvents) {
-      System.out.println("test:" + new Date());
+      System.out.println("test:" + new Date() + " rule:" + eventQuery.getRuleName() + "-newEvents:"
+          + newEvents[0].getUnderlying());
       if (newEvents == null || newEvents.length == 0 || !enable) {
         return;
       }
@@ -464,10 +443,6 @@ public class EsperProcessor implements Processor {
           queryHierarchy.bindOutput(queryFuture, listener);
         }
       }
-    }
-
-    public boolean isEnable() {
-      return enable;
     }
 
     public void setEnable(boolean enable) {

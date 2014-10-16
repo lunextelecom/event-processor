@@ -107,7 +107,7 @@ public class KafkaSimpleConsumer {
     boolean unlimit = maxReads == -1;
     while (maxReads > 0 || unlimit) {
       if (stoped == true) {
-        break;
+        continue;
       }
       if (consumer == null) {// create consumer again from new other leader if fetchResponse error
         consumer = new SimpleConsumer(leadHost, port, 100000, 64 * 1024, clientName);

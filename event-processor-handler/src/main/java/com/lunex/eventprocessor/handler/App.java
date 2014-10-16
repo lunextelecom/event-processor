@@ -73,6 +73,9 @@ public class App extends Application<WebConfiguration> {
         List<EventQuery> subList = grouping.get(i);
         for (int j = 0; j < subList.size(); j++) {
           EventQuery query = subList.get(j);
+          if (Configurations.ruleList != null && !Configurations.ruleList.isEmpty() && !Configurations.ruleList.contains(query.getRuleName())) {
+            continue;
+          }
           hierarchy.addQuery(query.getEventName(), query, new ResultListener[] {
               new ConsoleOutput()/*, new KairosDBWriter(), new CassandraWriter()*/});
         }

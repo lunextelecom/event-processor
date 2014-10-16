@@ -3,6 +3,7 @@ package com.lunex.eventprocessor.core;
 import com.lunex.eventprocessor.core.listener.ResultListener;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -32,6 +33,25 @@ public class QueryHierarchy {
     temp.put(query, outputs);
     hierarchy.put(evtName, temp);
     return null;
+  }
+
+  /**
+   * Remove Event query from Hierarchy
+   * 
+   * @param eventQuery
+   */
+  public void removeQueryHierarchy(String evtName, EventQuery eventQuery) {
+    Map<EventQuery, ResultListener[]> listeners = hierarchy.get(evtName);
+    Iterator<EventQuery> it = listeners.keySet().iterator();
+    while (it.hasNext()) {
+      EventQuery temp = it.next();
+      if (temp.getEventName().equals(eventQuery.getEventName())
+          && temp.getRuleName().equals(eventQuery.getRuleName())) {
+        // if (eventQuery == temp) {
+        listeners.remove(temp);
+        break;
+      }
+    }
   }
 
   /**

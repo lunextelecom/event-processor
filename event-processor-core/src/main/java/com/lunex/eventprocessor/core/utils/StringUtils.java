@@ -5,6 +5,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -16,6 +17,18 @@ import org.json.JSONObject;
  */
 public class StringUtils {
 
+  public static String randomString(int num) {
+    char[] chars = "abcdefghijklmnopqrstuvwxyz".toCharArray();
+    StringBuilder sb = new StringBuilder();
+    Random random = new Random();
+    for (int i = 0; i < num; i++) {
+        char c = chars[random.nextInt(chars.length)];
+        sb.append(c);
+    }
+    String output = sb.toString();
+    return output;
+  }
+  
   /**
    * Check json string is valid
    * 

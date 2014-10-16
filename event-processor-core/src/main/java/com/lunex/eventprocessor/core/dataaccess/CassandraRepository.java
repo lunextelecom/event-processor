@@ -237,16 +237,19 @@ public class CassandraRepository {
    * @return
    * @throws Exception
    */
-  public List<EventQuery> getEventQueryFromDB(String eventName, String ruleName)
-      throws Exception {
+  public List<EventQuery> getEventQueryFromDB(String eventName, String ruleName) throws Exception {
     String sql = "SELECT * FROM " + keyspace + ".rules";
     List<Object> params = new ArrayList<Object>();
     if (!Constants.EMPTY_STRING.equals(eventName)) {
-      sql += " AND event_name = ? ";
+      sql += " WHERE event_name = ? ";
       params.add(eventName);
     }
     if (!Constants.EMPTY_STRING.equals(eventName)) {
-      sql += " AND rule_name = ? ";
+      if (!Constants.EMPTY_STRING.equals(eventName)) {
+        sql += " AND rule_name = ? ";
+      } else {
+        sql += " WHERE rule_name = ? ";
+      }
       params.add(ruleName);
     }
     sql += " ALLOW FILTERING;";
@@ -276,14 +279,15 @@ public class CassandraRepository {
   }
 
   public void changeEventQueryStatus(EventQuery eventQuery) throws Exception {
-    String sql = "UPDATE " + keyspace + ".rules set status = ? where event_name = ? and rule_name = ?";
+    String sql =
+        "UPDATE " + keyspace + ".rules set status = ? where event_name = ? AND rule_name = ?";
     List<Object> params = new ArrayList<Object>();
     params.add(eventQuery.getStatus().toString());
     params.add(eventQuery.getEventName());
     params.add(eventQuery.getRuleName());
     execute(sql, params);
   }
-  
+
   public void insertEventQuery() {
     // TODO
   }
