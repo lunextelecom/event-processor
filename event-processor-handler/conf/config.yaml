@@ -27,10 +27,10 @@ logging:
       # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
       timeZone: UTC
 app:
-  dbName: event-processor
-  dbHost: localhost
-  dbUsername: 
-  dbPassword: 
-  cacheConfig: 
-  statsdHost: 
-  statsdAppPrefix:  
+  #dbName: event-processor
+  #dbHost: localhost
+  #dbUsername: 
+  #dbPassword: 
+  #cacheConfig: 
+  #statsdHost: 
+  #statsdAppPrefix:  
