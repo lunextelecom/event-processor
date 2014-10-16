@@ -102,7 +102,7 @@ public class App extends Application<WebConfiguration> {
 
 
       // start rest api service
-      String[] temp = new String[] {"server", "config.yaml"};
+      String[] temp = new String[] {"server", "src/main/resources/config.yaml"};
       new App().run(temp);
     } catch (Exception ex) {
       logger.error(ex.getMessage(), ex);

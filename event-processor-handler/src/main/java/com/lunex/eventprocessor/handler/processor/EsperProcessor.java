@@ -74,7 +74,7 @@ public class EsperProcessor implements Processor {
       sericeProvider.getEPRuntime().sendEvent(new TimerControlEvent(ClockType.CLOCK_EXTERNAL));
       sericeProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(event.getTime()));
       // send event
-      System.out.println("Send event " + event.getEvent() + " - " + new Date());
+      // System.out.println("Send event " + event.getEvent() + " - " + new Date());
       sericeProvider.getEPRuntime().sendEvent(event.getEvent(), event.getEvtName());
       sericeProvider.getEPRuntime().sendEvent(new TimerControlEvent(ClockType.CLOCK_INTERNAL));
     }
