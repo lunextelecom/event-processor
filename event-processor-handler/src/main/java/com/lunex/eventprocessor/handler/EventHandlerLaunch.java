@@ -20,7 +20,10 @@ import com.lunex.eventprocessor.core.dataaccess.KairosDBClient;
 import com.lunex.eventprocessor.core.listener.ResultListener;
 import com.lunex.eventprocessor.core.utils.EventQueryProcessor;
 import com.lunex.eventprocessor.core.utils.StringUtils;
+import com.lunex.eventprocessor.handler.listener.CassandraWriter;
 import com.lunex.eventprocessor.handler.listener.ConsoleOutput;
+import com.lunex.eventprocessor.handler.listener.KafkaWriter;
+import com.lunex.eventprocessor.handler.listener.KairosDBWriter;
 import com.lunex.eventprocessor.handler.processor.EsperProcessor;
 import com.lunex.eventprocessor.handler.processor.KairosDBProcessor;
 import com.lunex.eventprocessor.handler.processor.Processor;
@@ -72,17 +75,19 @@ public class EventHandlerLaunch extends Application<WebConfiguration> {
         List<EventQuery> subList = grouping.get(i);
         for (int j = 0; j < subList.size(); j++) {
           EventQuery query = subList.get(j);
-          if (Configurations.ruleList != null && !Configurations.ruleList.isEmpty() && !Configurations.ruleList.contains(query.getRuleName())) {
+          if (Configurations.ruleList != null && !Configurations.ruleList.isEmpty()
+              && !Configurations.ruleList.contains(query.getRuleName())) {
             continue;
           }
           hierarchy.addQuery(query.getEventName(), query, new ResultListener[] {
-              new ConsoleOutput()/*, new KairosDBWriter(), new CassandraWriter()*/});
+              new ConsoleOutput(), new KairosDBWriter(), new CassandraWriter(), new KafkaWriter()});
         }
       }
 
       // create esper processor
       esperProcessor =
-          new EsperProcessor(hierarchy, listEventProperty, listEventQuery, Configurations.esperBackfill,
+          new EsperProcessor(hierarchy, listEventProperty, listEventQuery,
+              Configurations.esperBackfill,
               StringUtils.getBackFillTime(Configurations.esperBackfillDefault));
       // create event reader
       readerEsperProcessor = new KafkaReader();
