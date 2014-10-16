@@ -3,7 +3,7 @@ package com.lunex.eventprocessor.input.netty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.lunex.eventprocessor.input.App;
+import com.lunex.eventprocessor.input.InputProcessorLaunch;
 import com.lunex.eventprocessor.input.Seq;
 import com.lunex.eventprocessor.input.UdpMessageObject;
 import com.lunex.eventprocessor.input.exception.BadRequestException;
@@ -142,17 +142,17 @@ public class NettyUDPServerHandler extends SimpleChannelInboundHandler<DatagramP
 
     Long seq = Long.valueOf(this.messageObject.getSeq());
     Seq seqObj = new Seq(seq, eventName, System.currentTimeMillis());
-    if (App.seqTimerTask.contains(seqObj)) {
+    if (InputProcessorLaunch.seqTimerTask.contains(seqObj)) {
       isException = true;
       exception =
           new BadRequestException(new Throwable("Duplicate seq " + seq + " event: " + eventName));
       return;
     }
-    App.seqTimerTask.addSeq(seqObj);
+    InputProcessorLaunch.seqTimerTask.addSeq(seqObj);
 
     // send kafka
     try {
-      App.kafkaProducer.sendData(Configuration.kafkaTopic, eventName,
+      InputProcessorLaunch.kafkaProducer.sendData(Configuration.kafkaTopic, eventName,
           this.messageObject.getPayLoad(), eContentType);
       this.messageObject.setHashKey(this.messageObject.getPayLoad());
     } catch (Exception ex) {

@@ -21,9 +21,9 @@ import com.lunex.eventprocessor.input.utils.SeqTimerTask;
  * Hello world!
  *
  */
-public class App {
+public class InputProcessorLaunch {
 
-  static final Logger logger = LoggerFactory.getLogger(App.class);
+  static final Logger logger = LoggerFactory.getLogger(InputProcessorLaunch.class);
   
   private static NettyHttpSnoopServer httpServer;
   private static NettyUDPServer udpServer;
@@ -42,12 +42,12 @@ public class App {
       Configuration.getPropertiesValues("src/main/resources/app.properties");
 
       // start netty server
-      App.startHttpServer();
-      App.startUDPServer();
+      InputProcessorLaunch.startHttpServer();
+      InputProcessorLaunch.startUDPServer();
 
       // seqTimerTask
-      App.seqTimerTask = new SeqTimerTask();
-      App.seqTimerTask.start(Configuration.timeIntervalCheckSeq);
+      InputProcessorLaunch.seqTimerTask = new SeqTimerTask();
+      InputProcessorLaunch.seqTimerTask.start(Configuration.timeIntervalCheckSeq);
 
       // create kafka producer
       kafkaProducer =

@@ -34,7 +34,7 @@ import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.lunex.eventprocessor.input.App;
+import com.lunex.eventprocessor.input.InputProcessorLaunch;
 import com.lunex.eventprocessor.input.HttpMessageObject;
 import com.lunex.eventprocessor.input.Seq;
 import com.lunex.eventprocessor.input.exception.BadRequestException;
@@ -177,17 +177,17 @@ public class NettyHttpSnoopServerHandler extends SimpleChannelInboundHandler<Htt
 
     Long seq = Long.valueOf(this.messageObject.getQueryParams().get(Constant.SEQ_PROP));
     Seq seqObj = new Seq(seq, eventName, System.currentTimeMillis());
-    if (App.seqTimerTask.contains(seqObj)) {
+    if (InputProcessorLaunch.seqTimerTask.contains(seqObj)) {
       isException = true;
       exception =
           new BadRequestException(new Throwable("Duplicate seq " + seq + " event: " + eventName));
       return;
     }
-    App.seqTimerTask.addSeq(seqObj);
+    InputProcessorLaunch.seqTimerTask.addSeq(seqObj);
 
     // send kafka
     try {
-      App.kafkaProducer.sendData(Configuration.kafkaTopic, eventName, this.messageObject.getBody(),
+      InputProcessorLaunch.kafkaProducer.sendData(Configuration.kafkaTopic, eventName, this.messageObject.getBody(),
           contentType);
       this.messageObject.setHashKey(StringUtils.md5Java(this.messageObject.getBody()));
     } catch (Exception ex) {

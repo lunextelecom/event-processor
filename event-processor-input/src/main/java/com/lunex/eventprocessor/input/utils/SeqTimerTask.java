@@ -8,7 +8,7 @@ import java.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.lunex.eventprocessor.input.App;
+import com.lunex.eventprocessor.input.InputProcessorLaunch;
 import com.lunex.eventprocessor.input.Seq;
 
 /**
@@ -17,7 +17,7 @@ import com.lunex.eventprocessor.input.Seq;
  */
 public class SeqTimerTask extends TimerTask {
 
-  static final Logger logger = LoggerFactory.getLogger(App.class);
+  static final Logger logger = LoggerFactory.getLogger(InputProcessorLaunch.class);
 
   private Queue<Seq> queueSeq;
   private Timer timer;
