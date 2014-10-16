@@ -15,7 +15,7 @@ import com.codahale.metrics.annotation.Timed;
 import com.lunex.eventprocessor.core.EventQuery;
 import com.lunex.eventprocessor.core.EventQuery.EventQueryStatus;
 import com.lunex.eventprocessor.core.dataaccess.CassandraRepository;
-import com.lunex.eventprocessor.handler.App;
+import com.lunex.eventprocessor.handler.EventHandlerLaunch;
 
 @Path("/event-processor-handler")
 public class EventHandlerApiServiceResource {
@@ -57,9 +57,9 @@ public class EventHandlerApiServiceResource {
           CassandraRepository.getInstance().getEventQueryFromDB(eventName, ruleName);
       if (rules != null && !rules.isEmpty()) {
         EventQuery rule = rules.get(0);
-        App.readerEsperProcessor.stop();
-        boolean result = App.esperProcessor.updateRule(rule, backfill, backfillTime);
-        App.readerEsperProcessor.start();
+        EventHandlerLaunch.readerEsperProcessor.stop();
+        boolean result = EventHandlerLaunch.esperProcessor.updateRule(rule, backfill, backfillTime);
+        EventHandlerLaunch.readerEsperProcessor.start();
         if (result) {
           return new ServiceResponse("Change successfully", true);
         } else {
@@ -94,9 +94,9 @@ public class EventHandlerApiServiceResource {
         if (rule.getStatus() == EventQueryStatus.STOP) {
           return new ServiceResponse("Rule is stoped", false);
         }
-        App.readerEsperProcessor.stop();
-        boolean result = App.esperProcessor.stopRule(rule);
-        App.readerEsperProcessor.start();
+        EventHandlerLaunch.readerEsperProcessor.stop();
+        boolean result = EventHandlerLaunch.esperProcessor.stopRule(rule);
+        EventHandlerLaunch.readerEsperProcessor.start();
         if (result) {
           rule.setStatus(EventQueryStatus.STOP);
           CassandraRepository.getInstance().changeEventQueryStatus(rule);
@@ -136,9 +136,9 @@ public class EventHandlerApiServiceResource {
         if (rule.getStatus() != EventQueryStatus.STOP) {
           return new ServiceResponse("Rule is running", false);
         }
-        App.readerEsperProcessor.stop();
-        boolean result = App.esperProcessor.startRule(rule, backfill, backfillTime);
-        App.readerEsperProcessor.start();
+        EventHandlerLaunch.readerEsperProcessor.stop();
+        boolean result = EventHandlerLaunch.esperProcessor.startRule(rule, backfill, backfillTime);
+        EventHandlerLaunch.readerEsperProcessor.start();
         if (result) {
           rule.setStatus(EventQueryStatus.RUNNING);
           CassandraRepository.getInstance().changeEventQueryStatus(rule);

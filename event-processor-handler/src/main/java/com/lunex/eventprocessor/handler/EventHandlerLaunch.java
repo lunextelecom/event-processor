@@ -33,9 +33,9 @@ import com.lunex.eventprocessor.handler.utils.Configurations;
 /**
  * Setup KafkaReader Setup EsperProcessor
  */
-public class App extends Application<WebConfiguration> {
+public class EventHandlerLaunch extends Application<WebConfiguration> {
 
-  static final Logger logger = LoggerFactory.getLogger(App.class);
+  static final Logger logger = LoggerFactory.getLogger(EventHandlerLaunch.class);
 
   public static List<EventProperty> listEventProperty;
   public static QueryHierarchy hierarchy;
@@ -109,7 +109,7 @@ public class App extends Application<WebConfiguration> {
 
       // start rest api service
       String[] temp = new String[] {"server", "conf/config.yaml"};
-      new App().run(temp);
+      new EventHandlerLaunch().run(temp);
     } catch (Exception ex) {
       logger.error(ex.getMessage(), ex);
     }
