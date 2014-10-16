@@ -46,7 +46,6 @@ public class App extends Application<WebConfiguration> {
   public static EventReader readerKairosDBProcessor;
 
   public static void main(String[] args) {
-    System.out.println("Hello World!");
     try {
       // load log properties
       Properties props = new Properties();

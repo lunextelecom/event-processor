@@ -47,7 +47,7 @@ public class KafkaWriter implements ResultListener {
       KafkaProducer kafkaProducer =
           new KafkaProducer(Configurations.kafkaCluster, StringEncoder.class.getName(),
               ASCIIPartitioner.class.getName(), true);
-      kafkaProducer.sendData(Configurations.kafkaTopic, eventQuery.getEventName(), json);
+      kafkaProducer.sendData(Configurations.kafkaTopicOutput, eventQuery.getEventName(), json);
     } catch (Exception e) {
       logger.error(e.getMessage(), e);
     }
