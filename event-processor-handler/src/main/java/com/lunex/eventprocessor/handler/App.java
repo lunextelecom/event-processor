@@ -26,6 +26,8 @@ import com.lunex.eventprocessor.handler.processor.KairosDBProcessor;
 import com.lunex.eventprocessor.handler.processor.Processor;
 import com.lunex.eventprocessor.handler.reader.EventReader;
 import com.lunex.eventprocessor.handler.reader.KafkaReader;
+import com.lunex.eventprocessor.handler.rest.EventHandlerApiServiceResource;
+import com.lunex.eventprocessor.handler.rest.WebConfiguration;
 import com.lunex.eventprocessor.handler.utils.Configurations;
 
 /**

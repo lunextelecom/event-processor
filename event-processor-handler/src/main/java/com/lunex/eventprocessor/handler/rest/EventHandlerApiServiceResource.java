@@ -1,4 +1,4 @@
-package com.lunex.eventprocessor.handler;
+package com.lunex.eventprocessor.handler.rest;
 
 import java.util.List;
 
@@ -15,6 +15,7 @@ import com.codahale.metrics.annotation.Timed;
 import com.lunex.eventprocessor.core.EventQuery;
 import com.lunex.eventprocessor.core.EventQuery.EventQueryStatus;
 import com.lunex.eventprocessor.core.dataaccess.CassandraRepository;
+import com.lunex.eventprocessor.handler.App;
 
 @Path("/event-processor-handler")
 public class EventHandlerApiServiceResource {

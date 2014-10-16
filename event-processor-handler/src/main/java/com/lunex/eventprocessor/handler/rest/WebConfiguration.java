@@ -1,4 +1,4 @@
-package com.lunex.eventprocessor.handler;
+package com.lunex.eventprocessor.handler.rest;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
