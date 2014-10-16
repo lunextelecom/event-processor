@@ -56,7 +56,9 @@ public class EventHandlerApiServiceResource {
           CassandraRepository.getInstance().getEventQueryFromDB(eventName, ruleName);
       if (rules != null && !rules.isEmpty()) {
         EventQuery rule = rules.get(0);
+        App.readerEsperProcessor.stop();
         boolean result = App.esperProcessor.updateRule(rule, backfill, backfillTime);
+        App.readerEsperProcessor.start();
         if (result) {
           return new ServiceResponse("Change successfully", true);
         } else {
@@ -91,11 +93,13 @@ public class EventHandlerApiServiceResource {
         if (rule.getStatus() != EventQueryStatus.STOP) {
           return new ServiceResponse("Rule is stoped", false);
         }
+        App.readerEsperProcessor.stop();
         boolean result = App.esperProcessor.stopRule(rule);
+        App.readerEsperProcessor.start();
         if (result) {
           rule.setStatus(EventQueryStatus.STOP);
           CassandraRepository.getInstance().changeEventQueryStatus(rule);
-          return new ServiceResponse("Change successfully", true);          
+          return new ServiceResponse("Change successfully", true);
         } else {
           return new ServiceResponse("Change unsuccessfully", false);
         }
@@ -131,8 +135,9 @@ public class EventHandlerApiServiceResource {
         if (rule.getStatus() != EventQueryStatus.STOP) {
           return new ServiceResponse("Rule is running", false);
         }
-
+        App.readerEsperProcessor.stop();
         boolean result = App.esperProcessor.startRule(rule, backfill, backfillTime);
+        App.readerEsperProcessor.start();
         if (result) {
           rule.setStatus(EventQueryStatus.RUNNING);
           CassandraRepository.getInstance().changeEventQueryStatus(rule);

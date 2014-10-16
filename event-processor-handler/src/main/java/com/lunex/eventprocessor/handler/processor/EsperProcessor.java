@@ -28,6 +28,7 @@ import com.lunex.eventprocessor.core.EventProperty;
 import com.lunex.eventprocessor.core.EventQuery;
 import com.lunex.eventprocessor.core.QueryFuture;
 import com.lunex.eventprocessor.core.QueryHierarchy;
+import com.lunex.eventprocessor.core.EventQuery.EventQueryStatus;
 import com.lunex.eventprocessor.core.dataaccess.CassandraRepository;
 import com.lunex.eventprocessor.core.listener.ResultListener;
 import com.lunex.eventprocessor.core.utils.Constants;
@@ -198,6 +199,8 @@ public class EsperProcessor implements Processor {
       EPServiceProvider serviceProvider =
           this.createEPServiceProvider(config, eventQuery, backFill, startTime);
       mapServiceProvider.put(serviceProviderURI, serviceProvider);
+      eventQuery.setStatus(EventQueryStatus.RUNNING);
+      CassandraRepository.getInstance().changeEventQueryStatus(eventQuery);
     }
   }
 

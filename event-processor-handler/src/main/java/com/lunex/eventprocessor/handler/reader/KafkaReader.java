@@ -70,6 +70,12 @@ public class KafkaReader implements EventReader {
     }
   }
 
+  public void start() {
+    for (int i = 0; i < listConsumers.size(); i++) {
+      listConsumers.get(i).stoped = false;
+    }
+  }
+  
   /**
    * Send message event to Consumer to consume event
    * 
@@ -110,5 +116,5 @@ public class KafkaReader implements EventReader {
         && !Constants.EMPTY_STRING.equals(event.getEvent())) {
       consumer.consume(event);
     }
-  }
+  }  
 }

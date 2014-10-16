@@ -26,4 +26,9 @@ public interface EventReader {
    * used to stop the read
    */
   public void stop();
+  
+  /**
+   * Used to start the read
+   */
+  public void start();
 }
