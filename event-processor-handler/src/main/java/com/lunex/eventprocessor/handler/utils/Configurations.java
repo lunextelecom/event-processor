@@ -55,7 +55,7 @@ public class Configurations {
       if (kafkaEventReaderListStr.length() > 0) {
         String[] temp = kafkaEventReaderListStr.split(",");
         for (int i = 0, length = temp.length; i < length; i++) {
-          kafkaEventReaderList.add(temp[i]);
+          kafkaEventReaderList.add(temp[i].trim());
         }
       }
 
@@ -75,7 +75,7 @@ public class Configurations {
       if (ruleNameList.length() > 0) {
         String[] temp = ruleNameList.split(",");
         for (int i = 0, length = temp.length; i < length; i++) {
-          ruleList.add(temp[i]);
+          ruleList.add(temp[i].trim());
         }
       }
 
