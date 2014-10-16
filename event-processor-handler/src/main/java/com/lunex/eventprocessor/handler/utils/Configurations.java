@@ -59,13 +59,6 @@ public class Configurations {
         }
       }
 
-      String ruleNameList = prop.getProperty("esper.rule.list").trim();
-      if (ruleNameList.length() > 0) {
-        String[] temp = ruleNameList.split(",");
-        for (int i = 0, length = temp.length; i < length; i++) {
-          ruleList.add(temp[i]);
-        }
-      }
 
       // KairosDB config
       kairosDBUrl = prop.getProperty("kairosdb.url");
@@ -74,6 +67,17 @@ public class Configurations {
 
       // Esper config
       esperBackfillDefault = prop.getProperty("esper.backfill.howfar.default");
+
+
+
+      // Rule config
+      String ruleNameList = prop.getProperty("esper.rule.list").trim();
+      if (ruleNameList.length() > 0) {
+        String[] temp = ruleNameList.split(",");
+        for (int i = 0, length = temp.length; i < length; i++) {
+          ruleList.add(temp[i]);
+        }
+      }
 
     } catch (Exception e) {
       throw e;

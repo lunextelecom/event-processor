@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.espertech.esper.client.PropertyAccessException;
-import com.espertech.esper.event.map.MapEventBean;
 import com.google.common.collect.Lists;
 import com.lunex.eventprocessor.core.Event;
 import com.lunex.eventprocessor.core.EventProperty;

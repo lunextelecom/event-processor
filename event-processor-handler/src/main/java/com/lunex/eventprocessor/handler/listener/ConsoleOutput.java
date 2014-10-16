@@ -3,7 +3,6 @@ package com.lunex.eventprocessor.handler.listener;
 import java.util.Date;
 import java.util.Map;
 
-import com.espertech.esper.event.map.MapEventBean;
 import com.lunex.eventprocessor.core.QueryFuture;
 import com.lunex.eventprocessor.core.listener.ResultListener;
 
