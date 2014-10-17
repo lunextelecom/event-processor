@@ -36,7 +36,6 @@ public class InputProcessorLaunch {
   public static SeqTimerTask seqTimerTask;
   public static KafkaProducer kafkaProducer;
 
-  /** The admin */
   private static final String OPTION_APP = "a";
   private static final String OPTION_HELP = "h";
 

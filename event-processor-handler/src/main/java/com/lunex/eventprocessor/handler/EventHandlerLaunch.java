@@ -5,15 +5,24 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
 import java.io.FileInputStream;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
 import kafka.serializer.StringEncoder;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
+import org.apache.commons.cli.UnrecognizedOptionException;
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
 import com.lunex.eventprocessor.core.EventProperty;
 import com.lunex.eventprocessor.core.EventQuery;
 import com.lunex.eventprocessor.core.QueryHierarchy;
@@ -50,17 +59,42 @@ public class EventHandlerLaunch extends Application<WebConfiguration> {
   public static KafkaProducer kafkaProducer;
   public static EventReader readerEsperProcessor;
 
-  // public static EventReader readerKairosDBProcessor;
+  private static final String OPTION_APP = "a";
+  private static final String OPTION_HELP = "h";
+  private static final String OPTION_CONF = "c";
 
   public static void main(String[] args) {
     try {
+
+      final Options options = new Options();
+      options.addOption(null, OPTION_APP, true, "app.properties");
+      options.addOption(null, OPTION_CONF, true, "config.yaml");
+      options.addOption(null, OPTION_HELP, false, "Display command line help.");
+      final CommandLineParser parser = new PosixParser();
+      final CommandLine cmd;
+      try {
+        cmd = parser.parse(options, args);
+        if (cmd.getArgs().length > 0) {
+          throw new UnrecognizedOptionException("Extra arguments were provided in "
+              + Arrays.asList(args));
+        }
+      } catch (final ParseException e) {
+        printHelp(options, "Could not parse command line: " + Arrays.asList(args));
+        return;
+      }
+      if (cmd.hasOption(OPTION_HELP) || !cmd.hasOption(OPTION_APP) || !cmd.hasOption(OPTION_CONF)) {
+        printHelp(options, null);
+        return;
+      }
+
       // load log properties
-      Properties props = new Properties();
-      props.load(new FileInputStream("conf/log4j.properties"));
-      PropertyConfigurator.configure(props);
+      // Properties props = new Properties();
+      // props.load(new FileInputStream("conf/log4j.properties"));
+      // PropertyConfigurator.configure(props);
 
       // Load config
-      Configurations.getPropertiesValues("conf/app.properties");
+      String appConfig = cmd.getOptionValue(OPTION_APP);
+      Configurations.getPropertiesValues(appConfig);
 
       // kairosdb
       kairosDB = new KairosDBClient(Configurations.kairosDBUrl);
@@ -110,11 +144,20 @@ public class EventHandlerLaunch extends Application<WebConfiguration> {
               ASCIIPartitioner.class.getName(), true);
 
       // start rest api service
-      String[] temp = new String[] {"server", "conf/config.yaml"};
+      String restConfig = cmd.getOptionValue(OPTION_CONF);
+      String[] temp = new String[] {"server", restConfig};
       new EventHandlerLaunch().run(temp);
     } catch (Exception ex) {
       logger.error(ex.getMessage(), ex);
     }
+  }
+
+  private static void printHelp(final Options options, final String errorMessage) {
+    if (!Strings.isNullOrEmpty(errorMessage)) {
+      System.err.println(errorMessage);
+    }
+    final HelpFormatter formatter = new HelpFormatter();
+    formatter.printHelp("event-processor-handler", options);
   }
 
   @Override
