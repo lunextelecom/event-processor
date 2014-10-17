@@ -208,6 +208,7 @@ public class DataAccessOutputHandler {
       if (Constants.EMPTY_STRING.equals(hashKey)) {
         continue;
       }
+      item = StringUtils.revertHashMapField(item);
       String jsonStr = JsonHelper.toJSonString(item);
       CassandraRepository.getInstance(Configurations.cassandraHost,
           Configurations.cassandraKeyspace).insertResultComputation(eventQuery.getEventName(),
