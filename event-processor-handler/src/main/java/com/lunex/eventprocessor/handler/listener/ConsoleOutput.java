@@ -32,7 +32,7 @@ public class ConsoleOutput implements ResultListener {
     // **************************************//
     for (int i = 0; i < result.length; i++) {
       Map<String, Object> item = (Map<String, Object>) result[i];
-      System.out.println(item.toString() + " - " + new Date());
+      logger.info(item.toString() + " - " + new Date());
     }
   }
 }
