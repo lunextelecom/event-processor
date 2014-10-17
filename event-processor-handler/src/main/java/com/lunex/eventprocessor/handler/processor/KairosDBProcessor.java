@@ -45,4 +45,9 @@ public class KairosDBProcessor implements Processor {
     return false;
   }
 
+  public boolean reprocess(EventQuery eventQuery, boolean backfill, long backFillTime) {
+    // TODO Auto-generated method stub
+    return false;
+  }
+
 }

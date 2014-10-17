@@ -442,4 +442,39 @@ public class CassandraRepository {
     return res;
   }
 
+  public List<EventQuery> getEventQueryFromDB(List<String> lstEventName) throws Exception {
+    StringBuilder sql = new StringBuilder("SELECT * FROM " + keyspace + ".rules");
+    List<Object> params = new ArrayList<Object>();
+    if (lstEventName != null && !lstEventName.isEmpty()) {
+      sql.append(" WHERE event_name in (' '");
+      for (String child : lstEventName) {
+        sql.append(", ?");
+        params.add(child);
+      }
+      sql.append(") ");
+    }
+    ResultSet rows = execute(sql.toString(), params);
+    List<EventQuery> results = null;
+    EventQuery eventQuery = null;
+    for (Row row : rows) {
+      if (results == null) {
+        results = new ArrayList<EventQuery>();
+      }
+      eventQuery = new EventQuery();
+      eventQuery.setEventName(row.getString("event_name"));
+      eventQuery.setData(row.getString("data"));
+      eventQuery.setFields(row.getString("fields"));
+      eventQuery.setFilters(row.getString("filters"));
+      eventQuery.setAggregateField(row.getString("aggregate_field"));
+      eventQuery.setSmallBucket(row.getString("small_bucket"));
+      eventQuery.setBigBucket(row.getString("big_bucket"));
+      eventQuery.setConditions(row.getString("conditions"));
+      eventQuery.setRuleName(row.getString("rule_name"));
+      eventQuery.setHaving(row.getString("having"));
+      eventQuery.setDescription(row.getString("description"));
+      eventQuery.setStatus(EventQueryStatus.valueOf(row.getString("status")));
+      results.add(eventQuery);
+    }
+    return results;
+  }
 }
