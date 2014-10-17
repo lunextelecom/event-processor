@@ -171,6 +171,7 @@ Format:
 [Filter] - "reseller:string = 'resellet1' and txId:string = 'transactionId1' and amount:double > 20.0"
 [AggregateField] - "reseller:string, txId:string"
 [Having] - "sum(amount:double) > 50.0"
+* we need datatype for properties of event to register event with esper
 ```
 * Condition
 Condition is code executed base on the data output from the continuous query.  It truncate the resulting data into a bool(Result)
