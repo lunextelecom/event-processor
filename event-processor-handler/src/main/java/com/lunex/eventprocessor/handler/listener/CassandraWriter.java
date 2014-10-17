@@ -39,23 +39,13 @@ public class CassandraWriter implements ResultListener {
       return;
     }
     try {
-      // Write result computation
-      Map<String, Object> properties = null;
-      String hashKey = null;
-      for (int i = 0; i < result.length; i++) {
-        properties = (Map<String, Object>) result[i];
-        hashKey =
-            String.valueOf(properties.get("hashKey") == null ? Constants.EMPTY_STRING : properties
-                .get("hashKey"));
-        if (properties == null || properties.isEmpty() || Constants.EMPTY_STRING.equals(hashKey)) {
-          continue;
-        }
-        // Write result of computation
-        DataAccessOutputHandler.writeResultComputation(properties, eventQuery);
-      }
+      // Write result of computation
+      DataAccessOutputHandler.writeResultComputation(result, eventQuery);
+      
       // Write checked condition
       EventResult eventResult = DataAccessOutputHandler.checkCondition(result, eventQuery);
-      CassandraRepository.getInstance(Configurations.cassandraHost, Configurations.cassandraKeyspace).updateResults(eventResult);
+      CassandraRepository.getInstance(Configurations.cassandraHost,
+          Configurations.cassandraKeyspace).updateResults(eventResult);
     } catch (Exception e) {
       logger.error(e.getMessage(), e);
     }

@@ -62,7 +62,7 @@ public class KafkaSimpleConsumer {
    */
   public KafkaSimpleConsumer(List<String> listBroker, String topicName, int partitionIndex,
       int maxReads, KafkaMessageProcessor processorMessage) {
-    this.replicaBrokersList = listBroker;
+    this.replicaBrokersList = new ArrayList<String>(listBroker);
     this.topicName = topicName;
     this.partitionIndex = partitionIndex;
     this.maxReads = maxReads;
@@ -305,7 +305,7 @@ public class KafkaSimpleConsumer {
 
           public Object processMessage(byte[] message) {
             try {
-              int contentType = (int)message[0];
+              int contentType = (int) message[0];
               switch (contentType) {
                 case 1:// JSON
                   System.out.println("JSon");

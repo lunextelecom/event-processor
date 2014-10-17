@@ -1,13 +1,10 @@
 package com.lunex.eventprocessor.core.dataaccess;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.json.JSONObject;
 import org.slf4j.Logger;

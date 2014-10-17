@@ -59,6 +59,7 @@ public class KafkaProducer {
    */
   public void sendData(String topicName, String key, String message) throws Exception {
     if ("".equals(topicName)) {
+      throw new Exception(new Throwable("Topic name is empty"));
     }
     try {
       byte[] byteArray = message.getBytes("UTF-8");

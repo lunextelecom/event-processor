@@ -8,6 +8,8 @@ import java.io.FileInputStream;
 import java.util.List;
 import java.util.Properties;
 
+import kafka.serializer.StringEncoder;
+
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +22,9 @@ import com.lunex.eventprocessor.core.dataaccess.KairosDBClient;
 import com.lunex.eventprocessor.core.listener.ResultListener;
 import com.lunex.eventprocessor.core.utils.EventQueryProcessor;
 import com.lunex.eventprocessor.core.utils.StringUtils;
+import com.lunex.eventprocessor.handler.kafka.ASCIIPartitioner;
+import com.lunex.eventprocessor.handler.kafka.KafkaProducer;
+import com.lunex.eventprocessor.handler.kafka.KafkaSimpleConsumer;
 import com.lunex.eventprocessor.handler.listener.CassandraWriter;
 import com.lunex.eventprocessor.handler.listener.ConsoleOutput;
 import com.lunex.eventprocessor.handler.listener.KafkaWriter;
@@ -44,7 +49,7 @@ public class EventHandlerLaunch extends Application<WebConfiguration> {
   public static QueryHierarchy hierarchy;
   public static KairosDBClient kairosDB;
   public static Processor esperProcessor;
-  // public static Processor kairosDBProcessor;
+  public static KafkaProducer kafkaProducer;
   public static EventReader readerEsperProcessor;
 
   // public static EventReader readerKairosDBProcessor;
@@ -64,7 +69,8 @@ public class EventHandlerLaunch extends Application<WebConfiguration> {
 
       // get EventQuery
       List<EventQuery> listEventQuery =
-          CassandraRepository.getInstance(Configurations.cassandraHost, Configurations.cassandraKeyspace).getEventQueryFromDB("", "");
+          CassandraRepository.getInstance(Configurations.cassandraHost,
+              Configurations.cassandraKeyspace).getEventQueryFromDB("", "");
       List<List<EventQuery>> grouping =
           EventQueryProcessor.groupEventQueryByEventName(listEventQuery);
       // get Eventproperties
@@ -100,18 +106,10 @@ public class EventHandlerLaunch extends Application<WebConfiguration> {
       });
       esper.start();
 
-      // create kairos processor
-      // kairosDBProcessor = new KairosDBProcessor();
-      // kairosDBProcessor.setHierarchy(hierarchy);
-      // // read event and send to processor
-      // readerKairosDBProcessor = new KafkaReader();
-      // Thread kairos = new Thread(new Runnable() {
-      // public void run() {
-      // readerKairosDBProcessor.read(kairosDBProcessor);
-      // }
-      // });
-      // kairos.start();
-
+      // Init kafka producer
+      kafkaProducer =
+          new KafkaProducer(Configurations.kafkaCluster, StringEncoder.class.getName(),
+              ASCIIPartitioner.class.getName(), true);
 
       // start rest api service
       String[] temp = new String[] {"server", "conf/config.yaml"};

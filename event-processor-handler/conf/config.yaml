@@ -9,10 +9,10 @@ logging:
   level: ERROR
   appenders:
     - type: console
-      #threshold: WARN
-      threshold: ERROR
+      threshold: INFO
       target: stderr
     - type: file
+      #threshold: ERROR
       # The file to which current statements will be logged.
       currentLogFilename: D://test/logs/example.log
 
