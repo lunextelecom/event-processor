@@ -200,6 +200,8 @@ Timeframe for event - we have 2 type of time frame
 * Last timeframe: get event in last n time(last 4 hour, 6 minute)
  - Using smallbucket(ex: 10s) to get event in every timeframe
  - Using bigbucket(ex: 4 hour) to get event in last timeframe base on every 10s timeframe
+ 
+ In case every timeframe, bigbucket is null
 
 
 
