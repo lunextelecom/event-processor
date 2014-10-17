@@ -154,7 +154,7 @@ Incremental computation can be accomplish using continuous query.  The implement
 Query should be saved in database not as query, but as Data, Filter, Field, AggregateField.  At runtime, it can be converted to EPL runtime for processing.
 
 ```
-SELECT [Fields] FROM [Data] WHERE [Filter] GROUP BY [AggregateField]
+SELECT [Fields] FROM [Data] WHERE [Filter] GROUP BY [AggregateField] HAVING [Having]
 
 Query Parts
 Data: raw incoming data or generated time series 
@@ -164,7 +164,14 @@ Filter: conditions to filter data. =, !=, >=, <=, >, <, and, or
 Field: field1, field2, or * for all
 Field func: sum, max, min, first, last, avg, timeseries(timefield, size1, size2[optional])
 ```
-
+```
+Format:
+[Fields] - "sum(amount:double), txId:string, reseller:string"
+[Data] - "new_order"
+[Filter] - "reseller:string = 'resellet1' and txId:string = 'transactionId1' and amount:double > 20.0"
+[AggregateField] - "reseller:string, txId:string"
+[Having] - "sum(amount:double) > 50.0"
+```
 * Condition
 Condition is code executed base on the data output from the continuous query.  It truncate the resulting data into a bool(Result)
 When this condition is met, check will return true.
