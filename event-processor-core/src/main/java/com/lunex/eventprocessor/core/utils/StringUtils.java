@@ -4,7 +4,10 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.json.JSONArray;
@@ -22,13 +25,13 @@ public class StringUtils {
     StringBuilder sb = new StringBuilder();
     Random random = new Random();
     for (int i = 0; i < num; i++) {
-        char c = chars[random.nextInt(chars.length)];
-        sb.append(c);
+      char c = chars[random.nextInt(chars.length)];
+      sb.append(c);
     }
     String output = sb.toString();
     return output;
   }
-  
+
   /**
    * Check json string is valid
    * 
@@ -126,7 +129,20 @@ public class StringUtils {
    * @return
    */
   public static String revertSingleField(String field) {
-    return field.replace("_", "(") + ")";
+    if (field.contains("_"))
+      return field.replace("_", "(") + ")";
+    return field;
+  }
+
+  public static Map<String, Object> revertHashMapField(Map<String, Object> map) {
+    Iterator<String> it = map.keySet().iterator();
+    Map<String, Object> result = new HashMap<String, Object>();
+    while (it.hasNext()) {
+      String key = it.next();
+      Object obj = map.get(key);
+      result.put(revertSingleField(key), obj);
+    }
+    return result;
   }
 
   /**

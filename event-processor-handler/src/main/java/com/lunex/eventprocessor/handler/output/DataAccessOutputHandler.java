@@ -300,9 +300,9 @@ public class DataAccessOutputHandler {
               Iterator<String> keys = properties.keySet().iterator();
               while (keys.hasNext()) {
                 String key = keys.next();
-                key = StringUtils.revertSingleField(key);
+                String newkey = StringUtils.revertSingleField(key);
                 eventQueryCondition =
-                    eventQueryCondition.replace(key, String.valueOf(properties.get(key)));
+                    eventQueryCondition.replace(newkey, String.valueOf(properties.get(key)));
               }
               ScriptEngineManager mgr = new ScriptEngineManager();
               ScriptEngine engine = mgr.getEngineByName("JavaScript");
@@ -310,6 +310,7 @@ public class DataAccessOutputHandler {
                 // check condition for EventQuery
                 boolean checked = (Boolean) engine.eval(eventQueryCondition);
                 logger.info("Result:" + checked + " - " + properties.toString());
+                properties = StringUtils.revertHashMapField(properties);
                 String jsonStr = JsonHelper.toJSonString(properties);
                 EventResult eventResult =
                     new EventResult(eventQuery.getEventName(), String.valueOf(hashKey),
