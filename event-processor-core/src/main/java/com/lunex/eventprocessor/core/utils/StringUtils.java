@@ -92,7 +92,7 @@ public class StringUtils {
     StringBuilder builder = new StringBuilder();
     for (int i = 0; i < fields.length; i++) {
       String temp = fields[i].replaceAll("[(]+", "_");
-      temp = temp.replace(")", "");
+      temp = temp.replace(")", Constants.EMPTY_STRING);
       builder.append(fields[i] + " as " + temp);
       if (i < fields.length - 1)
         builder.append(", ");
@@ -111,7 +111,7 @@ public class StringUtils {
     StringBuilder builder = new StringBuilder();
     for (int i = 0; i < fields.length; i++) {
       String temp = fields[i].trim().replaceAll("[(]+", "_");
-      temp = temp.replace(")", "");
+      temp = temp.replace(")", Constants.EMPTY_STRING);
       if (fields[i].contains("count")) {
         fields[i] = fields[i].replace("count", "sum");
       }

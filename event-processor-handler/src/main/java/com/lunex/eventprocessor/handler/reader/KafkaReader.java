@@ -20,7 +20,8 @@ public class KafkaReader implements EventReader {
 
   static final Logger logger = LoggerFactory.getLogger(KafkaReader.class);
 
-  private List<KafkaSimpleConsumer> listConsumers;
+  private List<KafkaSimpleConsumer> listKafkaConsumers;
+  private EventConsumer consumer;
 
   /**
    * Contructor
@@ -28,7 +29,7 @@ public class KafkaReader implements EventReader {
    * @param partitionIndex : if = -1 --> read message from all partion of topic
    */
   public KafkaReader() {
-    this.listConsumers = new ArrayList<KafkaSimpleConsumer>();
+    this.listKafkaConsumers = new ArrayList<KafkaSimpleConsumer>();
   }
 
   public Event readNext() {
@@ -36,7 +37,23 @@ public class KafkaReader implements EventReader {
     return null;
   }
 
-  public void read(final EventConsumer consumer) {
+  public void read(EventConsumer consumer) {
+    this.consumer = consumer;
+    this.readKafkaMessage(consumer);
+  }
+
+  public void stop() {
+    for (int i = 0; i < listKafkaConsumers.size(); i++) {
+      listKafkaConsumers.get(i).stoped = true;
+    }
+  }
+
+  public void start() {
+    listKafkaConsumers.clear();
+    readKafkaMessage(consumer);
+  }
+
+  private void readKafkaMessage(final EventConsumer consumer) {
     for (int i = 0; i < Configurations.kafkaTopicPartitionList.size(); i++) {
       final KafkaSimpleConsumer kafkaConsumer =
           new KafkaSimpleConsumer(Configurations.kafkaCluster, Configurations.kafkaTopic,
@@ -46,7 +63,7 @@ public class KafkaReader implements EventReader {
                   return null;
                 }
               });
-      listConsumers.add(kafkaConsumer);
+      listKafkaConsumers.add(kafkaConsumer);
       try {
         Thread thread = new Thread(new Runnable() {
           public void run() {
@@ -64,18 +81,6 @@ public class KafkaReader implements EventReader {
     }
   }
 
-  public void stop() {
-    for (int i = 0; i < listConsumers.size(); i++) {
-      listConsumers.get(i).stoped = true;
-    }
-  }
-
-  public void start() {
-    for (int i = 0; i < listConsumers.size(); i++) {
-      listConsumers.get(i).stoped = false;
-    }
-  }
-  
   /**
    * Send message event to Consumer to consume event
    * 
@@ -116,5 +121,5 @@ public class KafkaReader implements EventReader {
         && !Constants.EMPTY_STRING.equals(event.getEvent())) {
       consumer.consume(event);
     }
-  }  
+  }
 }

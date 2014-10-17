@@ -107,7 +107,7 @@ public class KafkaSimpleConsumer {
     boolean unlimit = maxReads == -1;
     while (maxReads > 0 || unlimit) {
       if (stoped == true) {
-        continue;
+        break;
       }
       if (consumer == null) {// create consumer again from new other leader if fetchResponse error
         consumer = new SimpleConsumer(leadHost, port, 100000, 64 * 1024, clientName);
@@ -258,7 +258,8 @@ public class KafkaSimpleConsumer {
    * @param partitionIndex
    * @return
    */
-  private PartitionMetadata findLeader(List<String> listBroker, String topicName, int partitionIndex) {
+  private PartitionMetadata findLeader(List<String> originallistBroker, String topicName, int partitionIndex) {
+    List<String> listBroker = new ArrayList<String>(originallistBroker);
     PartitionMetadata returnMetaData = null;
     loop: for (String seed : listBroker) {
       String[] temp = seed.split(":");
@@ -290,7 +291,7 @@ public class KafkaSimpleConsumer {
     if (returnMetaData != null) {
       replicaBrokersList.clear();
       for (Broker replica : returnMetaData.replicas()) {
-        replicaBrokersList.add(replica.host());
+        replicaBrokersList.add(replica.host() + ":" + replica.port());
       }
     }
     return returnMetaData;
