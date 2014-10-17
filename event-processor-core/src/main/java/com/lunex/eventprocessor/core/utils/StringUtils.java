@@ -81,8 +81,18 @@ public class StringUtils {
     return digest;
   }
 
+  public static boolean checkFieldFunction(String field) {
+    if (field.startsWith("sum(") || field.startsWith("min(") || field.startsWith("max(")
+        || field.startsWith("avg(") || field.startsWith("first(") || field.startsWith("last(") || field.startsWith("count(")) {
+      return true;
+    }
+    return false;
+  }
+
+  public final static String seperatorField = "___";
+
   /**
-   * Convert sum(amount), count(txId) -> sum(amount) as sum_amount, count(txId) as count_txId
+   * Convert sum(amount), count(txId) -> sum(amount) as sum___amount, count(txId) as count___txId
    * 
    * @param field
    * @return
@@ -91,9 +101,13 @@ public class StringUtils {
     String[] fields = field.split(",");
     StringBuilder builder = new StringBuilder();
     for (int i = 0; i < fields.length; i++) {
-      String temp = fields[i].replaceAll("[(]+", "_");
-      temp = temp.replace(")", Constants.EMPTY_STRING);
-      builder.append(fields[i] + " as " + temp);
+      if (checkFieldFunction(fields[i].trim())) {
+        String temp = fields[i].replaceAll("[(]+", seperatorField);
+        temp = temp.replace(")", Constants.EMPTY_STRING);
+        builder.append(fields[i] + " as " + temp);
+      } else {
+        builder.append(fields[i] + " as " + fields[i]);
+      }
       if (i < fields.length - 1)
         builder.append(", ");
     }
@@ -101,7 +115,7 @@ public class StringUtils {
   }
 
   /**
-   * Convert sum(amount), count(txId) -> sum(sum_amount), sum(count_txId)
+   * Convert sum(amount), count(txId) -> sum(sum___amount), sum(count___txId)
    * 
    * @param field
    * @return
@@ -110,12 +124,16 @@ public class StringUtils {
     String[] fields = field.split(",");
     StringBuilder builder = new StringBuilder();
     for (int i = 0; i < fields.length; i++) {
-      String temp = fields[i].trim().replaceAll("[(]+", "_");
-      temp = temp.replace(")", Constants.EMPTY_STRING);
-      if (fields[i].contains("count")) {
-        fields[i] = fields[i].replace("count", "sum");
+      if (checkFieldFunction(fields[i].trim())) {
+        String temp = fields[i].trim().replaceAll("[(]+", seperatorField);
+        temp = temp.replace(")", Constants.EMPTY_STRING);
+        if (fields[i].contains("count")) {
+          fields[i] = fields[i].replace("count", "sum");
+        }
+        builder.append(fields[i].replaceAll("\\([a-zA-Z]+\\)", "(" + temp + ")") + " as " + temp);
+      } else {
+        builder.append(fields[i] + " as " + fields[i]);
       }
-      builder.append(fields[i].replaceAll("\\([a-zA-Z]+\\)", "(" + temp + ")") + " as " + temp);
       if (i < fields.length - 1)
         builder.append(", ");
     }
@@ -123,14 +141,14 @@ public class StringUtils {
   }
 
   /**
-   * Revert sum_amount-> sum(amount) or count_txId -> count(txid)
+   * Revert sum___amount-> sum(amount) or count___txId -> count(txid)
    * 
    * @param field
    * @return
    */
   public static String revertSingleField(String field) {
-    if (field.contains("_"))
-      return field.replace("_", "(") + ")";
+    if (field.contains(seperatorField))
+      return field.replace(seperatorField, "(") + ")";
     return field;
   }
 

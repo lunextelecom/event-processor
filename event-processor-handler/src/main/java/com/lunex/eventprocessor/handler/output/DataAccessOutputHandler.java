@@ -162,7 +162,7 @@ public class DataAccessOutputHandler {
             for (Entry<String, Object> e : resultPropeties.entrySet()) {
               if (e.getKey().indexOf(key) > 0) {
                 value = e.getValue();
-                client.sendMetric(metric + "." + e.getKey().replace("_", "."),
+                client.sendMetric(metric + "." + e.getKey().replace(StringUtils.seperatorField, "."),
                     System.currentTimeMillis(), value, tags);
                 break;
               }
@@ -172,7 +172,7 @@ public class DataAccessOutputHandler {
             for (Entry<String, Object> e : resultPropeties.entrySet()) {
               if (e.getKey().indexOf(key) > 0) {
                 value = e.getValue();
-                client.sendMetric(metric + "." + e.getKey().replace("_", "."),
+                client.sendMetric(metric + "." + e.getKey().replace(StringUtils.seperatorField, "."),
                     System.currentTimeMillis(), value, tags);
                 break;
               }
