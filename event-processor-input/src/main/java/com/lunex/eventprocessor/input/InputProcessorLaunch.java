@@ -4,7 +4,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-import kafka.serializer.DefaultEncoder;
+import kafka.serializer.StringEncoder;
 
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
@@ -51,7 +51,7 @@ public class InputProcessorLaunch {
 
       // create kafka producer
       kafkaProducer =
-          new KafkaProducer(Configuration.kafkaCluster, DefaultEncoder.class.getName(),
+          new KafkaProducer(Configuration.kafkaCluster, StringEncoder.class.getName(),
               ASCIIPartitioner.class.getName(), Configuration.kafkaProducerAsync);
     } catch (IOException ex) {
       logger.error(ex.getMessage());
