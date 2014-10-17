@@ -1,7 +1,5 @@
 package com.lunex.eventprocessor.handler.listener;
 
-import kafka.serializer.StringEncoder;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,8 +8,7 @@ import com.lunex.eventprocessor.core.EventQuery;
 import com.lunex.eventprocessor.core.EventResult;
 import com.lunex.eventprocessor.core.QueryFuture;
 import com.lunex.eventprocessor.core.listener.ResultListener;
-import com.lunex.eventprocessor.handler.kafka.ASCIIPartitioner;
-import com.lunex.eventprocessor.handler.kafka.KafkaProducer;
+import com.lunex.eventprocessor.handler.EventHandlerLaunch;
 import com.lunex.eventprocessor.handler.output.DataAccessOutputHandler;
 import com.lunex.eventprocessor.handler.utils.Configurations;
 
@@ -44,10 +41,7 @@ public class KafkaWriter implements ResultListener {
       EventResult eventResult = DataAccessOutputHandler.checkCondition(result, eventQuery);
       Gson gson = new Gson();
       String json = gson.toJson(eventResult);
-      KafkaProducer kafkaProducer =
-          new KafkaProducer(Configurations.kafkaCluster, StringEncoder.class.getName(),
-              ASCIIPartitioner.class.getName(), true);
-      kafkaProducer.sendData(Configurations.kafkaTopicOutput, eventQuery.getEventName(), json);
+      EventHandlerLaunch.kafkaProducer.sendData(Configurations.kafkaTopicOutput, eventQuery.getEventName(), json);
     } catch (Exception e) {
       logger.error(e.getMessage(), e);
     }
