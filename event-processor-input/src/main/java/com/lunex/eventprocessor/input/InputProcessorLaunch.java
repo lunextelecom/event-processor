@@ -24,7 +24,7 @@ import com.lunex.eventprocessor.input.utils.SeqTimerTask;
 public class InputProcessorLaunch {
 
   static final Logger logger = LoggerFactory.getLogger(InputProcessorLaunch.class);
-  
+
   private static NettyHttpSnoopServer httpServer;
   private static NettyUDPServer udpServer;
   public static SeqTimerTask seqTimerTask;
@@ -35,11 +35,11 @@ public class InputProcessorLaunch {
     try {
       // load log properties
       Properties props = new Properties();
-      props.load(new FileInputStream("src/main/resources/log4j.properties"));
+      props.load(new FileInputStream("conf/log4j.properties"));
       PropertyConfigurator.configure(props);
 
       // Load config
-      Configuration.getPropertiesValues("src/main/resources/app.properties");
+      Configuration.getPropertiesValues("conf/app.properties");
 
       // start netty server
       InputProcessorLaunch.startHttpServer();
