@@ -43,6 +43,7 @@ public class KafkaSimpleConsumer {
   private int maxError = 5;
   private KafkaMessageProcessor processorMessage;
   public boolean stoped = false;
+  public long readOffset = -1;
 
   public int getMaxError() {
     return maxError;
@@ -100,8 +101,9 @@ public class KafkaSimpleConsumer {
 
     // create Simple consumer
     SimpleConsumer consumer = new SimpleConsumer(leadHost, port, 100000, 64 * 1024, clientName);
-    long readOffset =
-        this.getLastOffset(consumer, topicName, partitionIndex, whichTime, clientName);
+    if (readOffset == -1) {
+      readOffset = this.getLastOffset(consumer, topicName, partitionIndex, whichTime, clientName);
+    }
 
     int numErrors = 0;
     boolean unlimit = maxReads == -1;
@@ -128,9 +130,7 @@ public class KafkaSimpleConsumer {
           break;
         if (code == ErrorMapping.OffsetOutOfRangeCode()) {
           // We asked for an invalid offset. For simple case ask for the last element to reset
-          readOffset =
-              getLastOffset(consumer, topicName, partitionIndex,
-                  kafka.api.OffsetRequest.LatestTime(), clientName);
+          readOffset = getLastOffset(consumer, topicName, partitionIndex, whichTime, clientName);
           continue;
         }
         consumer.close();
@@ -258,7 +258,8 @@ public class KafkaSimpleConsumer {
    * @param partitionIndex
    * @return
    */
-  private PartitionMetadata findLeader(List<String> originallistBroker, String topicName, int partitionIndex) {
+  private PartitionMetadata findLeader(List<String> originallistBroker, String topicName,
+      int partitionIndex) {
     List<String> listBroker = new ArrayList<String>(originallistBroker);
     PartitionMetadata returnMetaData = null;
     loop: for (String seed : listBroker) {

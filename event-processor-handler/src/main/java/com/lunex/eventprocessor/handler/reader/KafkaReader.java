@@ -22,6 +22,7 @@ public class KafkaReader implements EventReader {
 
   private List<KafkaSimpleConsumer> listKafkaConsumers;
   private EventConsumer consumer;
+  private long whichTime = kafka.api.OffsetRequest.LatestTime();
 
   /**
    * Contructor
@@ -49,8 +50,26 @@ public class KafkaReader implements EventReader {
   }
 
   public void start() {
-    listKafkaConsumers.clear();
-    readKafkaMessage(consumer);
+    //listKafkaConsumers.clear();
+    //readKafkaMessage(consumer);
+    for (int i = 0; i < listKafkaConsumers.size(); i++) {
+      listKafkaConsumers.get(i).stoped = false;
+      final KafkaSimpleConsumer kafkaConsumer = listKafkaConsumers.get(i);
+      try {
+        Thread thread = new Thread(new Runnable() {
+          public void run() {
+            try {
+              kafkaConsumer.readKafka(whichTime);
+            } catch (Exception e) {
+              logger.error("Function read: " + e.getMessage(), e);
+            }
+          }
+        });
+        thread.start();
+      } catch (Exception e) {
+        logger.error("Function read: " + e.getMessage(), e);
+      }
+    }
   }
 
   private void readKafkaMessage(final EventConsumer consumer) {
@@ -68,7 +87,7 @@ public class KafkaReader implements EventReader {
         Thread thread = new Thread(new Runnable() {
           public void run() {
             try {
-              kafkaConsumer.readKafka(kafka.api.OffsetRequest.LatestTime());
+              kafkaConsumer.readKafka(whichTime);
             } catch (Exception e) {
               logger.error("Function read: " + e.getMessage(), e);
             }
