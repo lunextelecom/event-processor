@@ -452,4 +452,35 @@ public class EsperProcessor implements Processor {
       this.enable = enable;
     }
   }
+
+  public boolean reprocess(EventQuery eventQuery, boolean backfill, long backFillTime) {
+    String eventName = eventQuery.getEventName();
+    String ruleName = eventQuery.getRuleName();
+
+    String serviceProviderURI = eventName + ":" + ruleName;
+    EPServiceProvider serviceProvider = this.mapServiceProvider.get(serviceProviderURI);
+    if (serviceProvider == null) {
+      return false;
+    }
+    this.mapServiceProvider.remove(serviceProviderURI);
+    this.queryHierarchy.removeQueryHierarchy(eventName, eventQuery);
+    serviceProvider.destroy();
+
+    try {
+      // Create EPServiceProvider
+      List<EventProperty> temp = new ArrayList<EventProperty>();
+      temp.add(EventQueryProcessor.processEventProperyForEventQuery(eventQuery));
+      Configuration config = intiConfig(temp);
+      serviceProvider = this.createEPServiceProvider(config, eventQuery, backfill, backFillTime);
+      // Add to Map
+      this.mapServiceProvider.put(serviceProviderURI, serviceProvider);
+      this.queryHierarchy.addQuery(eventName, eventQuery, new ResultListener[] {
+          new ConsoleOutput(), new CassandraWriter(), new KairosDBWriter(), new KafkaWriter()});
+      this.backfill(serviceProvider, backFillTime, backfill);
+    } catch (Exception ex) {
+      logger.error(ex.getMessage(), ex);
+      return false;
+    }
+    return true;
+  }
 }
