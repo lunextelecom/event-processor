@@ -12,6 +12,7 @@ import com.lunex.eventprocessor.core.dataaccess.CassandraRepository;
 import com.lunex.eventprocessor.core.listener.ResultListener;
 import com.lunex.eventprocessor.core.utils.Constants;
 import com.lunex.eventprocessor.handler.output.DataAccessOutputHandler;
+import com.lunex.eventprocessor.handler.utils.Configurations;
 
 public class CassandraWriter implements ResultListener {
 
@@ -54,7 +55,7 @@ public class CassandraWriter implements ResultListener {
       }
       // Write checked condition
       EventResult eventResult = DataAccessOutputHandler.checkCondition(result, eventQuery);
-      CassandraRepository.getInstance().updateResults(eventResult);
+      CassandraRepository.getInstance(Configurations.cassandraHost, Configurations.cassandraKeyspace).updateResults(eventResult);
     } catch (Exception e) {
       logger.error(e.getMessage(), e);
     }

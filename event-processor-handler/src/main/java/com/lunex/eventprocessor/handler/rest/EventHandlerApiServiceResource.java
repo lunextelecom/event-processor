@@ -16,6 +16,7 @@ import com.lunex.eventprocessor.core.EventQuery;
 import com.lunex.eventprocessor.core.EventQuery.EventQueryStatus;
 import com.lunex.eventprocessor.core.dataaccess.CassandraRepository;
 import com.lunex.eventprocessor.handler.EventHandlerLaunch;
+import com.lunex.eventprocessor.handler.utils.Configurations;
 
 @Path("/event-processor-handler")
 public class EventHandlerApiServiceResource {
@@ -54,7 +55,7 @@ public class EventHandlerApiServiceResource {
       @QueryParam("backfillTime") long backfillTime) {
     try {
       List<EventQuery> rules =
-          CassandraRepository.getInstance().getEventQueryFromDB(eventName, ruleName);
+          CassandraRepository.getInstance(Configurations.cassandraHost, Configurations.cassandraKeyspace).getEventQueryFromDB(eventName, ruleName);
       if (rules != null && !rules.isEmpty()) {
         EventQuery rule = rules.get(0);
         EventHandlerLaunch.readerEsperProcessor.stop();
@@ -88,7 +89,7 @@ public class EventHandlerApiServiceResource {
       @QueryParam("ruleName") String ruleName) {
     try {
       List<EventQuery> rules =
-          CassandraRepository.getInstance().getEventQueryFromDB(eventName, ruleName);
+          CassandraRepository.getInstance(Configurations.cassandraHost, Configurations.cassandraKeyspace).getEventQueryFromDB(eventName, ruleName);
       if (rules != null && !rules.isEmpty()) {
         EventQuery rule = rules.get(0);
         if (rule.getStatus() == EventQueryStatus.STOP) {
@@ -99,7 +100,7 @@ public class EventHandlerApiServiceResource {
         EventHandlerLaunch.readerEsperProcessor.start();
         if (result) {
           rule.setStatus(EventQueryStatus.STOP);
-          CassandraRepository.getInstance().changeEventQueryStatus(rule);
+          CassandraRepository.getInstance(Configurations.cassandraHost, Configurations.cassandraKeyspace).changeEventQueryStatus(rule);
           return new ServiceResponse("Change successfully", true);
         } else {
           return new ServiceResponse("Change unsuccessfully", false);
@@ -130,18 +131,19 @@ public class EventHandlerApiServiceResource {
       @QueryParam("backfillTime") long backfillTime) {
     try {
       List<EventQuery> rules =
-          CassandraRepository.getInstance().getEventQueryFromDB(eventName, ruleName);
+          CassandraRepository.getInstance(Configurations.cassandraHost, Configurations.cassandraKeyspace).getEventQueryFromDB(eventName, ruleName);
       if (rules != null && !rules.isEmpty()) {
         EventQuery rule = rules.get(0);
         if (rule.getStatus() != EventQueryStatus.STOP) {
           return new ServiceResponse("Rule is running", false);
         }
         EventHandlerLaunch.readerEsperProcessor.stop();
-        boolean result = EventHandlerLaunch.esperProcessor.startRule(rule, backfill, backfillTime);
+        boolean result =
+            EventHandlerLaunch.esperProcessor.startRule(rule, backfill, backfillTime);
         EventHandlerLaunch.readerEsperProcessor.start();
         if (result) {
           rule.setStatus(EventQueryStatus.RUNNING);
-          CassandraRepository.getInstance().changeEventQueryStatus(rule);
+          CassandraRepository.getInstance(Configurations.cassandraHost, Configurations.cassandraKeyspace).changeEventQueryStatus(rule);
           return new ServiceResponse("Change successfully", true);
         } else {
           return new ServiceResponse("Change unsuccessfully", false);

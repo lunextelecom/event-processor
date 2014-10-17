@@ -34,7 +34,10 @@ import com.lunex.eventprocessor.core.listener.ResultListener;
 import com.lunex.eventprocessor.core.utils.Constants;
 import com.lunex.eventprocessor.core.utils.EventQueryProcessor;
 import com.lunex.eventprocessor.core.utils.StringUtils;
+import com.lunex.eventprocessor.handler.listener.CassandraWriter;
 import com.lunex.eventprocessor.handler.listener.ConsoleOutput;
+import com.lunex.eventprocessor.handler.listener.KafkaWriter;
+import com.lunex.eventprocessor.handler.listener.KairosDBWriter;
 import com.lunex.eventprocessor.handler.output.DataAccessOutputHandler;
 import com.lunex.eventprocessor.handler.utils.Configurations;
 
@@ -110,8 +113,8 @@ public class EsperProcessor implements Processor {
       serviceProvider = this.createEPServiceProvider(config, eventQuery, backfill, backFillTime);
       // Add to Map
       this.mapServiceProvider.put(serviceProviderURI, serviceProvider);
-      this.queryHierarchy.addQuery(eventName, eventQuery,
-          new ResultListener[] {new ConsoleOutput()});
+      this.queryHierarchy.addQuery(eventName, eventQuery, new ResultListener[] {
+          new ConsoleOutput(), new CassandraWriter(), new KairosDBWriter(), new KafkaWriter()});
     } catch (Exception ex) {
       logger.error(ex.getMessage(), ex);
       return false;
@@ -133,8 +136,8 @@ public class EsperProcessor implements Processor {
       // Add to Map
       this.mapServiceProvider.put(serviceProviderURI, serviceProvider);
       // Add to QueryHierarchy
-      this.queryHierarchy.addQuery(eventName, eventQuery,
-          new ResultListener[] {new ConsoleOutput()});
+      this.queryHierarchy.addQuery(eventName, eventQuery, new ResultListener[] {
+          new ConsoleOutput(), new CassandraWriter(), new KairosDBWriter(), new KafkaWriter()});
     } catch (Exception ex) {
       logger.error(ex.getMessage(), ex);
       return false;
@@ -211,7 +214,7 @@ public class EsperProcessor implements Processor {
           this.createEPServiceProvider(config, eventQuery, backFill, startTime);
       mapServiceProvider.put(serviceProviderURI, serviceProvider);
       eventQuery.setStatus(EventQueryStatus.RUNNING);
-      CassandraRepository.getInstance().changeEventQueryStatus(eventQuery);
+      CassandraRepository.getInstance(Configurations.cassandraHost, Configurations.cassandraKeyspace).changeEventQueryStatus(eventQuery);
     }
   }
 
@@ -384,7 +387,7 @@ public class EsperProcessor implements Processor {
   private long feedHistoricalEvent(long startTime, EPRuntimeIsolated runtimIsolated,
       EPRuntime epRunTime) throws Exception {
     // get historical event from DB
-    List<Event> listEvent = CassandraRepository.getInstance().getEvent(startTime);
+    List<Event> listEvent = CassandraRepository.getInstance(Configurations.cassandraHost, Configurations.cassandraKeyspace).getEvent(startTime);
     if (listEvent != null) {
       Event historicalEvent = null;
       for (int i = 0, size = listEvent.size(); i < size; i++) {

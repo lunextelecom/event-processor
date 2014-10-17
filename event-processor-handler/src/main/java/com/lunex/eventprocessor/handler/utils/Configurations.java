@@ -18,6 +18,8 @@ public class Configurations {
   public static boolean esperBackfill = false;
   public static String esperBackfillDefault = "1 hour";
   public static List<String> ruleList = new ArrayList<String>();
+  public static String cassandraHost = "";
+  public static String cassandraKeyspace = "";
 
   public static void getPropertiesValues(String propFileName) throws Exception {
     try {
@@ -82,6 +84,9 @@ public class Configurations {
         }
       }
 
+      // Cassandra
+      cassandraHost = prop.getProperty("cassandra.host");
+      cassandraKeyspace = prop.getProperty("cassandra.keyspace");
     } catch (Exception e) {
       throw e;
     }

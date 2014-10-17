@@ -25,7 +25,7 @@ import com.lunex.eventprocessor.handler.listener.ConsoleOutput;
 import com.lunex.eventprocessor.handler.listener.KafkaWriter;
 import com.lunex.eventprocessor.handler.listener.KairosDBWriter;
 import com.lunex.eventprocessor.handler.processor.EsperProcessor;
-import com.lunex.eventprocessor.handler.processor.KairosDBProcessor;
+// import com.lunex.eventprocessor.handler.processor.KairosDBProcessor;
 import com.lunex.eventprocessor.handler.processor.Processor;
 import com.lunex.eventprocessor.handler.reader.EventReader;
 import com.lunex.eventprocessor.handler.reader.KafkaReader;
@@ -44,9 +44,10 @@ public class EventHandlerLaunch extends Application<WebConfiguration> {
   public static QueryHierarchy hierarchy;
   public static KairosDBClient kairosDB;
   public static Processor esperProcessor;
-  public static Processor kairosDBProcessor;
+  // public static Processor kairosDBProcessor;
   public static EventReader readerEsperProcessor;
-  public static EventReader readerKairosDBProcessor;
+
+  // public static EventReader readerKairosDBProcessor;
 
   public static void main(String[] args) {
     try {
@@ -63,7 +64,7 @@ public class EventHandlerLaunch extends Application<WebConfiguration> {
 
       // get EventQuery
       List<EventQuery> listEventQuery =
-          CassandraRepository.getInstance().getEventQueryFromDB("", "");
+          CassandraRepository.getInstance(Configurations.cassandraHost, Configurations.cassandraKeyspace).getEventQueryFromDB("", "");
       List<List<EventQuery>> grouping =
           EventQueryProcessor.groupEventQueryByEventName(listEventQuery);
       // get Eventproperties
@@ -80,7 +81,7 @@ public class EventHandlerLaunch extends Application<WebConfiguration> {
             continue;
           }
           hierarchy.addQuery(query.getEventName(), query, new ResultListener[] {
-              new ConsoleOutput(), new KairosDBWriter(), new CassandraWriter(), new KafkaWriter()});
+              new ConsoleOutput(), new CassandraWriter(), new KairosDBWriter(), new KafkaWriter()});
         }
       }
 
@@ -100,16 +101,16 @@ public class EventHandlerLaunch extends Application<WebConfiguration> {
       esper.start();
 
       // create kairos processor
-      kairosDBProcessor = new KairosDBProcessor();
-      kairosDBProcessor.setHierarchy(hierarchy);
-      // read event and send to processor
-      readerKairosDBProcessor = new KafkaReader();
-      Thread kairos = new Thread(new Runnable() {
-        public void run() {
-          readerKairosDBProcessor.read(kairosDBProcessor);
-        }
-      });
-      kairos.start();
+      // kairosDBProcessor = new KairosDBProcessor();
+      // kairosDBProcessor.setHierarchy(hierarchy);
+      // // read event and send to processor
+      // readerKairosDBProcessor = new KafkaReader();
+      // Thread kairos = new Thread(new Runnable() {
+      // public void run() {
+      // readerKairosDBProcessor.read(kairosDBProcessor);
+      // }
+      // });
+      // kairos.start();
 
 
       // start rest api service

@@ -50,9 +50,11 @@ public class DataAccessOutputHandler {
       public void run() {
         try {
           // insert new event
-          CassandraRepository.getInstance().insertEventToDB(insertEvent);
+          CassandraRepository.getInstance(Configurations.cassandraHost,
+              Configurations.cassandraKeyspace).insertEventToDB(insertEvent);
           // insert event result --> default no violate
-          CassandraRepository.getInstance().insertResults(insertEvent.getEvtName(),
+          CassandraRepository.getInstance(Configurations.cassandraHost,
+              Configurations.cassandraKeyspace).insertResults(insertEvent.getEvtName(),
               insertEvent.getHashKey(), null, null);
         } catch (Exception e) {
           logger.error(e.getMessage(), e);
@@ -194,9 +196,9 @@ public class DataAccessOutputHandler {
   public static void writeResultComputation(Map<String, Object> item, EventQuery eventQuery)
       throws PropertyAccessException, Exception {
     String jsonStr = JsonHelper.toJSonString(item);
-    CassandraRepository.getInstance().insertResultComputation(eventQuery.getEventName(),
-        eventQuery.getRuleName(), (Long) item.get("time"), String.valueOf(item.get("hashKey")),
-        jsonStr);
+    CassandraRepository.getInstance(Configurations.cassandraHost, Configurations.cassandraKeyspace)
+        .insertResultComputation(eventQuery.getEventName(), eventQuery.getRuleName(),
+            (Long) item.get("time"), String.valueOf(item.get("hashKey")), jsonStr);
   }
 
   /**
@@ -212,7 +214,8 @@ public class DataAccessOutputHandler {
     try {
       // get list condition excption
       List<EventQueryException> condtionExceptions =
-          CassandraRepository.getInstance().getEventQueyExceptionNotExpired(eventQuery,
+          CassandraRepository.getInstance(Configurations.cassandraHost,
+              Configurations.cassandraKeyspace).getEventQueyExceptionNotExpired(eventQuery,
               ExptionAction.VERIFIED.toString());
 
       String eventQueryCondition = eventQuery.getConditions();

@@ -26,7 +26,7 @@ logging:
 
       # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
       timeZone: UTC
-app:
+#app:
   #dbName: event-processor
   #dbHost: localhost
   #dbUsername: 

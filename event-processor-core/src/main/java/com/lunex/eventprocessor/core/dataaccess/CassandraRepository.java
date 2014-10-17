@@ -51,13 +51,8 @@ public class CassandraRepository {
    * 
    * @return
    */
-  public static CassandraRepository getInstance() throws Exception {
+  public static CassandraRepository getInstance(String host, String keyspace) throws Exception {
     if (instance == null) {
-      Properties prop = new Properties();
-      InputStream inputStream = new FileInputStream("conf/app.properties");
-      prop.load(inputStream);
-      String host = prop.getProperty("cassandra.host");
-      String keyspace = prop.getProperty("cassandra.keyspace");
       instance = init(host, keyspace);
     }
     return instance;
@@ -79,62 +74,34 @@ public class CassandraRepository {
     }
     Builder builder = Cluster.builder();
     builder.addContactPoint(serverIP);
-
     PoolingOptions options = new PoolingOptions();
     options.setCoreConnectionsPerHost(HostDistance.LOCAL,
         options.getMaxConnectionsPerHost(HostDistance.LOCAL));
     builder.withPoolingOptions(options);
-
     instance.cluster =
         builder.withRetryPolicy(DowngradingConsistencyRetryPolicy.INSTANCE)
             .withReconnectionPolicy(new ConstantReconnectionPolicy(100L)).build();
-
     instance.session = instance.cluster.connect();
     Metadata metadata = instance.cluster.getMetadata();
-    KeyspaceMetadata keyspaceMetadata = metadata.getKeyspace(instance.keyspace);
-    if (keyspaceMetadata == null) {
-      String sql =
-          "CREATE KEYSPACE " + instance.keyspace
-              + " WITH REPLICATION = { 'class' : 'NetworkTopologyStrategy', 'dc1' : 2 };";
-      instance.session.execute(sql);
-      metadata = instance.cluster.getMetadata();
-      keyspaceMetadata = metadata.getKeyspace(instance.keyspace);
-    }
     if (metadata != null) {
-
-      keyspaceMetadata = metadata.getKeyspace(instance.keyspace);
+      KeyspaceMetadata keyspaceMetadata = metadata.getKeyspace(instance.keyspace);
       if (keyspaceMetadata == null) {
         throw new UnsupportedOperationException("Can't find keyspace :" + instance.keyspace);
       }
       if (keyspaceMetadata.getTable("rules") == null) {
-        String sql =
-            "CREATE TABLE "
-                + instance.keyspace
-                + ".rules (event_name text, rule_name text, data text,  fields text, filters text, aggregate_field text, having text, small_bucket text, big_bucket text, conditions text, description text, status text,"
-                + "PRIMARY KEY (event_name, rule_name))";
-        instance.session.execute(sql);
+        throw new UnsupportedOperationException("Can't find table logging in " + instance.keyspace);
       }
       if (keyspaceMetadata.getTable("events") == null) {
-        String sql =
-            "CREATE TABLE "
-                + instance.keyspace
-                + ".events (event_name text, time bigint, hashkey text, event text, PRIMARY KEY (event_name, time, hashkey))";
-        instance.session.execute(sql);
-      }
-      if (keyspaceMetadata.getTable("results") == null) {
-        String sql =
-            "CREATE TABLE "
-                + instance.keyspace
-                + ".results (event_name text, hashkey text, result list<text>, filtered_result list<text>, PRIMARY KEY (event_name, hashkey))";
-        instance.session.execute(sql);
+        throw new UnsupportedOperationException("Can't find table endpoint in " + instance.keyspace);
       }
       if (keyspaceMetadata.getTable("condition_exception") == null) {
-        String sql =
-            "CREATE TABLE "
-                + instance.keyspace
-                + ".condition_exception ("
-                + "id uuid,event_name text,rule_name text,action text,expired_date timestamp,condition_filter text,PRIMARY KEY (id, event_name, rule_name, action, expired_date));";
-        instance.session.execute(sql);
+        throw new UnsupportedOperationException("Can't find table condition_exception in " + instance.keyspace);
+      }
+      if (keyspaceMetadata.getTable("result_computation") == null) {
+        throw new UnsupportedOperationException("Can't find table result_computation in " + instance.keyspace);
+      }
+      if (keyspaceMetadata.getTable("results") == null) {
+        throw new UnsupportedOperationException("Can't find table result_computation in " + instance.keyspace);
       }
     }
     instance.listPreparedStatements = new HashMap<String, PreparedStatement>();
