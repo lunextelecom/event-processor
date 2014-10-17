@@ -192,6 +192,17 @@ Output specfic where the computed result of Condition should go.  By default all
 
 In some case the application that want to receive events of pattern match might not be the one sending the data.  To recieve notification of those event, clients can subscript to Kafka topic.
 
+Timeframe for event - we have 2 type of time frame
+* Every timeframe(truncate or not truncate)
+ - Not truncate every timeframe: get event in every n time(every 6 minute and next evry 6 minute, ex: with 1 hour, now is 7:15, 1st every timeframe is 7:15-8:14, 2nd every timeframe is 8:15-9:14 ....)
+ - Truncate every timeframe: get event in every n time, but truncate at start time(ex: with every 1 hour, now is 7:15, 1st every timeframe is 7:00-7:59, 2nd every timeframe is 8:00-8:59)
+ - Using smallbucket(ex: 1 hour) to get event in every timeframe
+* Last timeframe: get event in last n time(last 4 hour, 6 minute)
+ - Using smallbucket(ex: 10s) to get event in every timeframe
+ - Using bigbucket(ex: 4 hour) to get event in last timeframe base on every 10s timeframe
+
+
+
 ###### Data Access
 It is very important to keep data storage consistent as in future, we can swap in Storm for load distribution.
 Store the following
