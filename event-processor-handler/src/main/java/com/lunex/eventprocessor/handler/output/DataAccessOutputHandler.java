@@ -193,12 +193,27 @@ public class DataAccessOutputHandler {
    * @throws PropertyAccessException
    * @throws Exception
    */
-  public static void writeResultComputation(Map<String, Object> item, EventQuery eventQuery)
+  public static void writeResultComputation(Object[] result, EventQuery eventQuery)
       throws PropertyAccessException, Exception {
-    String jsonStr = JsonHelper.toJSonString(item);
-    CassandraRepository.getInstance(Configurations.cassandraHost, Configurations.cassandraKeyspace)
-        .insertResultComputation(eventQuery.getEventName(), eventQuery.getRuleName(),
-            (Long) item.get("time"), String.valueOf(item.get("hashKey")), jsonStr);
+    Map<String, Object> item = null;
+    String hashKey = null;
+    for (int i = 0; i < result.length; i++) {
+      item = (Map<String, Object>) result[i];
+      if (item == null || item.isEmpty()) {
+        continue;
+      }
+      hashKey =
+          String
+              .valueOf(item.get("hashKey") == null ? Constants.EMPTY_STRING : item.get("hashKey"));
+      if (Constants.EMPTY_STRING.equals(hashKey)) {
+        continue;
+      }
+      String jsonStr = JsonHelper.toJSonString(item);
+      CassandraRepository.getInstance(Configurations.cassandraHost,
+          Configurations.cassandraKeyspace).insertResultComputation(eventQuery.getEventName(),
+          eventQuery.getRuleName(), (Long) item.get("time"), String.valueOf(item.get("hashKey")),
+          jsonStr);
+    }
   }
 
   /**
@@ -276,7 +291,6 @@ public class DataAccessOutputHandler {
               new EventResult(eventQuery.getEventName(), hashKey, null,
                   "{\"result\": false, \"result-event\": {" + properties.toString()
                       + "}, \"rule\":\"" + eventQuery.getRuleName() + "\"}");
-          // CassandraRepository.getInstance().updateResults(eventResult);
           return eventResult;
         } else { // if not exception is exist
           // check condition to get final result. When this condition is met, check will return true
@@ -301,7 +315,6 @@ public class DataAccessOutputHandler {
                     new EventResult(eventQuery.getEventName(), String.valueOf(hashKey),
                         "{\"result\": " + checked + ", \"result-event\": " + jsonStr
                             + ", \"rule\":\"" + eventQuery.getRuleName() + "\"}", null);
-                // CassandraRepository.getInstance().updateResults(eventResult);
                 return eventResult;
               } catch (Exception e) {
                 logger.error(e.getMessage(), e);
@@ -310,7 +323,6 @@ public class DataAccessOutputHandler {
                         "{\"result\": false, \"exception\": \"" + e.getMessage()
                             + "\", \"reult\": \"" + eventQuery.getRuleName() + "\"}", null);
                 return eventResult;
-                // CassandraRepository.getInstance().updateResults(eventResult);
               }
             }
           }
