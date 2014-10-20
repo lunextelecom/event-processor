@@ -16,7 +16,7 @@ public class QueryParamProcessor {
       String key = (String) keys.next();
       String[] temp = key.split(".");
       if (temp.length == 1) {
-        result.put(key, map.get(key)[0].toString());
+        result.put(key, map.get(key)[0]);
       } else if (temp.length == 2) {
         switch (temp[0]) {
           case "int":
@@ -32,11 +32,12 @@ public class QueryParamProcessor {
             result.put(temp[1], Double.valueOf(map.get(key)[0]));
             break;
           default:
+            result.put(temp[1], map.get(key)[0]);
             break;
         }
       }
     }
-    return null;
+    return result;
   }
 
 }

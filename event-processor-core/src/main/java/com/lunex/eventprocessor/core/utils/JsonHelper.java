@@ -100,15 +100,6 @@ public class JsonHelper {
     }
   }
   
-  public static String toJSonString2(Map<String, String[]> map) throws Exception {
-    try {
-      JSONObject json = new JSONObject(map);
-      return json.toString();
-    } catch (Exception ex) {
-      throw ex;
-    }
-  }
-
   /**
    * Convert Map to JsonObject
    * 
