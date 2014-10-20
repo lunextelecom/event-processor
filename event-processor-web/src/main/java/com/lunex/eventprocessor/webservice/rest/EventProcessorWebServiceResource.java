@@ -42,6 +42,7 @@ public class EventProcessorWebServiceResource {
     Event event = new Event();
     // TODO create event
     if (httpRequest != null) {
+      httpRequest.getAttribute("amount");
       Map<String, String[]> map = httpRequest.getParameterMap();
       event.setEvtName(map.get("evtName")[0]);
       JSONObject requestJSonObj = null;

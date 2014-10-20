@@ -103,14 +103,14 @@ public class NettyHttpSnoopClient {
 
       // Prepare the HTTP request.
       ByteBuf content = Unpooled.copiedBuffer(event.getPayLoadStr(), CharsetUtil.UTF_8);
-      DefaultFullHttpRequest request =
+      HttpRequest request =
           new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, uri.toString(), content);
-      request.headers().set(HttpHeaders.Names.HOST, host);
+      request.headers().set(HttpHeaders.Names.CONTENT_TYPE, "application/json");
+      request.headers().set(HttpHeaders.Names.CONTENT_LENGTH, content.readableBytes());
+      request.headers().set(HttpHeaders.Names.ACCEPT_CHARSET, "ISO-8859-1,utf-8;q=0.7,*;q=0.7");
       request.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.CLOSE);
       request.headers().set(HttpHeaders.Names.ACCEPT_ENCODING, HttpHeaders.Values.GZIP);
-      request.headers().set(HttpHeaders.Names.ACCEPT_CHARSET, "ISO-8859-1,utf-8;q=0.7,*;q=0.7");
-      request.headers().set(HttpHeaders.Names.CONTENT_TYPE, "application/json");
-      request.headers().set(HttpHeaders.Names.CONTENT_LENGTH, content.capacity());
+      request.headers().set(HttpHeaders.Names.HOST, host);
 
       // Send the HTTP request.
       // ChannelFuture chanel =
