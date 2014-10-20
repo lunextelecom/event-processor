@@ -67,10 +67,6 @@ public class KafkaReader implements EventReader {
         Thread thread = new Thread(new Runnable() {
           public void run() {
             try {
-              String target = "19-10-2014 20:29:30";
-              DateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-              Date result =  df.parse(target);
-              whichTime = result.getTime();
               kafkaConsumer.readKafka(whichTime);
             } catch (Exception e) {
               logger.error("Function read: " + e.getMessage(), e);
@@ -99,10 +95,6 @@ public class KafkaReader implements EventReader {
         Thread thread = new Thread(new Runnable() {
           public void run() {
             try {
-              String target = "19-10-2014 20:29:30";
-              DateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-              Date result =  df.parse(target);
-              whichTime = result.getTime();
               kafkaConsumer.readKafka(whichTime);
             } catch (Exception e) {
               logger.error("Function read: " + e.getMessage(), e);
