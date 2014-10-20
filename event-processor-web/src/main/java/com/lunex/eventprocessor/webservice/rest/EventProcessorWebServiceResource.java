@@ -102,6 +102,10 @@ public class EventProcessorWebServiceResource {
   @Produces(MediaType.APPLICATION_JSON)
   @Timed
   public Response check(@QueryParam("hashKey") String hashKey) {
+    if (Strings.isNullOrEmpty(hashKey)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ServiceResponse("", false))
+          .build();
+    }
     try {
       String eventResult = service.checkEvent(hashKey);
       // JSONObject eventResultJSon = new JSONObject(eventResult);
@@ -129,6 +133,10 @@ public class EventProcessorWebServiceResource {
   @Timed
   public Response check(@Context HttpServletRequest httpRequest) {
     try {
+      if (httpRequest == null) {
+        return Response.status(Response.Status.BAD_REQUEST).entity(new ServiceResponse("", false))
+            .build();
+      }
       String eventResult = service.checkEvent("abc");
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
           .entity(new ServiceResponse(eventResult, true)).build();
