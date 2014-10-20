@@ -1,8 +1,11 @@
 package com.lunex.eventprocessor.handler.reader;
 
 import java.io.UnsupportedEncodingException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -32,6 +35,11 @@ public class KafkaReader implements EventReader {
   public KafkaReader() {
     this.listKafkaConsumers = new ArrayList<KafkaSimpleConsumer>();
   }
+  
+  public KafkaReader(long whichTime) {
+    this.whichTime = whichTime;
+    this.listKafkaConsumers = new ArrayList<KafkaSimpleConsumer>();
+  }
 
   public Event readNext() {
     // no implement this function for KafkaReader
@@ -59,6 +67,10 @@ public class KafkaReader implements EventReader {
         Thread thread = new Thread(new Runnable() {
           public void run() {
             try {
+              String target = "19-10-2014 20:29:30";
+              DateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+              Date result =  df.parse(target);
+              whichTime = result.getTime();
               kafkaConsumer.readKafka(whichTime);
             } catch (Exception e) {
               logger.error("Function read: " + e.getMessage(), e);
@@ -87,6 +99,10 @@ public class KafkaReader implements EventReader {
         Thread thread = new Thread(new Runnable() {
           public void run() {
             try {
+              String target = "19-10-2014 20:29:30";
+              DateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+              Date result =  df.parse(target);
+              whichTime = result.getTime();
               kafkaConsumer.readKafka(whichTime);
             } catch (Exception e) {
               logger.error("Function read: " + e.getMessage(), e);
