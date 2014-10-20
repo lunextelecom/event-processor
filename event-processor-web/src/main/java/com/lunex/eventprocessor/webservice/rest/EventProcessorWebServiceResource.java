@@ -12,12 +12,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.annotation.Timed;
+import com.google.common.base.Strings;
 import com.lunex.eventprocessor.core.Event;
 import com.lunex.eventprocessor.core.utils.JsonHelper;
 import com.lunex.eventprocessor.webservice.service.EventProcessorService;
@@ -39,11 +40,15 @@ public class EventProcessorWebServiceResource {
   @Path("/event")
   @Produces(MediaType.APPLICATION_JSON)
   @Timed
-  public ServiceResponse addEvent(@Context HttpServletRequest httpRequest) {
+  public Response addEvent(@Context HttpServletRequest httpRequest) {
+    boolean checkResult = false;
     Event event = new Event();
     // TODO create event
     if (httpRequest != null) {
-      httpRequest.getAttribute("amount");
+      String checkResultString = httpRequest.getParameter("result");
+      if (!Strings.isNullOrEmpty(checkResultString)) {
+        checkResult = Boolean.valueOf(checkResultString);
+      }
       Map<String, String[]> map = httpRequest.getParameterMap();
       event.setEvtName(map.get("evtName")[0]);
       JSONObject requestJSonObj = null;
@@ -57,32 +62,48 @@ public class EventProcessorWebServiceResource {
         event.setPayLoadStr(requestJSonObj.toString());
       } catch (Exception e) {
         logger.error(e.getMessage(), e);
+        return Response.status(Response.Status.BAD_REQUEST)
+            .entity(new ServiceResponse(e.getMessage(), false)).build();
       }
+    } else {
+      return Response.status(Response.Status.BAD_REQUEST).entity(new ServiceResponse("", false))
+          .build();
     }
 
     seq += 1;
     try {
       // call service to get hashKey
       String hashKey = service.addEvent(event, seq);
-      if (hashKey == null) {
-        return new ServiceResponse(null, false);
+      if (Strings.isNullOrEmpty(hashKey)) {
+        return Response.status(Response.Status.OK).entity(new ServiceResponse("", false)).build();
       }
-      Map<String, Object> message = new HashMap<String, Object>();
-      message.put("hashKey", hashKey);
-      return new ServiceResponse(JsonHelper.toJSonString(message), true);
+
+      // if client do not want to check result
+      if (!checkResult) {
+        Map<String, Object> message = new HashMap<String, Object>();
+        message.put("hashKey", hashKey);
+        return Response.status(Response.Status.OK)
+            .entity(new ServiceResponse(JsonHelper.toJSonString(message), true)).build();
+
+        // if client want to check result
+      } else {
+        return Response.status(Response.Status.OK)
+            .entity(new ServiceResponse(service.checkEvent(hashKey), true)).build();
+      }
     } catch (Exception e) {
       logger.error(e.getMessage(), e);
-      return new ServiceResponse(e.getMessage(), false);
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+          .entity(new ServiceResponse(e.getMessage(), false)).build();
     }
   }
 
   @GET
-  @Path("/event")
+  @Path("/check_event")
   @Produces(MediaType.APPLICATION_JSON)
   @Timed
-  public ServiceResponse check(@QueryParam("hashKey") String hashKey) {
+  public Response check(@QueryParam("hashKey") String hashKey) {
     try {
-       String eventResult = service.checkEvent(hashKey);
+      String eventResult = service.checkEvent(hashKey);
       // JSONObject eventResultJSon = new JSONObject(eventResult);
       // JSONArray resultArray = eventResultJSon.getJSONArray("result");
       // String temp = (String) resultArray.get(0);
@@ -93,10 +114,28 @@ public class EventProcessorWebServiceResource {
       // JSONObject result_event = rule.getJSONObject("result-event");
       // System.out.println(result_event);
       // }
-      return new ServiceResponse(eventResult, true);
+      return Response.status(Response.Status.OK).entity(new ServiceResponse(eventResult, true))
+          .build();
     } catch (Exception e) {
       logger.error(e.getMessage(), e);
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+          .entity(new ServiceResponse(null, false)).build();
     }
-    return new ServiceResponse(null, false);
+  }
+
+  @GET
+  @Path("/event")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Timed
+  public Response check(@Context HttpServletRequest httpRequest) {
+    try {
+      String eventResult = service.checkEvent("abc");
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+          .entity(new ServiceResponse(eventResult, true)).build();
+    } catch (Exception e) {
+      logger.error(e.getMessage(), e);
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+          .entity(new ServiceResponse(null, false)).build();
+    }
   }
 }
