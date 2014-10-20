@@ -1,32 +1,90 @@
 package com.lunex.eventprocessor.webservice.service;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import javax.swing.JSlider;
+
+import org.json.JSONObject;
+import org.slf4j.LoggerFactory;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.util.CharsetUtil;
+
+import com.google.gson.JsonObject;
 import com.lunex.eventprocessor.core.Event;
 import com.lunex.eventprocessor.core.dataaccess.CassandraRepository;
+import com.lunex.eventprocessor.core.utils.StringUtils;
+import com.lunex.eventprocessor.webservice.netty.CallbackHTTPVisitor;
+import com.lunex.eventprocessor.webservice.netty.NettyHttpSnoopClient;
+import com.lunex.eventprocessor.webservice.rest.EventProcessorWebServiceFactory;
 
 public class EventProcessorService {
 
+  final static org.slf4j.Logger logger = LoggerFactory.getLogger(EventProcessorService.class);
+
   private CassandraRepository cassandraRepository;
+  private EventProcessorWebServiceFactory factory;
 
-  public EventProcessorService(CassandraRepository cassandraRepository) {
+  public EventProcessorService(CassandraRepository cassandraRepository,
+      EventProcessorWebServiceFactory factory) {
     this.cassandraRepository = cassandraRepository;
+    this.factory = factory;
   }
 
-  public String addEvent(Event event) {
-    String hashKey = "";
-    // TODO
-    return hashKey;
+  public String addEvent(Event event, long seq) throws Exception {
+    // Create Netty http client
+    final CountDownLatch countdown = new CountDownLatch(1);
+    CallbackHTTPVisitor callback = new CallbackHTTPVisitor() {
+      @Override
+      public void doJob(ChannelHandlerContext ctx, Object msg) {
+        if (msg instanceof HttpContent) {
+          HttpContent httpContent = (HttpContent) msg;
+          if (httpContent.content() != null && httpContent.content().isReadable()) {
+            ByteBuf bytes = httpContent.content();
+            String httpResponseContent = bytes.toString(CharsetUtil.UTF_8);
+            setResponseContent(httpResponseContent);
+          }
+        }
+        if (msg instanceof LastHttpContent) {
+          countdown.countDown();
+        }
+      }
+    };
+    NettyHttpSnoopClient httpClient =
+        new NettyHttpSnoopClient(factory.getInputProcessorUrl() + "?evtName=" + event.getEvtName()
+            + "&seq=" + seq, callback);
+
+    try {
+      // Call event input processor
+      httpClient.postRequestJsonContent(event);
+      // Wait to get hashKey
+      countdown.await(10000, TimeUnit.MILLISECONDS);
+      String httpResponseContent = callback.getResponseContent();
+      if (StringUtils.isJSONValid(httpResponseContent)) {
+        JSONObject json = new JSONObject(httpResponseContent);
+        if (json.getBoolean("result"))
+          return json.getString("hashKey");
+      }
+    } catch (Exception e1) {
+      throw e1;
+    }
+    throw new Exception("Can not get any hashKey");
   }
-  
+
   public String checkEvent(Event event) {
     // TODO
     return null;
   }
-  
+
   public String checkEvent(String hashKey) {
     // TODO
     return hashKey;
   }
-  
+
   public String addAndCheck(Event event) {
     // TODO
     return null;

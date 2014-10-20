@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 import com.lunex.eventprocessor.core.dataaccess.CassandraRepository;
+import com.lunex.eventprocessor.webservice.rest.EventProcessorWebServiceAdminResource;
+import com.lunex.eventprocessor.webservice.rest.EventProcessorWebServiceFactory;
 import com.lunex.eventprocessor.webservice.rest.EventProcessorWebServiceResource;
 import com.lunex.eventprocessor.webservice.rest.WebConfiguration;
 import com.lunex.eventprocessor.webservice.service.EventProcessorService;
@@ -83,14 +85,17 @@ public class WebServiceLaunch extends Application<WebConfiguration> {
 
   @Override
   public void run(WebConfiguration configuration, Environment environment) throws Exception {
-    EventProcessorService service =
-        configuration.getCcServiceFactory().buildEventProcessorService(environment);
+    EventProcessorWebServiceFactory factory = configuration.getCcServiceFactory();
 
-    EventProcessorServiceAdmin serviceAdmin =
-        configuration.getCcServiceFactory().buildEventProcessorServiceAdmin(environment);
+    EventProcessorService service = factory.buildEventProcessorService(environment);
+    EventProcessorServiceAdmin serviceAdmin = factory.buildEventProcessorServiceAdmin(environment);
 
     final EventProcessorWebServiceResource serviceResource =
         new EventProcessorWebServiceResource(service);
+    final EventProcessorWebServiceAdminResource serviceAdminResource =
+        new EventProcessorWebServiceAdminResource(serviceAdmin);
+
     environment.jersey().register(serviceResource);
+    environment.jersey().register(serviceAdminResource);
   }
 }

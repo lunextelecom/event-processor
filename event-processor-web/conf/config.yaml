@@ -29,8 +29,9 @@ logging:
 app:
   dbName: event_processor
   dbHost: localhost
-  dbUsername: 
-  dbPassword: 
-  cacheConfig: 
-  statsdHost: 
-  statsdAppPrefix:  
+  dbUsername:
+  dbPassword:
+  inputProcessorUrl: http://localhost:9038
+  cacheConfig:
+  statsdHost:
+  statsdAppPrefix:
