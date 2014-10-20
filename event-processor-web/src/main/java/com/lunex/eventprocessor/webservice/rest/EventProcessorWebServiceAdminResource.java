@@ -3,7 +3,6 @@ package com.lunex.eventprocessor.webservice.rest;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -12,10 +11,7 @@ import javax.ws.rs.core.MediaType;
 import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.annotation.Timed;
-import com.lunex.eventprocessor.core.dataaccess.CassandraRepository;
 import com.lunex.eventprocessor.core.utils.JsonHelper;
-import com.lunex.eventprocessor.core.utils.StringUtils;
-import com.lunex.eventprocessor.webservice.service.EventProcessorService;
 import com.lunex.eventprocessor.webservice.service.EventProcessorServiceAdmin;
 
 @Path("/event-processor")

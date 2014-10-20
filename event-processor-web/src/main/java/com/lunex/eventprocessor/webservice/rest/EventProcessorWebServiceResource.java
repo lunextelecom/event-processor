@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
@@ -18,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import com.codahale.metrics.annotation.Timed;
 import com.lunex.eventprocessor.core.Event;
 import com.lunex.eventprocessor.core.utils.JsonHelper;
-import com.lunex.eventprocessor.core.utils.StringUtils;
 import com.lunex.eventprocessor.webservice.service.EventProcessorService;
 
 @Path("/")

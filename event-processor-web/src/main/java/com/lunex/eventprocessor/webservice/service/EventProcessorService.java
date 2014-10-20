@@ -3,8 +3,6 @@ package com.lunex.eventprocessor.webservice.service;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import javax.swing.JSlider;
-
 import org.json.JSONObject;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +12,6 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.util.CharsetUtil;
 
-import com.google.gson.JsonObject;
 import com.lunex.eventprocessor.core.Event;
 import com.lunex.eventprocessor.core.dataaccess.CassandraRepository;
 import com.lunex.eventprocessor.core.utils.StringUtils;

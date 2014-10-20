@@ -31,7 +31,7 @@ app:
   dbHost: localhost
   dbUsername:
   dbPassword:
-  inputProcessorUrl: http://localhost:9038
+  inputProcessorUrl: http://192.168.93.61:9038
   cacheConfig:
   statsdHost:
   statsdAppPrefix:
