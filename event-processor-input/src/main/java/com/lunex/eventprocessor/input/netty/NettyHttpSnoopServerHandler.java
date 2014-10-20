@@ -107,7 +107,7 @@ public class NettyHttpSnoopServerHandler extends SimpleChannelInboundHandler<Htt
         HttpContent httpContent = (HttpContent) msg;
         if (httpContent.content() != null && httpContent.content().isReadable()) {
           ByteBuf bytes = httpContent.content();
-          this.messageObject.setContentLengthInByte(bytes.capacity());
+          this.messageObject.setContentLengthInByte(bytes.readableBytes());
           String payLoad = bytes.toString(CharsetUtil.UTF_8);
           this.messageObject.setBody(payLoad);
           this.messageObject.setBodyBytes(payLoad.getBytes(CharsetUtil.UTF_8));
