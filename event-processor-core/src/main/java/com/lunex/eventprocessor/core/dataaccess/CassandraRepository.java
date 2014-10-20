@@ -255,8 +255,23 @@ public class CassandraRepository {
     execute(sql, params);
   }
 
-  public void insertEventQuery() {
-    // TODO
+  public void insertEventQuery(EventQuery eventQuery) throws Exception {
+    String sql =
+        "INSERT INTO rules (event_name, rule_name, data, fields, filters, aggregate_field, having, small_bucket, big_bucket, conditions, description, status) VALUES (?, ?, ?, ?, ?, ?, ? , ?, ? , ?, ?, ?);";
+    List<Object> params = new ArrayList<Object>();
+    params.add(eventQuery.getEventName());
+    params.add(eventQuery.getRuleName());
+    params.add(eventQuery.getData());
+    params.add(eventQuery.getFields());
+    params.add(eventQuery.getFilters());
+    params.add(eventQuery.getAggregateField());
+    params.add(eventQuery.getHaving());
+    params.add(eventQuery.getSmallBucket());
+    params.add(eventQuery.getBigBucket());
+    params.add(eventQuery.getConditions());
+    params.add(eventQuery.getDescription());
+    params.add(eventQuery.getStatus());
+    execute(sql, params);
   }
 
   /**
@@ -300,7 +315,8 @@ public class CassandraRepository {
   }
 
   public void insertEventQueryException(EventQueryException eventQueryException) throws Exception {
-    String sql = "INSERT INTO condition_exception (id, event_name, rule_name, action, expired_date, condition_filter) VALUES (uuid(), ?, ?, ?, ?, ?);";
+    String sql =
+        "INSERT INTO condition_exception (id, event_name, rule_name, action, expired_date, condition_filter) VALUES (uuid(), ?, ?, ?, ?, ?);";
     List<Object> params = new ArrayList<Object>();
     params.add(eventQueryException.getEventName());
     params.add(eventQueryException.getRuleName());

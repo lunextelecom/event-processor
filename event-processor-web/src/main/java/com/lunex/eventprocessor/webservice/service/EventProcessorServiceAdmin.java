@@ -1,5 +1,6 @@
 package com.lunex.eventprocessor.webservice.service;
 
+import com.lunex.eventprocessor.core.EventQuery;
 import com.lunex.eventprocessor.core.EventQueryException;
 import com.lunex.eventprocessor.core.dataaccess.CassandraRepository;
 
@@ -13,5 +14,9 @@ public class EventProcessorServiceAdmin {
   
   public void addRuleException(EventQueryException eventQueyException) throws Exception {
     cassandraRepository.insertEventQueryException(eventQueyException);
+  }
+  
+  public void addRule(EventQuery eventQuery) throws Exception {
+    cassandraRepository.insertEventQuery(eventQuery);
   }
 }
