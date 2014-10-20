@@ -1,10 +1,10 @@
 server:
   applicationConnectors:
     - type: http
-      port: 8089
+      port: 9085
   adminConnectors:
     - type: http
-      port: 8081
+      port: 9086
 logging:
   level: DEBUG
   appenders:
@@ -28,7 +28,7 @@ logging:
       timeZone: UTC
 app:
   dbName: event_processor
-  dbHost: localhost
+  dbHost: 192.168.93.38
   dbUsername:
   dbPassword:
   inputProcessorUrl: http://192.168.93.61:9038

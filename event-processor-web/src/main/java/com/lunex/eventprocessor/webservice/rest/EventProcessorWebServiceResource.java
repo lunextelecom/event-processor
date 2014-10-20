@@ -5,12 +5,15 @@ import java.util.Iterator;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.LoggerFactory;
 
@@ -71,5 +74,29 @@ public class EventProcessorWebServiceResource {
       logger.error(e.getMessage(), e);
       return new ServiceResponse(e.getMessage(), false);
     }
+  }
+
+  @GET
+  @Path("/event")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Timed
+  public ServiceResponse check(@QueryParam("hashKey") String hashKey) {
+    try {
+       String eventResult = service.checkEvent(hashKey);
+      // JSONObject eventResultJSon = new JSONObject(eventResult);
+      // JSONArray resultArray = eventResultJSon.getJSONArray("result");
+      // String temp = (String) resultArray.get(0);
+      // resultArray = new JSONArray(temp);
+      // for (int i = 0; i < resultArray.length(); i++) {
+      // JSONObject rule = resultArray.getJSONObject(i);
+      // System.out.println(rule);
+      // JSONObject result_event = rule.getJSONObject("result-event");
+      // System.out.println(result_event);
+      // }
+      return new ServiceResponse(eventResult, true);
+    } catch (Exception e) {
+      logger.error(e.getMessage(), e);
+    }
+    return new ServiceResponse(null, false);
   }
 }

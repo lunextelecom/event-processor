@@ -1,5 +1,6 @@
 package com.lunex.eventprocessor.webservice.service;
 
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -12,7 +13,9 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.util.CharsetUtil;
 
+import com.google.gson.Gson;
 import com.lunex.eventprocessor.core.Event;
+import com.lunex.eventprocessor.core.EventResult;
 import com.lunex.eventprocessor.core.dataaccess.CassandraRepository;
 import com.lunex.eventprocessor.core.utils.StringUtils;
 import com.lunex.eventprocessor.webservice.netty.CallbackHTTPVisitor;
@@ -77,9 +80,15 @@ public class EventProcessorService {
     return null;
   }
 
-  public String checkEvent(String hashKey) {
+  public String checkEvent(String hashKey) throws Exception {
     // TODO
-    return hashKey;
+    List<EventResult> eventResults = cassandraRepository.getEventResult(hashKey);
+    if (eventResults != null && !eventResults.isEmpty()) {
+      EventResult eventResult = eventResults.get(0);
+      Gson gson = new Gson();
+      return gson.toJson(eventResult).toString();
+    }
+    return null;
   }
 
   public String addAndCheck(Event event) {

@@ -407,6 +407,26 @@ public class CassandraRepository {
     }
     return results;
   }
+  
+  public List<EventResult> getEventResult(String hashkey) throws Exception {
+    String sql = "SELECT * FROM " + keyspace + ".results WHERE hashkey = ? ALLOW FILTERING;";
+    List<Object> params = new ArrayList<Object>();
+    params.add(hashkey);
+    ResultSet rows = execute(sql, params);
+    List<EventResult> results = null;
+    EventResult eventResult = null;
+    for (Row row : rows) {
+      if (results == null) {
+        results = new ArrayList<EventResult>();
+      }
+      eventResult =
+          new EventResult(row.getString("event_name"), row.getString("hashkey"), row.getList(
+              "result", String.class).toString(), row.getList("filtered_result", String.class)
+              .toString());
+      results.add(eventResult);
+    }
+    return results;
+  }
 
   /**
    * Execute query
