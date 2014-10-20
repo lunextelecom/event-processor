@@ -162,7 +162,8 @@ public class DataAccessOutputHandler {
             for (Entry<String, Object> e : resultPropeties.entrySet()) {
               if (e.getKey().indexOf(key) > 0) {
                 value = e.getValue();
-                client.sendMetric(metric + "." + e.getKey().replace(StringUtils.seperatorField, "."),
+                client.sendMetric(metric + "."
+                    + e.getKey().replace(StringUtils.seperatorField, "."),
                     System.currentTimeMillis(), value, tags);
                 break;
               }
@@ -172,7 +173,8 @@ public class DataAccessOutputHandler {
             for (Entry<String, Object> e : resultPropeties.entrySet()) {
               if (e.getKey().indexOf(key) > 0) {
                 value = e.getValue();
-                client.sendMetric(metric + "." + e.getKey().replace(StringUtils.seperatorField, "."),
+                client.sendMetric(metric + "."
+                    + e.getKey().replace(StringUtils.seperatorField, "."),
                     System.currentTimeMillis(), value, tags);
                 break;
               }
@@ -246,9 +248,6 @@ public class DataAccessOutputHandler {
           continue;
         }
 
-        // Write result of computation
-        // writeResultComputation(properties, eventQuery);
-
         // check condition exception
         // write result check violation -> Condition truncate the resulting data into a bool
         // The first: get exception if it exist
@@ -288,6 +287,7 @@ public class DataAccessOutputHandler {
         if (eventException) {
           // result is false (no violate)
           logger.info("Result:" + false + " - " + properties.toString());
+          // create result with filter result
           EventResult eventResult =
               new EventResult(eventQuery.getEventName(), hashKey, null,
                   "{\"result\": false, \"result-event\": {" + properties.toString()
@@ -313,6 +313,7 @@ public class DataAccessOutputHandler {
                 logger.info("Result:" + checked + " - " + properties.toString());
                 properties = StringUtils.revertHashMapField(properties);
                 String jsonStr = JsonHelper.toJSonString(properties);
+                // create result with filter result is null
                 EventResult eventResult =
                     new EventResult(eventQuery.getEventName(), String.valueOf(hashKey),
                         "{\"result\": " + checked + ", \"result-event\": " + jsonStr
@@ -320,6 +321,7 @@ public class DataAccessOutputHandler {
                 return eventResult;
               } catch (Exception e) {
                 logger.error(e.getMessage(), e);
+                // create result with message error
                 EventResult eventResult =
                     new EventResult(eventQuery.getEventName(), String.valueOf(hashKey),
                         "{\"result\": false, \"exception\": \"" + e.getMessage()

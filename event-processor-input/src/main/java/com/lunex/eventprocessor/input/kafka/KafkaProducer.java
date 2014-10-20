@@ -22,8 +22,9 @@ import kafka.serializer.StringEncoder;
 
 /**
  * 
- * Class Kafka producer to send message to kafka
- *
+ * Class Kafka producer to send message to kafka 
+ * by default, if topic is not existed, kafka create
+ * new topic automatically with 2 partition
  */
 public class KafkaProducer {
 

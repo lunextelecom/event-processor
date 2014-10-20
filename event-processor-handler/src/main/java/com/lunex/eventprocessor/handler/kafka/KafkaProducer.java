@@ -51,6 +51,7 @@ public class KafkaProducer {
 
   /**
    * Send Data as a String message
+   * by default, if topic is not existed, kafka create new topic automatically with 2 partition
    * 
    * @param topicName
    * @param key
