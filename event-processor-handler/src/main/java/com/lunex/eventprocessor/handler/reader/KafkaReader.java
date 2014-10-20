@@ -14,11 +14,11 @@ import org.slf4j.LoggerFactory;
 import com.lunex.eventprocessor.core.Event;
 import com.lunex.eventprocessor.core.utils.Constants;
 import com.lunex.eventprocessor.core.utils.StringUtils;
+import com.lunex.eventprocessor.core.utils.TimeUtil;
 import com.lunex.eventprocessor.handler.kafka.KafkaMessageProcessor;
 import com.lunex.eventprocessor.handler.kafka.KafkaSimpleConsumer;
 import com.lunex.eventprocessor.handler.processor.EventConsumer;
 import com.lunex.eventprocessor.handler.utils.Configurations;
-import com.lunex.eventprocessor.handler.utils.TimeUtil;
 
 public class KafkaReader implements EventReader {
 

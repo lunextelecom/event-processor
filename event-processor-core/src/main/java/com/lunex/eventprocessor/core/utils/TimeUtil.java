@@ -1,4 +1,4 @@
-package com.lunex.eventprocessor.handler.utils;
+package com.lunex.eventprocessor.core.utils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
