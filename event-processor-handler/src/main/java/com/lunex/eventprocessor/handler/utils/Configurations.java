@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import com.lunex.eventprocessor.core.utils.Constants;
+
 public class Configurations {
 
   public static List<String> listZookeeper = new ArrayList<String>();
@@ -14,6 +16,9 @@ public class Configurations {
   public static String kafkaTopicOutput;
   public static List<Integer> kafkaTopicPartitionList = new ArrayList<Integer>();
   public static List<String> kafkaEventReaderList = new ArrayList<String>();
+  public static String kafkaBackRead = Constants.EMPTY_STRING;
+  
+  
   public static String kairosDBUrl;
   public static boolean esperBackfill = false;
   public static String esperBackfillDefault = "1 hour";
@@ -64,7 +69,8 @@ public class Configurations {
         }
       }
 
-
+      kafkaBackRead = prop.getProperty("kafka.backtime.read");
+      
       // KairosDB config
       kairosDBUrl = prop.getProperty("kairosdb.url");
 

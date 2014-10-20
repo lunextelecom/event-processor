@@ -1,12 +1,12 @@
 package com.lunex.eventprocessor.handler.reader;
 
 import java.io.UnsupportedEncodingException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+
+import joptsimple.internal.Strings;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +18,7 @@ import com.lunex.eventprocessor.handler.kafka.KafkaMessageProcessor;
 import com.lunex.eventprocessor.handler.kafka.KafkaSimpleConsumer;
 import com.lunex.eventprocessor.handler.processor.EventConsumer;
 import com.lunex.eventprocessor.handler.utils.Configurations;
+import com.lunex.eventprocessor.handler.utils.TimeUtil;
 
 public class KafkaReader implements EventReader {
 
@@ -30,14 +31,37 @@ public class KafkaReader implements EventReader {
   /**
    * Contructor
    * 
-   * @param partitionIndex : if = -1 --> read message from all partion of topic
    */
   public KafkaReader() {
     this.listKafkaConsumers = new ArrayList<KafkaSimpleConsumer>();
   }
-  
+
+  /**
+   * Create instance to read kafka messge from time
+   * 
+   * @param whichTime 1002345043064
+   */
   public KafkaReader(long whichTime) {
     this.whichTime = whichTime;
+    this.listKafkaConsumers = new ArrayList<KafkaSimpleConsumer>();
+  }
+
+  /**
+   * Constructor Create instance to read kafka messge from time
+   * 
+   * @param time: 1 day, 2 day, 4 hour, 1 month
+   */
+  public KafkaReader(String backTime) {
+    this.whichTime = StringUtils.getBackFillTime(backTime);
+    this.listKafkaConsumers = new ArrayList<KafkaSimpleConsumer>();
+  }
+
+  public KafkaReader(String dateTime, String formatTime) {
+    if (Strings.isNullOrEmpty(formatTime.trim())) {
+      formatTime = "dd/MM/yyyy HH:mm:ss";
+    }
+    Date date = TimeUtil.convertStringToDate(dateTime, formatTime);
+    this.whichTime = TimeUtil.convertDateToGMT_7(date);
     this.listKafkaConsumers = new ArrayList<KafkaSimpleConsumer>();
   }
 
@@ -58,8 +82,8 @@ public class KafkaReader implements EventReader {
   }
 
   public void start() {
-    //listKafkaConsumers.clear();
-    //readKafkaMessage(consumer);
+    // listKafkaConsumers.clear();
+    // readKafkaMessage(consumer);
     for (int i = 0; i < listKafkaConsumers.size(); i++) {
       listKafkaConsumers.get(i).stoped = false;
       final KafkaSimpleConsumer kafkaConsumer = listKafkaConsumers.get(i);
@@ -148,5 +172,13 @@ public class KafkaReader implements EventReader {
         && !Constants.EMPTY_STRING.equals(event.getEvent())) {
       consumer.consume(event);
     }
+  }
+
+  public EventConsumer getConsumer() {
+    return consumer;
+  }
+
+  public void setConsumer(EventConsumer consumer) {
+    this.consumer = consumer;
   }
 }

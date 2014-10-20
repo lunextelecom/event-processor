@@ -129,7 +129,11 @@ public class EventHandlerLaunch extends Application<WebConfiguration> {
               Configurations.esperBackfill,
               StringUtils.getBackFillTime(Configurations.esperBackfillDefault));
       // create event reader
-      readerEsperProcessor = new KafkaReader();
+      if (Strings.isNullOrEmpty(Configurations.kafkaBackRead.trim())) {
+        readerEsperProcessor = new KafkaReader();
+      } else {
+        readerEsperProcessor = new KafkaReader(Configurations.kafkaBackRead.trim(), "dd/MM/yyyy HH:mm:ss");
+      }
       // reader read event and send to processor
       Thread esper = new Thread(new Runnable() {
         public void run() {
