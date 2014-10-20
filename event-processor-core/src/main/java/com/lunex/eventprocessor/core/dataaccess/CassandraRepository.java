@@ -92,13 +92,16 @@ public class CassandraRepository {
         throw new UnsupportedOperationException("Can't find table endpoint in " + instance.keyspace);
       }
       if (keyspaceMetadata.getTable("condition_exception") == null) {
-        throw new UnsupportedOperationException("Can't find table condition_exception in " + instance.keyspace);
+        throw new UnsupportedOperationException("Can't find table condition_exception in "
+            + instance.keyspace);
       }
       if (keyspaceMetadata.getTable("result_computation") == null) {
-        throw new UnsupportedOperationException("Can't find table result_computation in " + instance.keyspace);
+        throw new UnsupportedOperationException("Can't find table result_computation in "
+            + instance.keyspace);
       }
       if (keyspaceMetadata.getTable("results") == null) {
-        throw new UnsupportedOperationException("Can't find table result_computation in " + instance.keyspace);
+        throw new UnsupportedOperationException("Can't find table result_computation in "
+            + instance.keyspace);
       }
     }
     instance.listPreparedStatements = new HashMap<String, PreparedStatement>();
@@ -256,6 +259,14 @@ public class CassandraRepository {
     // TODO
   }
 
+  /**
+   * Get rule exception
+   * 
+   * @param eventQuery
+   * @param actionStr
+   * @return
+   * @throws Exception
+   */
   public List<EventQueryException> getEventQueyExceptionNotExpired(EventQuery eventQuery,
       String actionStr) throws Exception {
     String sql =
@@ -288,6 +299,27 @@ public class CassandraRepository {
     return results;
   }
 
+  public void insertEventQueryException(EventQueryException eventQueryException) throws Exception {
+    String sql = "INSERT INTO condition_exception (id, event_name, rule_name, action, expired_date, condition_filter) VALUES (uuid(), ?, ?, ?, ?, ?);";
+    List<Object> params = new ArrayList<Object>();
+    params.add(eventQueryException.getEventName());
+    params.add(eventQueryException.getRuleName());
+    params.add(eventQueryException.getAction().toString());
+    params.add(eventQueryException.getExpiredDate());
+    params.add(eventQueryException.getConditionFilter());
+    execute(sql, params);
+  }
+
+  /**
+   * Insert result computation
+   * 
+   * @param eventName
+   * @param rule
+   * @param time
+   * @param hashKey
+   * @param result
+   * @throws Exception
+   */
   public void insertResultComputation(String eventName, String rule, long time, String hashKey,
       String result) throws Exception {
     String sql =
@@ -407,7 +439,7 @@ public class CassandraRepository {
     }
     return results;
   }
-  
+
   public List<EventResult> getEventResult(String hashkey) throws Exception {
     String sql = "SELECT * FROM " + keyspace + ".results WHERE hashkey = ? ALLOW FILTERING;";
     List<Object> params = new ArrayList<Object>();
