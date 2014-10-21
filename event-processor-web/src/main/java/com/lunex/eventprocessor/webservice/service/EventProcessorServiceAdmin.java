@@ -49,4 +49,11 @@ public class EventProcessorServiceAdmin {
     eventQuery.setStatus(EventQueryStatus.STOP);
     cassandraRepository.insertEventQuery(eventQuery);
   }
+  
+  public void deleteRule(String eventName, String ruleName) throws Exception {
+    EventQuery eventQuery = new EventQuery();
+    eventQuery.setEventName(eventName);
+    eventQuery.setRuleName(ruleName);
+    cassandraRepository.deleteEventQuery(eventQuery);
+  }
 }

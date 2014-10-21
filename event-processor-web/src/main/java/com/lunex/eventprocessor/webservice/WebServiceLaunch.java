@@ -24,10 +24,6 @@ import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
-/**
- * Hello world!
- *
- */
 public class WebServiceLaunch extends Application<WebConfiguration> {
 
   static final Logger logger = LoggerFactory.getLogger(WebServiceLaunch.class);

@@ -257,7 +257,9 @@ public class CassandraRepository {
 
   public void insertEventQuery(EventQuery eventQuery) throws Exception {
     String sql =
-        "INSERT INTO rules (event_name, rule_name, data, fields, filters, aggregate_field, having, small_bucket, big_bucket, conditions, description, status) VALUES (?, ?, ?, ?, ?, ?, ? , ?, ? , ?, ?, ?);";
+        "INSERT INTO "
+            + keyspace
+            + ".rules (event_name, rule_name, data, fields, filters, aggregate_field, having, small_bucket, big_bucket, conditions, description, status) VALUES (?, ?, ?, ?, ?, ?, ? , ?, ? , ?, ?, ?);";
     List<Object> params = new ArrayList<Object>();
     params.add(eventQuery.getEventName());
     params.add(eventQuery.getRuleName());
@@ -271,6 +273,14 @@ public class CassandraRepository {
     params.add(eventQuery.getConditions());
     params.add(eventQuery.getDescription());
     params.add(eventQuery.getStatus().toString());
+    execute(sql, params);
+  }
+
+  public void deleteEventQuery(EventQuery eventQuery) throws Exception {
+    String sql = "DELETE FROM " + keyspace + ".rules WHERE event_name = ? and rule_name = ?";
+    List<Object> params = new ArrayList<Object>();
+    params.add(eventQuery.getEventName());
+    params.add(eventQuery.getRuleName());
     execute(sql, params);
   }
 

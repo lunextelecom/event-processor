@@ -1,5 +1,6 @@
 package com.lunex.eventprocessor.webservice.rest;
 
+import javax.ws.rs.DELETE;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -26,7 +27,7 @@ public class EventProcessorWebServiceAdminResource {
   }
 
   @POST
-  @Path("/addruleexception")
+  @Path("/add/ruleexception")
   @Produces(MediaType.APPLICATION_JSON)
   @Timed
   public Response addRuleException(@QueryParam("evtName") String eventName,
@@ -44,7 +45,7 @@ public class EventProcessorWebServiceAdminResource {
   }
 
   @POST
-  @Path("/addrule")
+  @Path("/add/rule")
   @Produces(MediaType.APPLICATION_JSON)
   @Timed
   public Response addRule(@QueryParam("evtName") String eventName,
@@ -66,6 +67,22 @@ public class EventProcessorWebServiceAdminResource {
       logger.error(e.getMessage(), e);
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
           .entity(new ServiceResponse(e.getMessage(), false)).build();
+    }
+  }
+
+  @DELETE
+  @Path("/delete/rule")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Timed
+  public Response deleteRule(@QueryParam("evtName") String eventName,
+      @QueryParam("ruleName") String ruleName) {
+    try {
+      service.deleteRule(eventName, ruleName);
+      return Response.status(Response.Status.OK).entity(new ServiceResponse("", true)).build();
+    } catch (Exception ex) {
+      logger.error(ex.getMessage(), ex);
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+          .entity(new ServiceResponse(ex.getMessage(), false)).build();
     }
   }
 }
