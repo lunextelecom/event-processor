@@ -16,6 +16,10 @@ public class EventQuery {
     STOP, RUNNING
   }
   
+  public static enum EventQueryType {
+    NORMAL, DAY_OF_WEEK
+  }
+  
   private String eventName;
   private String ruleName;
   private String data;
@@ -36,6 +40,24 @@ public class EventQuery {
   // Ex: sum(amount) > 100 & count(txId) > 5
   private String description;
   private EventQueryStatus status;
+  private EventQueryType type;
+  private int weight;
+
+  public EventQueryType getType() {
+    return type;
+  }
+
+  public void setType(EventQueryType type) {
+    this.type = type;
+  }
+
+  public int getWeight() {
+    return weight;
+  }
+
+  public void setWeight(int weight) {
+    this.weight = weight;
+  }
 
   public String getData() {
     return data;
