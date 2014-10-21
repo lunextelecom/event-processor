@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
+import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -21,6 +22,7 @@ import com.codahale.metrics.annotation.Timed;
 import com.google.common.base.Strings;
 import com.lunex.eventprocessor.core.Event;
 import com.lunex.eventprocessor.core.utils.JsonHelper;
+import com.lunex.eventprocessor.core.utils.StringUtils;
 import com.lunex.eventprocessor.webservice.service.EventProcessorService;
 
 @Path("/")
@@ -36,30 +38,26 @@ public class EventProcessorWebServiceResource {
     this.service = service;
   }
 
+  /**
+   * Add new event
+   * 
+   * @param eventName
+   * @param result
+   * @param bodyData
+   * @return
+   */
   @POST
   @Path("/event")
   @Produces(MediaType.APPLICATION_JSON)
   @Timed
-  public Response addEvent(@Context HttpServletRequest httpRequest) {
-    boolean checkResult = false;
+  public Response addEvent(@QueryParam("evtName") String eventName,
+      @QueryParam("result") Boolean result, String bodyData) {
+    // Create event
     Event event = new Event();
-    // TODO create event
-    if (httpRequest != null) {
-      String checkResultString = httpRequest.getParameter("result");
-      if (!Strings.isNullOrEmpty(checkResultString)) {
-        checkResult = Boolean.valueOf(checkResultString);
-      }
-      Map<String, String[]> map = httpRequest.getParameterMap();
-      event.setEvtName(map.get("evtName")[0]);
-      JSONObject requestJSonObj = null;
-      requestJSonObj = new JSONObject();
-      Iterator<?> keys = map.keySet().iterator();
-      while (keys.hasNext()) {
-        String key = (String) keys.next();
-        requestJSonObj.put(key, map.get(key)[0]);
-      }
+    if (!Strings.isNullOrEmpty(eventName)) {
+      event.setEvtName(eventName);
       try {
-        event.setPayLoadStr(requestJSonObj.toString());
+        event.setPayLoadStr(bodyData);
       } catch (Exception e) {
         logger.error(e.getMessage(), e);
         return Response.status(Response.Status.BAD_REQUEST)
@@ -78,14 +76,14 @@ public class EventProcessorWebServiceResource {
         return Response.status(Response.Status.OK).entity(new ServiceResponse("", false)).build();
       }
 
-      // if client do not want to check result
-      if (!checkResult) {
+      // If client do not want to check result
+      if (result != null && result) {
         Map<String, Object> message = new HashMap<String, Object>();
         message.put("hashKey", hashKey);
         return Response.status(Response.Status.OK)
             .entity(new ServiceResponse(JsonHelper.toJSonString(message), true)).build();
 
-        // if client want to check result
+        // Else If client want to check result
       } else {
         return Response.status(Response.Status.OK)
             .entity(new ServiceResponse(service.checkEvent(hashKey), true)).build();
@@ -97,6 +95,12 @@ public class EventProcessorWebServiceResource {
     }
   }
 
+  /**
+   * Check result from hashKey
+   * 
+   * @param hashKey
+   * @return
+   */
   @GET
   @Path("/check_event")
   @Produces(MediaType.APPLICATION_JSON)
@@ -127,17 +131,24 @@ public class EventProcessorWebServiceResource {
     }
   }
 
+  /**
+   * Check result from event
+   * 
+   * @param httpRequest
+   * @return
+   */
   @GET
   @Path("/event")
   @Produces(MediaType.APPLICATION_JSON)
   @Timed
-  public Response check(@Context HttpServletRequest httpRequest) {
+  public Response check(@QueryParam("evtName") String eventName,
+      @QueryParam("result") Boolean result, String bodyData) {
     try {
-      if (httpRequest == null) {
+      if (!Strings.isNullOrEmpty(eventName)) {
         return Response.status(Response.Status.BAD_REQUEST).entity(new ServiceResponse("", false))
             .build();
       }
-      String eventResult = service.checkEvent("abc");
+      String eventResult = service.checkEvent(StringUtils.md5Java(bodyData));
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
           .entity(new ServiceResponse(eventResult, true)).build();
     } catch (Exception e) {

@@ -39,5 +39,4 @@ public class QueryParamProcessor {
     }
     return result;
   }
-
 }
