@@ -83,7 +83,7 @@
 					</execution>
 				</executions>
 				<configuration>
-					<mainClass>com.lunex.App</mainClass>
+					<mainClass>com.lunex.eventprocessor.handler.EventHandlerLaunch</mainClass>
 				</configuration>
 			</plugin>
 			<plugin>
