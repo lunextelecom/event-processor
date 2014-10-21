@@ -19,8 +19,8 @@ public class CheckConditionDayOfWeek implements CheckConditionHandler {
 
   static final Logger logger = LoggerFactory.getLogger(CheckConditionDayOfWeek.class);
 
-  @Override
-  public  EventResult checkCondition(Map<String, Object> properties, EventQuery eventQuery, String hashKey) {
+  public EventResult checkCondition(Map<String, Object> properties, EventQuery eventQuery,
+      String hashKey) {
     String eventQueryCondition = eventQuery.getConditions();
     if (eventQueryCondition != null && !Constants.EMPTY_STRING.equals(eventQueryCondition)) {
       if (!properties.keySet().isEmpty()) {
@@ -42,17 +42,17 @@ public class CheckConditionDayOfWeek implements CheckConditionHandler {
           String jsonStr = JsonHelper.toJSonString(properties);
           // create result with filter result is null
           EventResult eventResult =
-              new EventResult(eventQuery.getEventName(), String.valueOf(hashKey),
-                  "{\"result\": " + checked + ", \"result-event\": " + jsonStr
-                  + ", \"rule\":\"" + eventQuery.getRuleName() + "\"}", null);
+              new EventResult(eventQuery.getEventName(), String.valueOf(hashKey), "{\"result\": "
+                  + checked + ", \"result-event\": " + jsonStr + ", \"rule\":\""
+                  + eventQuery.getRuleName() + "\"}", null);
           return eventResult;
         } catch (Exception e) {
           logger.error(e.getMessage(), e);
           // create result with message error
           EventResult eventResult =
               new EventResult(eventQuery.getEventName(), String.valueOf(hashKey),
-                  "{\"result\": false, \"exception\": \"" + e.getMessage()
-                  + "\", \"reult\": \"" + eventQuery.getRuleName() + "\"}", null);
+                  "{\"result\": false, \"exception\": \"" + e.getMessage() + "\", \"reult\": \""
+                      + eventQuery.getRuleName() + "\"}", null);
           return eventResult;
         }
       }
