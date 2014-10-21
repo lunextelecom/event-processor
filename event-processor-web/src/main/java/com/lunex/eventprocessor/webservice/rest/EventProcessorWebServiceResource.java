@@ -1,21 +1,16 @@
 package com.lunex.eventprocessor.webservice.rest;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
-import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.json.JSONObject;
 import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.annotation.Timed;
@@ -102,7 +97,7 @@ public class EventProcessorWebServiceResource {
    * @return
    */
   @GET
-  @Path("/check_event")
+  @Path("/event/check")
   @Produces(MediaType.APPLICATION_JSON)
   @Timed
   public Response check(@QueryParam("hashKey") String hashKey) {
@@ -137,14 +132,13 @@ public class EventProcessorWebServiceResource {
    * @param httpRequest
    * @return
    */
-  @GET
-  @Path("/event")
+  @POST
+  @Path("/event/check")
   @Produces(MediaType.APPLICATION_JSON)
   @Timed
-  public Response check(@QueryParam("evtName") String eventName,
-      @QueryParam("result") Boolean result, String bodyData) {
+  public Response check(@QueryParam("evtName") String eventName, String bodyData) {
     try {
-      if (!Strings.isNullOrEmpty(eventName)) {
+      if (Strings.isNullOrEmpty(eventName)) {
         return Response.status(Response.Status.BAD_REQUEST).entity(new ServiceResponse("", false))
             .build();
       }
