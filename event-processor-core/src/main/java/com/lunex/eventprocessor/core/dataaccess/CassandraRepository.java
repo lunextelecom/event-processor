@@ -270,7 +270,7 @@ public class CassandraRepository {
     params.add(eventQuery.getBigBucket());
     params.add(eventQuery.getConditions());
     params.add(eventQuery.getDescription());
-    params.add(eventQuery.getStatus());
+    params.add(eventQuery.getStatus().toString());
     execute(sql, params);
   }
 
