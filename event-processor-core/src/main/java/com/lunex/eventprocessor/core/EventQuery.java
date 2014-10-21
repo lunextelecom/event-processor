@@ -17,7 +17,7 @@ public class EventQuery {
   }
   
   public static enum EventQueryType {
-    NORMAL, DAY_OF_WEEK
+    DEFAULT, DAY_OF_WEEK
   }
   
   private String eventName;

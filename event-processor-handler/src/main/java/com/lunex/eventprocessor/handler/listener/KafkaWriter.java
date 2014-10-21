@@ -5,10 +5,14 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 import com.lunex.eventprocessor.core.EventQuery;
+import com.lunex.eventprocessor.core.EventQuery.EventQueryType;
 import com.lunex.eventprocessor.core.EventResult;
 import com.lunex.eventprocessor.core.QueryFuture;
 import com.lunex.eventprocessor.core.listener.ResultListener;
 import com.lunex.eventprocessor.handler.EventHandlerLaunch;
+import com.lunex.eventprocessor.handler.output.CheckConditionDayOfWeek;
+import com.lunex.eventprocessor.handler.output.CheckConditionDefault;
+import com.lunex.eventprocessor.handler.output.CheckConditionHandler;
 import com.lunex.eventprocessor.handler.output.DataAccessOutputHandler;
 import com.lunex.eventprocessor.handler.utils.Configurations;
 
@@ -38,7 +42,11 @@ public class KafkaWriter implements ResultListener {
     }
 
     try {
-      EventResult eventResult = DataAccessOutputHandler.checkCondition(result, eventQuery);
+      CheckConditionHandler checkConditionHandler = new CheckConditionDefault();
+      if(eventQuery != null && eventQuery.getType()==EventQueryType.DAY_OF_WEEK){
+        checkConditionHandler = new CheckConditionDayOfWeek();
+      }
+      EventResult eventResult = DataAccessOutputHandler.checkCondition(result, eventQuery, checkConditionHandler);
       Gson gson = new Gson();
       String json = gson.toJson(eventResult);
       EventHandlerLaunch.kafkaProducer.sendData(Configurations.kafkaTopicOutput, eventQuery.getEventName(), json);

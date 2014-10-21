@@ -225,7 +225,7 @@ public class DataAccessOutputHandler {
    * @param result
    * @param eventQuery
    */
-  public static EventResult checkCondition(Object[] result, EventQuery eventQuery) {
+  public static EventResult checkCondition(Object[] result, EventQuery eventQuery, CheckConditionHandler checkConditionHandler) {
     if (result == null || result.length == 0) {
       return null;
     }
@@ -296,40 +296,7 @@ public class DataAccessOutputHandler {
         } else { // if not exception is exist
           // check condition to get final result. When this condition is met, check will return true
           // else false
-          if (eventQueryCondition != null && !Constants.EMPTY_STRING.equals(eventQueryCondition)) {
-            if (!properties.keySet().isEmpty()) {
-              Iterator<String> keys = properties.keySet().iterator();
-              while (keys.hasNext()) {
-                String key = keys.next();
-                String newkey = StringUtils.revertSingleField(key);
-                eventQueryCondition =
-                    eventQueryCondition.replace(newkey, String.valueOf(properties.get(key)));
-              }
-              ScriptEngineManager mgr = new ScriptEngineManager();
-              ScriptEngine engine = mgr.getEngineByName("JavaScript");
-              try {
-                // check condition for EventQuery
-                boolean checked = (Boolean) engine.eval(eventQueryCondition);
-                logger.info("Result:" + checked + " - " + properties.toString());
-                properties = StringUtils.revertHashMapField(properties);
-                String jsonStr = JsonHelper.toJSonString(properties);
-                // create result with filter result is null
-                EventResult eventResult =
-                    new EventResult(eventQuery.getEventName(), String.valueOf(hashKey),
-                        "{\"result\": " + checked + ", \"result-event\": " + jsonStr
-                            + ", \"rule\":\"" + eventQuery.getRuleName() + "\"}", null);
-                return eventResult;
-              } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-                // create result with message error
-                EventResult eventResult =
-                    new EventResult(eventQuery.getEventName(), String.valueOf(hashKey),
-                        "{\"result\": false, \"exception\": \"" + e.getMessage()
-                            + "\", \"reult\": \"" + eventQuery.getRuleName() + "\"}", null);
-                return eventResult;
-              }
-            }
-          }
+          return checkConditionHandler.checkCondition(properties, eventQuery, hashKey);
         }
       }
     } catch (Exception e) {
