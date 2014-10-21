@@ -18,6 +18,7 @@ public class EventProcessorWebServiceFactory {
   private String statsdHost;
   private String statsdAppPrefix;
   private String inputProcessorUrl;
+  private String[] handlerServiceUrl;
 
   @JsonProperty
   public String getDbName() {
@@ -99,6 +100,16 @@ public class EventProcessorWebServiceFactory {
     return this.inputProcessorUrl;
   }
 
+  @JsonProperty
+  public String[] getHandlerServiceUrl() {
+    return handlerServiceUrl;
+  }
+
+  @JsonProperty
+  public void setHandlerServiceUrl(String[] handlerServiceUrl) {
+    this.handlerServiceUrl = handlerServiceUrl;
+  }
+  
   public EventProcessorService buildEventProcessorService(Environment environment) throws Exception {
     CassandraRepository cassandra = CassandraRepository.getInstance(getDbHost(), getDbName());
     EventProcessorService service = new EventProcessorService(cassandra, this);
@@ -114,7 +125,7 @@ public class EventProcessorWebServiceFactory {
   
   public EventProcessorServiceAdmin buildEventProcessorServiceAdmin(Environment environment) throws Exception {
     CassandraRepository cassandra = CassandraRepository.getInstance(getDbHost(), getDbName());
-    EventProcessorServiceAdmin service = new EventProcessorServiceAdmin(cassandra);
+    EventProcessorServiceAdmin service = new EventProcessorServiceAdmin(cassandra, this);
     environment.lifecycle().manage(new Managed() {
       // @Override
       public void stop() throws Exception {}
@@ -123,5 +134,5 @@ public class EventProcessorWebServiceFactory {
       public void start() throws Exception {}
     });
     return service;
-  }
+  }  
 }

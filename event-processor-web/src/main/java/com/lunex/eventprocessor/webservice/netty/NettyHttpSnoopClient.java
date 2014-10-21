@@ -80,7 +80,7 @@ public class NettyHttpSnoopClient {
     return true;
   }
 
-  public boolean postRequestJsonContent(Event event) throws Exception {
+  public boolean postEvent(Event event) throws Exception {
     try {
       if (!this.preProcessURL()) {
         return false;
@@ -107,6 +107,55 @@ public class NettyHttpSnoopClient {
           new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, uri.toString(), content);
       request.headers().set(HttpHeaders.Names.CONTENT_TYPE, "application/json");
       request.headers().set(HttpHeaders.Names.CONTENT_LENGTH, content.readableBytes());
+      request.headers().set(HttpHeaders.Names.ACCEPT_CHARSET, "ISO-8859-1,utf-8;q=0.7,*;q=0.7");
+      request.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.CLOSE);
+      request.headers().set(HttpHeaders.Names.ACCEPT_ENCODING, HttpHeaders.Values.GZIP);
+      request.headers().set(HttpHeaders.Names.HOST, host);
+
+      // Send the HTTP request.
+      // ChannelFuture chanel =
+      ch.writeAndFlush(request);
+
+      // Wait for the server to close the connection.
+      ch.closeFuture().sync();
+    } catch (Exception ex) {
+      throw ex;
+    } finally {
+      ch.disconnect();
+      // Shut down executor threads to exit.
+      group.shutdownGracefully();
+    }
+    return true;
+  }
+
+  public boolean postRequest(String content, HttpMethod method) throws Exception {
+    try {
+      if (!this.preProcessURL()) {
+        return false;
+      }
+    } catch (URISyntaxException ex) {
+      throw ex;
+    } catch (SSLException ex) {
+      throw ex;
+    }
+
+    // Configure the client.
+    EventLoopGroup group = new NioEventLoopGroup();
+    try {
+      Bootstrap b = new Bootstrap();
+      b.group(group).channel(NioSocketChannel.class)
+          .handler(new NettyHttpSnoopClientInitializer(sslCtx, callback));
+
+      // Make the connection attempt.
+      ch = b.connect(host, port).sync().channel();
+
+      // Prepare the HTTP request.
+      ByteBuf contentBuf = Unpooled.copiedBuffer(content, CharsetUtil.UTF_8);
+      HttpRequest request =
+          new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, uri.toString(),
+              contentBuf);
+      request.headers().set(HttpHeaders.Names.CONTENT_TYPE, "application/json");
+      request.headers().set(HttpHeaders.Names.CONTENT_LENGTH, contentBuf.readableBytes());
       request.headers().set(HttpHeaders.Names.ACCEPT_CHARSET, "ISO-8859-1,utf-8;q=0.7,*;q=0.7");
       request.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.CLOSE);
       request.headers().set(HttpHeaders.Names.ACCEPT_ENCODING, HttpHeaders.Values.GZIP);

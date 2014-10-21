@@ -35,6 +35,14 @@ public class EventProcessorService {
     this.factory = factory;
   }
 
+  /**
+   * Add new event to event processor
+   * 
+   * @param event
+   * @param seq
+   * @return
+   * @throws Exception
+   */
   public String addEvent(Event event, long seq) throws Exception {
     // Create Netty http client
     final CountDownLatch countdown = new CountDownLatch(1);
@@ -60,7 +68,7 @@ public class EventProcessorService {
 
     try {
       // Call event input processor
-      httpClient.postRequestJsonContent(event);
+      httpClient.postEvent(event);
       // Wait to get hashKey
       countdown.await(10000, TimeUnit.MILLISECONDS);
       String httpResponseContent = callback.getResponseContent();
@@ -75,11 +83,18 @@ public class EventProcessorService {
     throw new Exception("Can not get any hashKey");
   }
 
-  public String checkEvent(Event event) {
-    // TODO
-    return null;
-  }
+  // public String checkEvent(Event event) {
+  // // TODO
+  // return null;
+  // }
 
+  /**
+   * Check result for event
+   * 
+   * @param hashKey
+   * @return
+   * @throws Exception
+   */
   public String checkEvent(String hashKey) throws Exception {
     // TODO
     List<EventResult> eventResults = cassandraRepository.getEventResult(hashKey);
@@ -91,8 +106,8 @@ public class EventProcessorService {
     return null;
   }
 
-  public String addAndCheck(Event event) {
-    // TODO
-    return null;
-  }
+  // public String addAndCheck(Event event) {
+  // // TODO
+  // return null;
+  // }
 }
