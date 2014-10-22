@@ -8,6 +8,19 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>event-processor-handler</artifactId>
+	<repositories>
+		<repository>
+			<releases>
+				<enabled>false</enabled>
+				<updatePolicy>always</updatePolicy>
+				<checksumPolicy>warn</checksumPolicy>
+			</releases>
+			<id>conjars</id>
+			<name>Conjars</name>
+			<url>http://conjars.org/repo</url>
+			<layout>default</layout>
+		</repository>
+	</repositories>
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
