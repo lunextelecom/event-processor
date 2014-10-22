@@ -137,24 +137,28 @@ public class EventQueryProcessor {
         EventQuery eventQuery = enumerator.current();
 
         String fields = eventQuery.getFields();
-        if (!Strings.isNullOrEmpty(fields))
+        if (!Strings.isNullOrEmpty(fields)) {
           properties = processStringFieldDataTypeForEventQuery(fields);
-        map.putAll(properties);
+          map.putAll(properties);
+        }
 
         String groups = eventQuery.getAggregateField();
-        if (!Strings.isNullOrEmpty(groups))
+        if (!Strings.isNullOrEmpty(groups)) {
           properties = processStringFieldDataTypeForEventQuery(groups);
-        map.putAll(properties);
+          map.putAll(properties);
+        }
 
         String filter = eventQuery.getFilters();
-        if (!Strings.isNullOrEmpty(filter))
+        if (!Strings.isNullOrEmpty(filter)) {
           properties = processStringFieldDataTypeForEventQuery(filter);
-        map.putAll(properties);
+          map.putAll(properties);
+        }
 
         String having = eventQuery.getHaving();
-        if (!Strings.isNullOrEmpty(having))
+        if (!Strings.isNullOrEmpty(having)) {
           properties = processStringFieldDataTypeForEventQuery(having);
-        map.putAll(properties);
+          map.putAll(properties);
+        }
       }
       eventProperty.setProperties(map);
       results.add(eventProperty);
@@ -174,24 +178,28 @@ public class EventQueryProcessor {
     EventProperty eventProperty = new EventProperty(eventQuery.getEventName(), null);
 
     String fields = eventQuery.getFields();
-    if (Strings.isNullOrEmpty(fields))
+    if (Strings.isNullOrEmpty(fields)) {
       properties = processStringFieldDataTypeForEventQuery(fields);
-    map.putAll(properties);
+      map.putAll(properties);
+    }
 
     String groups = eventQuery.getAggregateField();
-    if (Strings.isNullOrEmpty(groups))
+    if (Strings.isNullOrEmpty(groups)) {
       properties = processStringFieldDataTypeForEventQuery(groups);
-    map.putAll(properties);
+      map.putAll(properties);
+    }
 
     String filter = eventQuery.getFilters();
-    if (!Strings.isNullOrEmpty(filter))
+    if (!Strings.isNullOrEmpty(filter)) {
       properties = processStringFieldDataTypeForEventQuery(filter);
-    map.putAll(properties);
+      map.putAll(properties);
+    }
 
     String having = eventQuery.getHaving();
-    if (!Strings.isNullOrEmpty(having))
+    if (!Strings.isNullOrEmpty(having)) {
       properties = processStringFieldDataTypeForEventQuery(having);
-    map.putAll(properties);
+      map.putAll(properties);
+    }
 
     eventProperty.setProperties(map);
     return eventProperty;
