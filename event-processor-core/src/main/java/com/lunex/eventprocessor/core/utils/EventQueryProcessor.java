@@ -49,6 +49,9 @@ public class EventQueryProcessor {
    * @return
    */
   public static String processStringFieldForEventQuery(String fieldStr) {
+    if (Strings.isNullOrEmpty(fieldStr)) {
+      return null;
+    }
     String replace = fieldStr.replaceAll(":[a-zA-Z]+", "");
     return replace;
   }
@@ -60,6 +63,9 @@ public class EventQueryProcessor {
    * @return
    */
   public static Map<String, Object> processStringFieldDataTypeForEventQuery(String fieldStr) {
+    if (Strings.isNullOrEmpty(fieldStr)) {
+      return new HashMap<String, Object>();
+    }
     Map<String, Object> map = new HashMap<String, Object>();
     Pattern pattern = Pattern.compile("[a-zA-Z]+:[a-zA-Z]+");
     Matcher matcher = pattern.matcher(fieldStr);
