@@ -15,6 +15,11 @@
 				<updatePolicy>always</updatePolicy>
 				<checksumPolicy>warn</checksumPolicy>
 			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+				<checksumPolicy>fail</checksumPolicy>
+			</snapshots>
 			<id>conjars</id>
 			<name>Conjars</name>
 			<url>http://conjars.org/repo</url>
@@ -46,7 +51,7 @@
 		<dependency>
 			<groupId>net.hydromatic</groupId>
 			<artifactId>linq4j</artifactId>
-			<version>0.1.13</version>
+			<version>0.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.kairosdb</groupId>
