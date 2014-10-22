@@ -192,7 +192,7 @@ public class EventProcessorServiceAdmin {
     return result;
   }
 
-  public Map<String, Object> changeRule(String eventName, String ruleName, boolean backfill,
+  public Map<String, Object> changeRule(String eventName, String ruleName, Boolean backfill,
       String backfillTime) throws Exception {
     Map<String, Object> result = new HashMap<String, Object>();
     for (int i = 0; i < factory.getHandlerServiceUrl().length; i++) {
@@ -213,6 +213,9 @@ public class EventProcessorServiceAdmin {
           }
         }
       };
+      if (backfill == null) {
+        backfill = false;
+      }
       NettyHttpSnoopClient client =
           new NettyHttpSnoopClient(factory.getHandlerServiceUrl()[i] + "/update/rule?evtName="
               + eventName + "&ruleName=" + ruleName + "&backfill=" + backfill + "&backfillTime="

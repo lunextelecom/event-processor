@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.common.base.Strings;
 import com.lunex.eventprocessor.core.EventProperty;
 import com.lunex.eventprocessor.core.EventQuery;
 
@@ -149,6 +150,7 @@ public class EventQueryProcessor {
 
   /**
    * Create single EventProperty for single EventQuery
+   * 
    * @param eventQuery
    * @return
    */
@@ -156,18 +158,27 @@ public class EventQueryProcessor {
     Map<String, Object> map = new HashMap<String, Object>();
     Map<String, Object> properties = null;
     EventProperty eventProperty = new EventProperty(eventQuery.getEventName(), null);
+    
     String fields = eventQuery.getFields();
-    properties = processStringFieldDataTypeForEventQuery(fields);
+    if (Strings.isNullOrEmpty(fields))
+      properties = processStringFieldDataTypeForEventQuery(fields);
     map.putAll(properties);
+    
     String groups = eventQuery.getAggregateField();
-    properties = processStringFieldDataTypeForEventQuery(groups);
+    if (Strings.isNullOrEmpty(groups))
+      properties = processStringFieldDataTypeForEventQuery(groups);
     map.putAll(properties);
+    
     String filter = eventQuery.getFilters();
-    properties = processStringFieldDataTypeForEventQuery(filter);
+    if (!Strings.isNullOrEmpty(filter))
+      properties = processStringFieldDataTypeForEventQuery(filter);
     map.putAll(properties);
+    
     String having = eventQuery.getHaving();
-    properties = processStringFieldDataTypeForEventQuery(having);
+    if (!Strings.isNullOrEmpty(having))
+      properties = processStringFieldDataTypeForEventQuery(having);
     map.putAll(properties);
+    
     eventProperty.setProperties(map);
     return eventProperty;
   }

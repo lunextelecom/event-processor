@@ -210,6 +210,7 @@ public class EventProcessorWebServiceAdminResource {
             .entity(new ServiceResponse("Update rule is success", true)).build();
       }
     } catch (Exception e) {
+      logger.error(e.getMessage(), e);
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
           .entity(new ServiceResponse(e.getMessage(), false)).build();
     }
