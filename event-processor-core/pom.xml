@@ -7,23 +7,12 @@
 		<version>1.0-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
+	<version>1.0-SNAPSHOT</version>
 	<artifactId>event-processor-core</artifactId>
 	<repositories>
 		<repository>
-			<releases>
-				<enabled>false</enabled>
-				<updatePolicy>always</updatePolicy>
-				<checksumPolicy>warn</checksumPolicy>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
-				<checksumPolicy>fail</checksumPolicy>
-			</snapshots>
-			<id>conjars</id>
-			<name>Conjars</name>
+			<id>conjars.org</id>
 			<url>http://conjars.org/repo</url>
-			<layout>default</layout>
 		</repository>
 	</repositories>
 	<dependencies>
