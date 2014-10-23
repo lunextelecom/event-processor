@@ -54,8 +54,8 @@ public class EventHandlerApiServiceResource {
   @Produces(MediaType.APPLICATION_JSON)
   @Timed
   public ServiceResponse updateRule(@QueryParam("evtName") String eventName,
-      @QueryParam("ruleName") String ruleName, @QueryParam("backfill") boolean backfill,
-      @QueryParam("backfillTime") String backfillTime) {
+      @QueryParam("ruleName") String ruleName, @QueryParam("backfill") Boolean backfill,
+      @QueryParam("backfillTime") String backfillTime, @QueryParam("autoStart") Boolean autoStart) {
     try {
       long timeBackfill = StringUtils.getBackFillTime(backfillTime);
       List<EventQuery> rules =
@@ -70,15 +70,20 @@ public class EventHandlerApiServiceResource {
               .contains(rule.getEventName())))) {
           return new ServiceResponse("Rule is not in list config", true);
         }
-        // else -> stop message event read and update rule
-        EventHandlerLaunch.readerEsperProcessor.stop();
-        boolean result = EventHandlerLaunch.esperProcessor.updateRule(rule, backfill, timeBackfill);
-        // start message event reader again
-        EventHandlerLaunch.readerEsperProcessor.start();
-        if (result) {
+        // else -> stop message event read and update rule when rule is running
+        if (rule.getStatus() == EventQueryStatus.RUNNING || (autoStart != null && autoStart)) {
+          EventHandlerLaunch.readerEsperProcessor.stop();
+          boolean result =
+              EventHandlerLaunch.esperProcessor.updateRule(rule, backfill, timeBackfill);
+          // start message event reader again
+          EventHandlerLaunch.readerEsperProcessor.start();
+          if (result) {
+            return new ServiceResponse("Change successfully", true);
+          } else {
+            return new ServiceResponse("Change unsuccessfully", false);
+          }
+        } else { // rule is stopped
           return new ServiceResponse("Change successfully", true);
-        } else {
-          return new ServiceResponse("Change unsuccessfully", false);
         }
       } else {
         return new ServiceResponse("No rule to process", false);

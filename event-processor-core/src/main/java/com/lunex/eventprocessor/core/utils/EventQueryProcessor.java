@@ -178,13 +178,13 @@ public class EventQueryProcessor {
     EventProperty eventProperty = new EventProperty(eventQuery.getEventName(), null);
 
     String fields = eventQuery.getFields();
-    if (Strings.isNullOrEmpty(fields)) {
+    if (!Strings.isNullOrEmpty(fields)) {
       properties = processStringFieldDataTypeForEventQuery(fields);
       map.putAll(properties);
     }
 
     String groups = eventQuery.getAggregateField();
-    if (Strings.isNullOrEmpty(groups)) {
+    if (!Strings.isNullOrEmpty(groups)) {
       properties = processStringFieldDataTypeForEventQuery(groups);
       map.putAll(properties);
     }

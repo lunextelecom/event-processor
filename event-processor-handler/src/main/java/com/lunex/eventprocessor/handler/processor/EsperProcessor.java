@@ -96,6 +96,7 @@ public class EsperProcessor implements Processor {
     String eventName = eventQuery.getEventName();
     String ruleName = eventQuery.getRuleName();
 
+    // stop and destroy
     String serviceProviderURI = eventName + ":" + ruleName;
     EPServiceProvider serviceProvider = this.mapServiceProvider.get(serviceProviderURI);
     if (serviceProvider == null) {
@@ -111,7 +112,7 @@ public class EsperProcessor implements Processor {
       temp.add(EventQueryProcessor.processEventProperyForEventQuery(eventQuery));
       Configuration config = intiConfig(temp);
       serviceProvider = this.createEPServiceProvider(config, eventQuery, backfill, backFillTime);
-      // Add to Map
+      // Add to Map and run
       this.mapServiceProvider.put(serviceProviderURI, serviceProvider);
       this.queryHierarchy.addQuery(eventName, eventQuery, new ResultListener[] {
           new ConsoleOutput(), new CassandraWriter(), new KairosDBWriter(), new KafkaWriter()});

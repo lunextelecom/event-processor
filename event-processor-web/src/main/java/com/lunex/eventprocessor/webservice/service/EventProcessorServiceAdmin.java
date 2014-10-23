@@ -66,7 +66,7 @@ public class EventProcessorServiceAdmin {
    */
   public void addRule(String eventName, String ruleName, String data, String fields,
       String filters, String aggregateField, String having, String smallBucket, String bigBucket,
-      String conditions, String description) throws Exception {
+      String conditions, String description, EventQueryStatus status) throws Exception {
     EventQuery eventQuery = new EventQuery();
     eventQuery.setEventName(eventName);
     eventQuery.setRuleName(ruleName);
@@ -79,20 +79,27 @@ public class EventProcessorServiceAdmin {
     eventQuery.setConditions(conditions);
     eventQuery.setHaving(having);
     eventQuery.setDescription(description);
-    eventQuery.setStatus(EventQueryStatus.STOP);
+    if (status == null) {
+      status = EventQueryStatus.STOP;
+    }
+    eventQuery.setStatus(status);
     cassandraRepository.insertEventQuery(eventQuery);
   }
 
   public void updateRule(String eventName, String ruleName, String data, String fields,
       String filters, String aggregateField, String having, String smallBucket, String bigBucket,
-      String conditions, String description) throws Exception {
+      String conditions, String description, Boolean autoStart) throws Exception {
     List<EventQuery> rules = cassandraRepository.getEventQueryFromDB(eventName, ruleName);
     if (rules == null || rules.isEmpty()) {
       throw new Exception("Not exist rule");
     }
+    EventQueryStatus status = EventQueryStatus.STOP;
+    if (autoStart != null && autoStart) {
+      status = EventQueryStatus.RUNNING;
+    }
     // with cassandra, insert with the same key is update
     addRule(eventName, ruleName, data, fields, filters, aggregateField, having, smallBucket,
-        bigBucket, conditions, description);
+        bigBucket, conditions, description, status);
   }
 
   /**
@@ -193,7 +200,7 @@ public class EventProcessorServiceAdmin {
   }
 
   public Map<String, Object> changeRule(String eventName, String ruleName, Boolean backfill,
-      String backfillTime) throws Exception {
+      String backfillTime, Boolean autoStart) throws Exception {
     Map<String, Object> result = new HashMap<String, Object>();
     for (int i = 0; i < factory.getHandlerServiceUrl().length; i++) {
       final CountDownLatch countdown = new CountDownLatch(1);
@@ -219,7 +226,7 @@ public class EventProcessorServiceAdmin {
       NettyHttpSnoopClient client =
           new NettyHttpSnoopClient(factory.getHandlerServiceUrl()[i] + "/update/rule?evtName="
               + eventName + "&ruleName=" + ruleName + "&backfill=" + backfill + "&backfillTime="
-              + backfillTime, callback);
+              + backfillTime + "&autoStart=" + autoStart, callback);
       client.postRequest(Constants.EMPTY_STRING, HttpMethod.POST);
       // Wait to get hashKey
       countdown.await(10000, TimeUnit.MILLISECONDS);

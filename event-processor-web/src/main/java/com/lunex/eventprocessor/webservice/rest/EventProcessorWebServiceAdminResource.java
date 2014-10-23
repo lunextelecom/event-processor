@@ -99,7 +99,7 @@ public class EventProcessorWebServiceAdminResource {
     try {
       // Add rule to db
       service.addRule(eventName, ruleName, data, fields, filters, aggregateField, having,
-          smallBucket, bigBucket, conditions, description);
+          smallBucket, bigBucket, conditions, description, null);
       // Start rule
       if (autoStart != null && autoStart) {
         Map<String, Object> map = service.startRule(eventName, ruleName, backfill, backfillTime);
@@ -199,9 +199,13 @@ public class EventProcessorWebServiceAdminResource {
       @QueryParam("backfillTime") String backfillTime) {
     try {
       service.updateRule(eventName, ruleName, data, fields, filters, aggregateField, having,
-          smallBucket, bigBucket, conditions, description);
+          smallBucket, bigBucket, conditions, description, autoStart);
       if (autoStart != null && autoStart) {
-        Map<String, Object> map = service.changeRule(eventName, ruleName, backfill, backfillTime);
+        if (backfill == null) {
+          backfill = false;
+        }
+        Map<String, Object> map =
+            service.changeRule(eventName, ruleName, backfill, backfillTime, autoStart);
         String response = JsonHelper.toJSonString(map);
         return Response.status(Response.Status.OK).entity(new ServiceResponse(response, true))
             .build();
