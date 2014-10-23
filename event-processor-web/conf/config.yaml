@@ -9,7 +9,7 @@ logging:
   level: DEBUG
   appenders:
     - type: console
-      threshold: INFO
+      threshold: ERROR
       target: stderr
     - type: file
       #threshold: ERROR
@@ -32,7 +32,7 @@ app:
   dbUsername:
   dbPassword:
   inputProcessorUrl: http://192.168.93.61:9038
-  handlerServiceUrl: ["http://192.168.93.61:8085/event-processor-handler"]
+  handlerServiceUrl: ["http://192.168.93.61:8088/event-processor-handler"]
   cacheConfig:
   statsdHost:
   statsdAppPrefix:
