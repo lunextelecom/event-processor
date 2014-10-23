@@ -61,7 +61,7 @@ public class KafkaReader implements EventReader {
       formatTime = "dd/MM/yyyy HH:mm:ss";
     }
     Date date = TimeUtil.convertStringToDate(dateTime, formatTime);
-    this.whichTime = TimeUtil.convertDateToGMT_7(date);
+    this.whichTime = TimeUtil.convertDateToUnixTime(date);
     this.listKafkaConsumers = new ArrayList<KafkaSimpleConsumer>();
   }
 
