@@ -35,27 +35,22 @@ public class Event implements Serializable {
   // this.time = (Long) event.get("time");
   // }
 
-  // public Event(long time, String payLoad) {
-  // try {
-  // // this.time = time;
-  // JSONObject jsonObject = new JSONObject(payLoad);
-  // this.evtName = jsonObject.getString("evtName");
-  // this.event = JsonHelper.toMap(jsonObject);
-  // this.payLoadStr = payLoad;
-  // this.hashKey = StringUtils.md5Java(this.payLoadStr);
-  // this.event.put("hashKey", this.hashKey);
-  // try {
-  // this.time = jsonObject.getLong("time");
-  // } catch (Exception ex) {
-  // this.time = time;
-  // this.event.put("time", this.time);
-  // }
-  // } catch (Exception ex) {
-  // this.evtName = null;
-  // this.event = null;
-  // this.time = -1;
-  // }
-  // }
+  public Event(long time, String payLoad) {
+    try {
+      // this.time = time;
+      JSONObject jsonObject = new JSONObject(payLoad);
+      this.evtName = jsonObject.getString("evtName");
+      this.event = JsonHelper.toMap(jsonObject);
+      this.payLoadStr = payLoad;
+      this.hashKey = StringUtils.md5Java(this.payLoadStr);
+      this.event.put("hashKey", this.hashKey);
+      this.time = time;
+    } catch (Exception ex) {
+      this.evtName = null;
+      this.event = null;
+      this.time = -1;
+    }
+  }
 
   public Event(String payLoad) {
     try {
