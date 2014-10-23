@@ -86,9 +86,11 @@ public class QueryHierarchy {
     if (outputs == null || outputs.length == 0) {
       return;
     }
+    Object[] objectsArray = null;
     for (int i = 0, length = outputs.length; i < length; i++) {
       outputs[i].setQueryFuture(query);
-      outputs[i].onEvent(query.getValues());
+      objectsArray = query.getValues();
+      outputs[i].onEvent(objectsArray);
     }
   }
 }

@@ -34,24 +34,29 @@ public class KafkaWriter implements ResultListener {
     // *******************************//
     // * Write result into kafka *//
     // *******************************//
-    EventQuery eventQuery = null;
     if (queryFuture != null) {
-      eventQuery = queryFuture.getEventQuery();
-    } else {
-      return;
-    }
+      final EventQuery eventQuery = queryFuture.getEventQuery();
+      final Object[] data = result;
+      Thread threadKafkaWriter = new Thread(new Runnable() {
+        public void run() {
+          try {
+            CheckConditionHandler checkConditionHandler = new CheckConditionDefault();
+            if (eventQuery != null && eventQuery.getType() == EventQueryType.DAY_OF_WEEK) {
+              checkConditionHandler = new CheckConditionDayOfWeek();
+            }
+            EventResult eventResult =
+                DataAccessOutputHandler.checkCondition(data, eventQuery, checkConditionHandler);
 
-    try {
-      CheckConditionHandler checkConditionHandler = new CheckConditionDefault();
-      if(eventQuery != null && eventQuery.getType()==EventQueryType.DAY_OF_WEEK){
-        checkConditionHandler = new CheckConditionDayOfWeek();
-      }
-      EventResult eventResult = DataAccessOutputHandler.checkCondition(result, eventQuery, checkConditionHandler);
-      Gson gson = new Gson();
-      String json = gson.toJson(eventResult);
-      EventHandlerLaunch.kafkaProducer.sendData(Configurations.kafkaTopicOutput, eventQuery.getEventName(), json);
-    } catch (Exception e) {
-      logger.error(e.getMessage(), e);
+            Gson gson = new Gson();
+            String json = gson.toJson(eventResult);
+            EventHandlerLaunch.kafkaProducer.sendData(Configurations.kafkaTopicOutput,
+                eventQuery.getEventName(), json);
+          } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+          }
+        }
+      });
+      threadKafkaWriter.start();
     }
   }
 }

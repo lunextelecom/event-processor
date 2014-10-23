@@ -1,6 +1,5 @@
 package com.lunex.eventprocessor.handler.listener;
 
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +10,6 @@ import com.lunex.eventprocessor.core.QueryFuture;
 import com.lunex.eventprocessor.core.EventQuery.EventQueryType;
 import com.lunex.eventprocessor.core.dataaccess.CassandraRepository;
 import com.lunex.eventprocessor.core.listener.ResultListener;
-import com.lunex.eventprocessor.core.utils.Constants;
 import com.lunex.eventprocessor.handler.output.CheckConditionDayOfWeek;
 import com.lunex.eventprocessor.handler.output.CheckConditionDefault;
 import com.lunex.eventprocessor.handler.output.CheckConditionHandler;
@@ -36,26 +34,30 @@ public class CassandraWriter implements ResultListener {
     // *******************************//
     // * Write result into cassandra *//
     // *******************************//
-    EventQuery eventQuery = null;
     if (queryFuture != null) {
-      eventQuery = queryFuture.getEventQuery();
-    } else {
-      return;
-    }
-    try {
-      // Write result of computation
-      DataAccessOutputHandler.writeResultComputation(result, eventQuery);
-      
-      CheckConditionHandler checkConditionHandler = new CheckConditionDefault();
-      if(eventQuery != null && eventQuery.getType()==EventQueryType.DAY_OF_WEEK){
-        checkConditionHandler = new CheckConditionDayOfWeek();
-      }
-      // Write checked condition
-      EventResult eventResult = DataAccessOutputHandler.checkCondition(result, eventQuery, checkConditionHandler);
-      CassandraRepository.getInstance(Configurations.cassandraHost,
-          Configurations.cassandraKeyspace).updateResults(eventResult);
-    } catch (Exception e) {
-      logger.error(e.getMessage(), e);
+      final EventQuery eventQuery = queryFuture.getEventQuery();
+      final Object[] data = result;
+      Thread cassandraWriter = new Thread(new Runnable() {
+        public void run() {
+          try {
+            // Write result of computation
+            DataAccessOutputHandler.writeResultComputation(data, eventQuery);
+
+            CheckConditionHandler checkConditionHandler = new CheckConditionDefault();
+            if (eventQuery != null && eventQuery.getType() == EventQueryType.DAY_OF_WEEK) {
+              checkConditionHandler = new CheckConditionDayOfWeek();
+            }
+            // Write checked condition
+            EventResult eventResult =
+                DataAccessOutputHandler.checkCondition(data, eventQuery, checkConditionHandler);
+            CassandraRepository.getInstance(Configurations.cassandraHost,
+                Configurations.cassandraKeyspace).updateResults(eventResult);
+          } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+          }
+        }
+      });
+      cassandraWriter.start();
     }
   }
 

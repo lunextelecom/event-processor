@@ -25,12 +25,15 @@ public class KairosDBWriter implements ResultListener {
     // * Write result into KairosDB *//
     // ******************************//
 
-    EventQuery eventQuery = null;
     if (queryFuture != null) {
-      eventQuery = queryFuture.getEventQuery();
-    } else {
-      return;
+      final EventQuery eventQuery = queryFuture.getEventQuery();
+      final Object[] data = result;
+      Thread kairosDBWriter = new Thread(new Runnable() {
+        public void run() {
+          DataAccessOutputHandler.writeResultToKairosDB(data, eventQuery);
+        }
+      });
+      kairosDBWriter.start();
     }
-    DataAccessOutputHandler.writeResultToKairosDB(result, eventQuery);
   }
 }

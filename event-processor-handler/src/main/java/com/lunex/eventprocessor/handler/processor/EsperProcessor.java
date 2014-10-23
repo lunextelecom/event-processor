@@ -164,7 +164,36 @@ public class EsperProcessor implements Processor {
     return true;
   }
 
+  public boolean reprocess(EventQuery eventQuery, boolean backfill, long backFillTime) {
+    String eventName = eventQuery.getEventName();
+    String ruleName = eventQuery.getRuleName();
 
+    String serviceProviderURI = eventName + ":" + ruleName;
+    EPServiceProvider serviceProvider = this.mapServiceProvider.get(serviceProviderURI);
+    if (serviceProvider == null) {
+      return false;
+    }
+    this.mapServiceProvider.remove(serviceProviderURI);
+    this.queryHierarchy.removeQueryHierarchy(eventName, eventQuery);
+    serviceProvider.destroy();
+
+    try {
+      // Create EPServiceProvider
+      List<EventProperty> temp = new ArrayList<EventProperty>();
+      temp.add(EventQueryProcessor.processEventProperyForEventQuery(eventQuery));
+      Configuration config = intiConfig(temp);
+      serviceProvider = this.createEPServiceProvider(config, eventQuery, backfill, backFillTime);
+      // Add to Map
+      this.mapServiceProvider.put(serviceProviderURI, serviceProvider);
+      this.queryHierarchy.addQuery(eventName, eventQuery, new ResultListener[] {
+          new ConsoleOutput(), new CassandraWriter(), new KairosDBWriter(), new KafkaWriter()});
+      this.backfill(serviceProvider, backFillTime, backfill);
+    } catch (Exception ex) {
+      logger.error(ex.getMessage(), ex);
+      return false;
+    }
+    return true;
+  }
 
   /**
    * Init config for Esper
@@ -215,7 +244,8 @@ public class EsperProcessor implements Processor {
           this.createEPServiceProvider(config, eventQuery, backFill, startTime);
       mapServiceProvider.put(serviceProviderURI, serviceProvider);
       eventQuery.setStatus(EventQueryStatus.RUNNING);
-      CassandraRepository.getInstance(Configurations.cassandraHost, Configurations.cassandraKeyspace).changeEventQueryStatus(eventQuery);
+      CassandraRepository.getInstance(Configurations.cassandraHost,
+          Configurations.cassandraKeyspace).changeEventQueryStatus(eventQuery);
     }
   }
 
@@ -388,7 +418,9 @@ public class EsperProcessor implements Processor {
   private long feedHistoricalEvent(long startTime, EPRuntimeIsolated runtimIsolated,
       EPRuntime epRunTime) throws Exception {
     // get historical event from DB
-    List<Event> listEvent = CassandraRepository.getInstance(Configurations.cassandraHost, Configurations.cassandraKeyspace).getEvent(startTime);
+    List<Event> listEvent =
+        CassandraRepository.getInstance(Configurations.cassandraHost,
+            Configurations.cassandraKeyspace).getEvent(startTime);
     if (listEvent != null) {
       Event historicalEvent = null;
       for (int i = 0, size = listEvent.size(); i < size; i++) {
@@ -427,18 +459,22 @@ public class EsperProcessor implements Processor {
     }
 
     public void update(EventBean[] newEvents, EventBean[] oldEvents) {
-      System.out.println("test:" + new Date() + " rule:" + eventQuery.getRuleName() + "-newEvents:"
-          + newEvents[0].getUnderlying());
+      // System.out.println("test:" + new Date() + " rule:" + eventQuery.getRuleName() +
+      // "-newEvents:"
+      // + newEvents[0].getUnderlying());
       if (newEvents == null || newEvents.length == 0 || !enable) {
         return;
       }
+      // get result from esper
       List<Map<String, Object>> objectArray = new ArrayList<Map<String, Object>>();
-      for (int i = 0; i < newEvents.length; i++) {
+      for (int i = 0, length = newEvents.length; i < length; i++) {
         MapEventBean eventbean = (MapEventBean) newEvents[i];
         objectArray.add(eventbean.getProperties());
       }
       QueryFuture queryFuture = new QueryFuture(objectArray.toArray(), eventQuery);
       String eventName = eventQuery.getEventName();
+      
+      // bind out for listeners
       Map<EventQuery, ResultListener[]> mapResultListener =
           queryHierarchy.getHierarchy().get(eventName);
       if (mapResultListener != null) {
@@ -452,36 +488,5 @@ public class EsperProcessor implements Processor {
     public void setEnable(boolean enable) {
       this.enable = enable;
     }
-  }
-
-  public boolean reprocess(EventQuery eventQuery, boolean backfill, long backFillTime) {
-    String eventName = eventQuery.getEventName();
-    String ruleName = eventQuery.getRuleName();
-
-    String serviceProviderURI = eventName + ":" + ruleName;
-    EPServiceProvider serviceProvider = this.mapServiceProvider.get(serviceProviderURI);
-    if (serviceProvider == null) {
-      return false;
-    }
-    this.mapServiceProvider.remove(serviceProviderURI);
-    this.queryHierarchy.removeQueryHierarchy(eventName, eventQuery);
-    serviceProvider.destroy();
-
-    try {
-      // Create EPServiceProvider
-      List<EventProperty> temp = new ArrayList<EventProperty>();
-      temp.add(EventQueryProcessor.processEventProperyForEventQuery(eventQuery));
-      Configuration config = intiConfig(temp);
-      serviceProvider = this.createEPServiceProvider(config, eventQuery, backfill, backFillTime);
-      // Add to Map
-      this.mapServiceProvider.put(serviceProviderURI, serviceProvider);
-      this.queryHierarchy.addQuery(eventName, eventQuery, new ResultListener[] {
-          new ConsoleOutput(), new CassandraWriter(), new KairosDBWriter(), new KafkaWriter()});
-      this.backfill(serviceProvider, backFillTime, backfill);
-    } catch (Exception ex) {
-      logger.error(ex.getMessage(), ex);
-      return false;
-    }
-    return true;
   }
 }

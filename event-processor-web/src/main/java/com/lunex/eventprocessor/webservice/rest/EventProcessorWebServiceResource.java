@@ -72,7 +72,7 @@ public class EventProcessorWebServiceResource {
       }
 
       // If client do not want to check result
-      if (result != null && result) {
+      if (result == null || !result) {
         Map<String, Object> message = new HashMap<String, Object>();
         message.put("hashKey", hashKey);
         return Response.status(Response.Status.OK)
@@ -80,8 +80,10 @@ public class EventProcessorWebServiceResource {
 
         // Else If client want to check result
       } else {
-        return Response.status(Response.Status.OK)
-            .entity(new ServiceResponse(service.checkEvent(hashKey), true)).build();
+        Thread.sleep(10000);
+        String resultCheck = service.checkEvent(hashKey);
+        return Response.status(Response.Status.OK).entity(new ServiceResponse(resultCheck, true))
+            .build();
       }
     } catch (Exception e) {
       logger.error(e.getMessage(), e);
