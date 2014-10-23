@@ -28,14 +28,14 @@ public class WebServiceLaunch extends Application<WebConfiguration> {
 
   static final Logger logger = LoggerFactory.getLogger(WebServiceLaunch.class);
 
-  private static final String OPTION_APP = "a";
+  // private static final String OPTION_APP = "a";
   private static final String OPTION_HELP = "h";
   private static final String OPTION_CONF = "c";
 
   public static void main(String[] args) {
     try {
       final Options options = new Options();
-      options.addOption(null, OPTION_APP, true, "app.properties");
+      // options.addOption(null, OPTION_APP, true, "app.properties");
       options.addOption(null, OPTION_CONF, true, "config.yaml");
       options.addOption(null, OPTION_HELP, false, "Display command line help.");
       final CommandLineParser parser = new PosixParser();
