@@ -23,11 +23,11 @@ public class Event implements Serializable {
 
   public Event() {}
 
-  public Event(long time, String evtName, Map<String, Object> event) {
-    this.time = time;
-    this.evtName = evtName;
-    this.event = event;
-  }
+  // public Event(long time, String evtName, Map<String, Object> event) {
+  // this.time = time;
+  // this.evtName = evtName;
+  // this.event = event;
+  // }
 
   // public Event(String evtName, Map<String, Object> event) {
   // this.evtName = evtName;
@@ -35,42 +35,37 @@ public class Event implements Serializable {
   // this.time = (Long) event.get("time");
   // }
 
-  public Event(long time, String payLoad) {
-    try {
-      // this.time = time;
-      JSONObject jsonObject = new JSONObject(payLoad);
-      this.evtName = jsonObject.getString("evtName");
-      this.event = JsonHelper.toMap(jsonObject);
-      this.payLoadStr = payLoad;
-      this.hashKey = StringUtils.md5Java(this.payLoadStr);
-      this.event.put("hashKey", this.hashKey);
-      try {
-        this.time = jsonObject.getLong("time");
-      } catch (Exception ex) {
-        this.time = time;
-        this.event.put("time", this.time);  
-      }
-    } catch (Exception ex) {
-      this.evtName = null;
-      this.event = null;
-      this.time = -1;
-    }
-  }
+  // public Event(long time, String payLoad) {
+  // try {
+  // // this.time = time;
+  // JSONObject jsonObject = new JSONObject(payLoad);
+  // this.evtName = jsonObject.getString("evtName");
+  // this.event = JsonHelper.toMap(jsonObject);
+  // this.payLoadStr = payLoad;
+  // this.hashKey = StringUtils.md5Java(this.payLoadStr);
+  // this.event.put("hashKey", this.hashKey);
+  // try {
+  // this.time = jsonObject.getLong("time");
+  // } catch (Exception ex) {
+  // this.time = time;
+  // this.event.put("time", this.time);
+  // }
+  // } catch (Exception ex) {
+  // this.evtName = null;
+  // this.event = null;
+  // this.time = -1;
+  // }
+  // }
 
   public Event(String payLoad) {
     try {
       JSONObject jsonObject = new JSONObject(payLoad);
       this.evtName = jsonObject.getString("evtName");
+      this.time = jsonObject.getLong("time");
       this.event = JsonHelper.toMap(jsonObject);
       this.payLoadStr = payLoad;
       this.hashKey = StringUtils.md5Java(this.payLoadStr);
       this.event.put("hashKey", this.hashKey);
-      try {
-        this.time = jsonObject.getLong("time");
-      } catch (Exception ex) {
-        this.time = System.currentTimeMillis();
-        this.event.put("time", this.time);
-      }
     } catch (Exception ex) {
       this.evtName = null;
       this.event = null;

@@ -155,7 +155,8 @@ public class KafkaReader implements EventReader {
             logger.error("Invalid Json");
             return;
           }
-          event = new Event(System.currentTimeMillis(), payload);
+          // Event payload must contain evtName, and time
+          event = new Event(payload);
         } catch (UnsupportedEncodingException e) {
           event = null;
           logger.error(e.getMessage(), e);
