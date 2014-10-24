@@ -41,7 +41,7 @@ public class EventQuery {
   private String description;
   private EventQueryStatus status;
   private EventQueryType type;
-  private int weight;
+  private Integer weight;
 
   public EventQueryType getType() {
     return type;
@@ -51,11 +51,12 @@ public class EventQuery {
     this.type = type;
   }
 
-  public int getWeight() {
+
+  public Integer getWeight() {
     return weight;
   }
 
-  public void setWeight(int weight) {
+  public void setWeight(Integer weight) {
     this.weight = weight;
   }
 
