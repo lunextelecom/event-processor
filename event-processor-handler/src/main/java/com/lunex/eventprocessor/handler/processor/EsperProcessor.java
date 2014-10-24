@@ -78,7 +78,7 @@ public class EsperProcessor implements Processor {
       System.out.println("Send event " + event.getEvent() + " - " + new Date());
       sericeProvider.getEPRuntime().sendEvent(event.getEvent(), event.getEvtName());
       // forward time
-      sericeProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(event.getTime() + 101));
+      sericeProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(event.getTime() + 1001));
     }
   }
 
@@ -210,7 +210,7 @@ public class EsperProcessor implements Processor {
       config.addEventType(propeties.getEvtDataName(), propeties.getProperties());
     }
     config.getEngineDefaults().getThreading().setInternalTimerEnabled(false);
-    config.getEngineDefaults().getThreading().setInternalTimerMsecResolution(10);
+    config.getEngineDefaults().getThreading().setInternalTimerMsecResolution(1000);
     return config;
   }
 
@@ -383,7 +383,7 @@ public class EsperProcessor implements Processor {
         long lastEventTime = this.feedHistoricalEvent(startTime, null, epRuntime);
 
         // forward time
-        epRuntime.sendEvent(new CurrentTimeEvent(lastEventTime + 101));
+        epRuntime.sendEvent(new CurrentTimeEvent(lastEventTime + 1001));
       }
     }
   }
