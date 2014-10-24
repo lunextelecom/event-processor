@@ -100,27 +100,32 @@ public class EventHandlerLaunch extends Application<WebConfiguration> {
       kairosDB = new KairosDBClient(Configurations.kairosDBUrl);
 
       // get EventQuery
+      hierarchy = new QueryHierarchy();
       List<EventQuery> listEventQuery =
           CassandraRepository.getInstance(Configurations.cassandraHost,
               Configurations.cassandraKeyspace).getEventQueryFromDB("", "");
-      List<List<EventQuery>> grouping =
-          EventQueryProcessor.groupEventQueryByEventName(listEventQuery);
-      // get Eventproperties
-      listEventProperty = EventQueryProcessor.processEventProperyForEventQuery(listEventQuery);
+      if (listEventQuery != null && !listEventQuery.isEmpty()) {
+        List<List<EventQuery>> grouping =
+            EventQueryProcessor.groupEventQueryByEventName(listEventQuery);
+        // get Eventproperties
+        listEventProperty = EventQueryProcessor.processEventProperyForEventQuery(listEventQuery);
 
-      // Create QueryHierarchy
-      hierarchy = new QueryHierarchy();
-      for (int i = 0; i < grouping.size(); i++) {
-        List<EventQuery> subList = grouping.get(i);
-        for (int j = 0; j < subList.size(); j++) {
-          EventQuery query = subList.get(j);
-          if (Configurations.ruleList != null && !Configurations.ruleList.isEmpty()
-              && !Configurations.ruleList.contains(query.getRuleName())) {
-            continue;
+        // Create QueryHierarchy
+        for (int i = 0; i < grouping.size(); i++) {
+          List<EventQuery> subList = grouping.get(i);
+          for (int j = 0; j < subList.size(); j++) {
+            EventQuery query = subList.get(j);
+            if (Configurations.ruleList != null && !Configurations.ruleList.isEmpty()
+                && !Configurations.ruleList.contains(query.getRuleName())) {
+              continue;
+            }
+            hierarchy.addQuery(query.getEventName(), query,
+                new ResultListener[] {new ConsoleOutput(), new CassandraWriter(),
+                    new KairosDBWriter(), new KafkaWriter()});
           }
-          hierarchy.addQuery(query.getEventName(), query, new ResultListener[] {
-              new ConsoleOutput(), new CassandraWriter(), new KairosDBWriter(), new KafkaWriter()});
         }
+      } else {
+        logger.info("No rule in DB, please check again!");
       }
 
       // create esper processor
@@ -132,7 +137,8 @@ public class EventHandlerLaunch extends Application<WebConfiguration> {
       if (Strings.isNullOrEmpty(Configurations.kafkaBackRead.trim())) {
         readerEsperProcessor = new KafkaReader();
       } else {
-        readerEsperProcessor = new KafkaReader(Configurations.kafkaBackRead.trim(), "dd/MM/yyyy HH:mm:ss");
+        readerEsperProcessor =
+            new KafkaReader(Configurations.kafkaBackRead.trim(), "dd/MM/yyyy HH:mm:ss");
       }
       // reader read event and send to processor
       Thread esper = new Thread(new Runnable() {
