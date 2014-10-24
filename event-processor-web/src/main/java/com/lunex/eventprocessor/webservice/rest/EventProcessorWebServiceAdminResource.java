@@ -84,20 +84,84 @@ public class EventProcessorWebServiceAdminResource {
   @Path("/add-rule")
   @Produces(MediaType.APPLICATION_JSON)
   @Timed
+  // public Response addRule(@QueryParam("evtName") String eventName,
+  // @QueryParam("ruleName") String ruleName, @QueryParam("data") String data,
+  // @QueryParam("fields") String fields, @QueryParam("filters") String filters,
+  // @QueryParam("aggregateField") String aggregateField, @QueryParam("having") String having,
+  // @QueryParam("smallBucket") String smallBucket, @QueryParam("bigBucket") String bigBucket,
+  // @QueryParam("conditions") String conditions, @QueryParam("description") String description,
+  // @QueryParam("autoStart") Boolean autoStart, @QueryParam("backfill") Boolean backfill,
+  // @QueryParam("backfillTime") String backfillTime) {
+  /**
+   * 
+   * @param eventName: name of event
+   * @param ruleName : name of rule
+   * @param bodyData: data of rule with json format
+   * {
+   * "evtName": "new_order", "ruleName": "rule1", "data":"new_order", "fields" : "sum(amount:double), acctNum:string", "filters":"acctNum:string='PC01D001'", "aggregateField": "acctNum:string".
+   * "having":"sum(amount:double) > 10.0", "smallBucket": "10 second", "bigBucket": "1 hour", "conditions":"sum(amount) > 50 && sum(amount) < 70", "description": "description", "autoStart": true, "backfill": true, "backfillTime": "1 day"
+   * }
+   * @return
+   */
   public Response addRule(@QueryParam("evtName") String eventName,
-      @QueryParam("ruleName") String ruleName, @QueryParam("data") String data,
-      @QueryParam("fields") String fields, @QueryParam("filters") String filters,
-      @QueryParam("aggregateField") String aggregateField, @QueryParam("having") String having,
-      @QueryParam("smallBucket") String smallBucket, @QueryParam("bigBucket") String bigBucket,
-      @QueryParam("conditions") String conditions, @QueryParam("description") String description,
-      @QueryParam("autoStart") Boolean autoStart, @QueryParam("backfill") Boolean backfill,
-      @QueryParam("backfillTime") String backfillTime) {
-    if (Strings.isNullOrEmpty(eventName) || Strings.isNullOrEmpty(ruleName)
-        || Strings.isNullOrEmpty(data) || Strings.isNullOrEmpty(smallBucket)) {
-      return Response.status(Response.Status.BAD_REQUEST).entity(new ServiceResponse("", false))
-          .build();
-    }
+      @QueryParam("ruleName") String ruleName, String bodyData) {
     try {
+      JSONObject json = new JSONObject(bodyData);
+      String data = null;
+      if (json.has("data")) {
+        data = json.getString("data");
+      }
+      String fields = null;
+      if (json.has("fields")) {
+        fields = json.getString("fields");
+      }
+      String filters = null;
+      if (json.has("filters")) {
+        filters = json.getString("filters");
+      }
+      String aggregateField = null;
+      if (json.has("aggregateField")) {
+        aggregateField = json.getString("aggregateField");
+      }
+      String having = null;
+      if (json.has("having")) {
+        having = json.getString("having");
+      }
+      String smallBucket = null;
+      if (json.has("smallBucket")) {
+        smallBucket = json.getString("smallBucket");
+      }
+      String bigBucket = null;
+      if (json.has("bigBucket")) {
+        bigBucket = json.getString("bigBucket");
+      }
+      String conditions = null;
+      if (json.has("conditions")) {
+        conditions = json.getString("conditions");
+      }
+      String description = null;
+      if (json.has("description")) {
+        description = json.getString("description");
+      }
+      Boolean autoStart = null;
+      if (json.has("autoStart")) {
+        autoStart = json.getBoolean("autoStart");
+      }
+      Boolean backfill = null;
+      if (json.has("backfill")) {
+        backfill = json.getBoolean("backfill");
+      }
+      String backfillTime = null;
+      if (json.has("backfillTime")) {
+        backfillTime = json.getString("backfillTime");
+      }
+
+      if (Strings.isNullOrEmpty(eventName) || Strings.isNullOrEmpty(ruleName)
+          || Strings.isNullOrEmpty(data) || Strings.isNullOrEmpty(smallBucket)) {
+        return Response.status(Response.Status.BAD_REQUEST).entity(new ServiceResponse("", false))
+            .build();
+      }
+
       // Add rule to db
       service.addRule(eventName, ruleName, data, fields, filters, aggregateField, having,
           smallBucket, bigBucket, conditions, description, null);
@@ -190,15 +254,80 @@ public class EventProcessorWebServiceAdminResource {
   @Path("/change-rule")
   @Produces(MediaType.APPLICATION_JSON)
   @Timed
+  // public Response updateRule(@QueryParam("evtName") String eventName,
+  // @QueryParam("ruleName") String ruleName, @QueryParam("data") String data,
+  // @QueryParam("fields") String fields, @QueryParam("filters") String filters,
+  // @QueryParam("aggregateField") String aggregateField, @QueryParam("having") String having,
+  // @QueryParam("smallBucket") String smallBucket, @QueryParam("bigBucket") String bigBucket,
+  // @QueryParam("conditions") String conditions, @QueryParam("description") String description,
+  // @QueryParam("autoStart") Boolean autoStart, @QueryParam("backfill") Boolean backfill,
+  // @QueryParam("backfillTime") String backfillTime) {
+  /**
+   * Update rule
+   * @param eventName : name of event
+   * @param ruleName : name of rule
+   * @param bodyData : data of rule with json format
+   * {
+   * "evtName": "new_order", "ruleName": "rule1", "data":"new_order", "fields" : "sum(amount:double), acctNum:string", "filters":"acctNum:string='PC01D001'", "aggregateField": "acctNum:string".
+   * "having":"sum(amount:double) > 10.0", "smallBucket": "10 second", "bigBucket": "1 hour", "conditions":"sum(amount) > 50 && sum(amount) < 70", "description": "description", "autoStart": true, "backfill": true, "backfillTime": "1 day"
+   * } 
+   * @return
+   */
   public Response updateRule(@QueryParam("evtName") String eventName,
-      @QueryParam("ruleName") String ruleName, @QueryParam("data") String data,
-      @QueryParam("fields") String fields, @QueryParam("filters") String filters,
-      @QueryParam("aggregateField") String aggregateField, @QueryParam("having") String having,
-      @QueryParam("smallBucket") String smallBucket, @QueryParam("bigBucket") String bigBucket,
-      @QueryParam("conditions") String conditions, @QueryParam("description") String description,
-      @QueryParam("autoStart") Boolean autoStart, @QueryParam("backfill") Boolean backfill,
-      @QueryParam("backfillTime") String backfillTime) {
+      @QueryParam("ruleName") String ruleName, String bodyData) {
     try {
+      JSONObject json = new JSONObject(bodyData);
+      String data = null;
+      if (json.has("data")) {
+        data = json.getString("data");
+      } else {
+        data = eventName.replace(" s+", "_");
+      }
+      String fields = null;
+      if (json.has("fields")) {
+        fields = json.getString("fields");
+      }
+      String filters = null;
+      if (json.has("filters")) {
+        filters = json.getString("filters");
+      }
+      String aggregateField = null;
+      if (json.has("aggregateField")) {
+        aggregateField = json.getString("aggregateField");
+      }
+      String having = null;
+      if (json.has("having")) {
+        having = json.getString("having");
+      }
+      String smallBucket = null;
+      if (json.has("smallBucket")) {
+        smallBucket = json.getString("smallBucket");
+      }
+      String bigBucket = null;
+      if (json.has("bigBucket")) {
+        bigBucket = json.getString("bigBucket");
+      }
+      String conditions = null;
+      if (json.has("conditions")) {
+        conditions = json.getString("conditions");
+      }
+      String description = null;
+      if (json.has("description")) {
+        description = json.getString("description");
+      }
+      Boolean autoStart = null;
+      if (json.has("autoStart")) {
+        autoStart = json.getBoolean("autoStart");
+      }
+      Boolean backfill = null;
+      if (json.has("backfill")) {
+        backfill = json.getBoolean("backfill");
+      }
+      String backfillTime = null;
+      if (json.has("backfillTime")) {
+        backfillTime = json.getString("backfillTime");
+      }
+
       service.updateRule(eventName, ruleName, data, fields, filters, aggregateField, having,
           smallBucket, bigBucket, conditions, description, autoStart);
       if (autoStart != null && autoStart) {
