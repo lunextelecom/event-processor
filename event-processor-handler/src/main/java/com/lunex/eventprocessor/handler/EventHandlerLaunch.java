@@ -138,7 +138,7 @@ public class EventHandlerLaunch extends Application<WebConfiguration> {
         readerEsperProcessor = new KafkaReader();
       } else {
         readerEsperProcessor =
-            new KafkaReader(Configurations.kafkaBackRead.trim(), "dd/MM/yyyy HH:mm:ss");
+            new KafkaReader(Configurations.kafkaBackRead.trim(), "dd-MMM-yyyy HH:mm:ss z");
       }
       // reader read event and send to processor
       Thread esper = new Thread(new Runnable() {
