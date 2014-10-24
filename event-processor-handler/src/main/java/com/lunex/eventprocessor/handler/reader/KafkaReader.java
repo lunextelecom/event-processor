@@ -58,7 +58,7 @@ public class KafkaReader implements EventReader {
 
   public KafkaReader(String dateTime, String formatTime) {
     if (Strings.isNullOrEmpty(formatTime.trim())) {
-      formatTime = "dd-MMM-yyyy HH:mm:ss z";
+      formatTime = "dd-MM-yyyy HH:mm:ss z";
     }
     Date date = TimeUtil.convertStringToDate(dateTime, formatTime);
     System.out.println("Kafka reader start: _____________________" + date
