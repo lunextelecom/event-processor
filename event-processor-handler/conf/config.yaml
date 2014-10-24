@@ -9,7 +9,7 @@ logging:
   level: DEBUG
   appenders:
     - type: console
-      threshold: INFO
+      threshold: ERROR
       target: stderr
     - type: file
       #threshold: ERROR
