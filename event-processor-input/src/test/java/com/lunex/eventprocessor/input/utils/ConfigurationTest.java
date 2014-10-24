@@ -10,7 +10,7 @@ public class ConfigurationTest {
   public void testGetPropertiesValues() {
 
     try {
-      Configuration.getPropertiesValues("app.properties");
+      Configuration.getPropertiesValues("conf/app.properties");
     } catch (Exception e) {
       assertEquals(true, false);
     }
