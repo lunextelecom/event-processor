@@ -210,7 +210,7 @@ public class EsperProcessor implements Processor {
       config.addEventType(propeties.getEvtDataName(), propeties.getProperties());
     }
     config.getEngineDefaults().getThreading().setInternalTimerEnabled(false);
-    config.getEngineDefaults().getThreading().setInternalTimerMsecResolution(100);
+    config.getEngineDefaults().getThreading().setInternalTimerMsecResolution(10);
     return config;
   }
 
