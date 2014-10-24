@@ -63,6 +63,7 @@ public class CassandraRepositoryTest {
     try {
       instance.insertEventToDB(event);
       List<Event> listEvents = instance.getEvent(0);
+      int size = listEvents.size();
       if (listEvents != null && listEvents.size() > 0) {
         assertEquals(true, true);
       } else {
@@ -70,7 +71,7 @@ public class CassandraRepositoryTest {
       }
       instance.execute("DELETE FROM events WHERE event_name = 'test_event'", null);
       listEvents = instance.getEvent(0);
-      if (listEvents == null) {
+      if (listEvents == null || listEvents.size() == size - 1) {
         assertEquals(true, true);
       } else {
         assertEquals(true, false);
