@@ -41,7 +41,7 @@ public class EventQuery {
   private String description;
   private EventQueryStatus status;
   private EventQueryType type;
-  private int weight;
+  private Integer weight;
 
   public EventQueryType getType() {
     return type;
