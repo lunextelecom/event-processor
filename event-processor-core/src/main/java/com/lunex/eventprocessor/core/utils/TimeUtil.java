@@ -19,7 +19,7 @@ public class TimeUtil {
     }
   }
 
-  public static long convertDateToGMT_7(Date date) {
+  public static long convertDateMilisecond(Date date) {
     return Long.valueOf(date.getTime());
   }
 

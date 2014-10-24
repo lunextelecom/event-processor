@@ -63,7 +63,7 @@ public class KafkaReader implements EventReader {
     Date date = TimeUtil.convertStringToDate(dateTime, formatTime);
     // System.out.println("Kafka reader start: _____________________" + date
     // + "________________________");
-    this.whichTime = TimeUtil.convertDateToUnixTime(date);
+    this.whichTime = TimeUtil.convertDateMilisecond(date);
     // System.out.println("Kafka reader start whichTime: _____________________" + whichTime
     // + "________________________");
     this.listKafkaConsumers = new ArrayList<KafkaSimpleConsumer>();
