@@ -17,7 +17,7 @@ public class TimeUtilTest {
   @Test
   public void testConvertDateToGMT_7() {
     Date date = new Date(25200000);
-    long ms = TimeUtil.convertDateToGMT_7(date);
+    long ms = TimeUtil.convertDateMilisecond(date);
     assertEquals(25200000, ms);
   }
 
