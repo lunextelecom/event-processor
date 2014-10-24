@@ -4,10 +4,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 public class TimeUtil {
   public static Date convertStringToDate(String input, String format) {
-    SimpleDateFormat formatter = new SimpleDateFormat(format);
+    SimpleDateFormat formatter = new SimpleDateFormat(format, Locale.US);
     String dateInString = input;
     try {
       Date date = formatter.parse(dateInString);
