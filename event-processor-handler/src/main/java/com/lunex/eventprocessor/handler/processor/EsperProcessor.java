@@ -20,8 +20,6 @@ import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.UpdateListener;
 import com.espertech.esper.client.time.CurrentTimeEvent;
-import com.espertech.esper.client.time.TimerControlEvent;
-import com.espertech.esper.client.time.TimerControlEvent.ClockType;
 import com.espertech.esper.event.map.MapEventBean;
 import com.lunex.eventprocessor.core.Event;
 import com.lunex.eventprocessor.core.EventProperty;
@@ -75,12 +73,12 @@ public class EsperProcessor implements Processor {
     while (iterator.hasNext()) {
       String key = iterator.next();
       EPServiceProvider sericeProvider = mapServiceProvider.get(key);
-      sericeProvider.getEPRuntime().sendEvent(new TimerControlEvent(ClockType.CLOCK_EXTERNAL));
       sericeProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(event.getTime()));
       // send event
       System.out.println("Send event " + event.getEvent() + " - " + new Date());
       sericeProvider.getEPRuntime().sendEvent(event.getEvent(), event.getEvtName());
-      sericeProvider.getEPRuntime().sendEvent(new TimerControlEvent(ClockType.CLOCK_INTERNAL));
+      // forward time
+      sericeProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(event.getTime() + 101));
     }
   }
 
@@ -212,8 +210,7 @@ public class EsperProcessor implements Processor {
       config.addEventType(propeties.getEvtDataName(), propeties.getProperties());
     }
     config.getEngineDefaults().getThreading().setInternalTimerEnabled(false);
-    config.getEngineDefaults().getThreading().setInternalTimerMsecResolution(1000);
-    // config.getEngineDefaults().getViewResources().setShareViews(false);
+    config.getEngineDefaults().getThreading().setInternalTimerMsecResolution(100);
     return config;
   }
 
@@ -314,7 +311,7 @@ public class EsperProcessor implements Processor {
       // create EPL for big bucket and add listener for statement
       epl =
           " " + "select " + StringUtils.convertField2(select)
-              + ", hashKey as hashKey, time as time FROM " + smallBucketWindow + ".win:time("
+              + ", hashKey as hashKey, time as time FROM " + smallBucketWindow + ".win:ext_timed("
               + bigBucket + ") " + group;
       epl = epl.replaceAll(" +", " ");
       EPStatement statement = admin.createEPL(epl, eventQuery.getRuleName());
@@ -348,8 +345,8 @@ public class EsperProcessor implements Processor {
                   "context "
                       + context
                       + " SELECT %s, hashKey as hashKey, time as time FROM %s %s %s %s output last every 1 second ",
-                  StringUtils.convertField(select), from + ".win:time(" + smallBucket + ")", where,
-                  group, having);
+                  StringUtils.convertField(select), from + ".win:ext_timed(time, " + smallBucket
+                      + ")", where, group, having);
       epl = epl.replaceAll(" +", " ");
       EPStatement statement = admin.createEPL(epl, eventQuery.getRuleName());
       statement.addListener(new EsperListener(eventQuery));
@@ -385,8 +382,8 @@ public class EsperProcessor implements Processor {
         // ---------------------------------------
         long lastEventTime = this.feedHistoricalEvent(startTime, null, epRuntime);
 
-        epRuntime.sendEvent(new CurrentTimeEvent(lastEventTime + 1000));
-        epRuntime.sendEvent(new TimerControlEvent(ClockType.CLOCK_INTERNAL));
+        // forward time
+        epRuntime.sendEvent(new CurrentTimeEvent(lastEventTime + 101));
       }
     }
   }
@@ -473,7 +470,7 @@ public class EsperProcessor implements Processor {
       }
       QueryFuture queryFuture = new QueryFuture(objectArray.toArray(), eventQuery);
       String eventName = eventQuery.getEventName();
-      
+
       // bind out for listeners
       Map<EventQuery, ResultListener[]> mapResultListener =
           queryHierarchy.getHierarchy().get(eventName);
