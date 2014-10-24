@@ -83,11 +83,6 @@ public class EventProcessorService {
     throw new Exception("Can not get any hashKey");
   }
 
-  // public String checkEvent(Event event) {
-  // // TODO
-  // return null;
-  // }
-
   /**
    * Check result for event
    * 
@@ -105,9 +100,4 @@ public class EventProcessorService {
     }
     return null;
   }
-
-  // public String addAndCheck(Event event) {
-  // // TODO
-  // return null;
-  // }
 }

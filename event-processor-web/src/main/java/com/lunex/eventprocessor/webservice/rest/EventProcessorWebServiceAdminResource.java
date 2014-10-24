@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -43,7 +44,7 @@ public class EventProcessorWebServiceAdminResource {
    * @return
    */
   @POST
-  @Path("/add/ruleexception")
+  @Path("/add-ruleexception")
   @Produces(MediaType.APPLICATION_JSON)
   @Timed
   public Response addRuleException(@QueryParam("evtName") String eventName,
@@ -80,7 +81,7 @@ public class EventProcessorWebServiceAdminResource {
    * @return
    */
   @POST
-  @Path("/add/rule")
+  @Path("/add-rule")
   @Produces(MediaType.APPLICATION_JSON)
   @Timed
   public Response addRule(@QueryParam("evtName") String eventName,
@@ -125,7 +126,7 @@ public class EventProcessorWebServiceAdminResource {
    * @return
    */
   @DELETE
-  @Path("/delete/rule")
+  @Path("/delete-rule")
   @Produces(MediaType.APPLICATION_JSON)
   @Timed
   public Response deleteRule(@QueryParam("evtName") String eventName,
@@ -167,8 +168,8 @@ public class EventProcessorWebServiceAdminResource {
    * @param ruleName
    * @return
    */
-  @POST
-  @Path("/stop/rule")
+  @PUT
+  @Path("/stop-rule")
   @Produces(MediaType.APPLICATION_JSON)
   @Timed
   public Response stopRule(@QueryParam("evtName") String eventName,
@@ -185,8 +186,8 @@ public class EventProcessorWebServiceAdminResource {
     }
   }
 
-  @POST
-  @Path("/change/rule")
+  @PUT
+  @Path("/change-rule")
   @Produces(MediaType.APPLICATION_JSON)
   @Timed
   public Response updateRule(@QueryParam("evtName") String eventName,

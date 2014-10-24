@@ -99,7 +99,7 @@ public class EventProcessorWebServiceResource {
    * @return
    */
   @GET
-  @Path("/event/check")
+  @Path("/check_event")
   @Produces(MediaType.APPLICATION_JSON)
   @Timed
   public Response check(@QueryParam("hashKey") String hashKey) {
@@ -135,7 +135,7 @@ public class EventProcessorWebServiceResource {
    * @return
    */
   @POST
-  @Path("/event/check")
+  @Path("/check_event")
   @Produces(MediaType.APPLICATION_JSON)
   @Timed
   public Response check(@QueryParam("evtName") String eventName, String bodyData) {
