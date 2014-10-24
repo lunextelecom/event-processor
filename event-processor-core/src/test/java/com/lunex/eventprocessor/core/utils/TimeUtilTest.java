@@ -16,22 +16,16 @@ public class TimeUtilTest {
 
   @Test
   public void testConvertDateToGMT_7() {
-//    fail("Not yet implemented");
-  }
-
-  @Test
-  public void testConvertDateToUnixTime() {
-//    fail("Not yet implemented");
-  }
-
-  @Test
-  public void testConvertDateToString() {
-//    fail("Not yet implemented");
+    Date date = new Date(25200000);
+    long ms = TimeUtil.convertDateToGMT_7(date);
+    assertEquals(25200000, ms);
   }
 
   @Test
   public void testGetMonday() {
-//    fail("Not yet implemented");
+    Date date = new Date(25200000);
+    Date monday = TimeUtil.getMonday(date);
+    assertEquals("Mon Dec 29 14:00:00 ICT 1969", monday.toString());
   }
 
 }

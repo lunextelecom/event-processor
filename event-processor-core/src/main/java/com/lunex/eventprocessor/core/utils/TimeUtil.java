@@ -23,10 +23,6 @@ public class TimeUtil {
     return Long.valueOf(date.getTime());
   }
 
-  public static long convertDateToUnixTime(Date date) {
-    return Long.valueOf(date.getTime() / 1000L);
-  }
-
   public static String convertDateToString(Date date, String format) {
     SimpleDateFormat formatter = new SimpleDateFormat(format);
     return formatter.format(date);
