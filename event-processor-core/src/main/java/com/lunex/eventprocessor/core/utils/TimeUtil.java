@@ -24,8 +24,7 @@ public class TimeUtil {
   }
 
   public static long convertDateToUnixTime(Date date) {
-    // return Long.valueOf(date.getTime() / 1000L);
-    return Long.valueOf(date.getTime());
+    return Long.valueOf(date.getTime() / 1000L);
   }
 
   public static String convertDateToString(Date date, String format) {

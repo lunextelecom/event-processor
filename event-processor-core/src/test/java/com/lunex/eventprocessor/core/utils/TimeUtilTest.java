@@ -11,7 +11,7 @@ public class TimeUtilTest {
   @Test
   public void testConvertStringToDate() {
     Date date = TimeUtil.convertStringToDate("23-10-2014 20:49:18 PDT", "dd-MM-yyyy HH:mm:ss z");
-    assertEquals(date.toString(), date.toString());
+    assertEquals(1414122558000L, date.getTime());
   }
 
   @Test

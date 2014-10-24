@@ -61,11 +61,11 @@ public class KafkaReader implements EventReader {
       formatTime = "dd-MM-yyyy HH:mm:ss z";
     }
     Date date = TimeUtil.convertStringToDate(dateTime, formatTime);
-    System.out.println("Kafka reader start: _____________________" + date
-        + "________________________");
+    // System.out.println("Kafka reader start: _____________________" + date
+    // + "________________________");
     this.whichTime = TimeUtil.convertDateToUnixTime(date);
-    System.out.println("Kafka reader start whichTime: _____________________" + whichTime
-        + "________________________");
+    // System.out.println("Kafka reader start whichTime: _____________________" + whichTime
+    // + "________________________");
     this.listKafkaConsumers = new ArrayList<KafkaSimpleConsumer>();
   }
 
@@ -169,7 +169,7 @@ public class KafkaReader implements EventReader {
     if (Configurations.kafkaEventReaderList != null
         && !Configurations.kafkaEventReaderList.isEmpty()
         && !Configurations.kafkaEventReaderList.contains(event.getEvtName())) {
-      logger.error("Invalid event name");
+      logger.error("Invalid event name: " + event.getEvtName());
       return;
     }
     if (event != null && event.getTime() != -1
