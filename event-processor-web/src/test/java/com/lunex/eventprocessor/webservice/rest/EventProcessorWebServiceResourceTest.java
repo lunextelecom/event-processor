@@ -64,6 +64,7 @@ public class EventProcessorWebServiceResourceTest {
       int retry = 10;
       while (response == null && retry > 0) {
         response = resource.check(StringUtils.md5Java(payload));
+        Thread.sleep(1000);
         retry--;
       }
       assertEquals(true, ((ServiceResponse) response.getEntity()).getResult());
@@ -83,6 +84,7 @@ public class EventProcessorWebServiceResourceTest {
       int retry = 10;
       while (response == null && retry > 0) {
         response = resource.check("new_order", StringUtils.md5Java(payload));
+        Thread.sleep(1000);
         retry--;
       }
       assertEquals(true, ((ServiceResponse) response.getEntity()).getResult());
