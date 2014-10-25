@@ -80,8 +80,14 @@ public class EventProcessorWebServiceResource {
 
         // Else If client want to check result
       } else {
-        // Thread.sleep(1000);
-        String resultCheck = service.checkEvent(hashKey);
+        int numRetry = 10;
+        String resultCheck = null;
+        while (resultCheck == null && numRetry > 0) {// check result and
+          // retry
+          resultCheck = service.checkEvent(hashKey);
+          Thread.sleep(1000);
+          numRetry--;
+        }
         return Response.status(Response.Status.OK).entity(new ServiceResponse(resultCheck, true))
             .build();
       }
