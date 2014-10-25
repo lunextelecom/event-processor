@@ -65,9 +65,16 @@ public class EventProcessorServiceAdminTest {
           assertEquals(true, true);
         }
       }
-      EventQuery eventquery = new EventQuery();
-      eventquery.setEventName("test_event");
-      eventquery.setRuleName("test_rule_name");
+      
+      service.updateRule("test_event", "test_rule_name", "test_event", "amount:double", "amount > 0", "", "", "1 minute", "", "amount > 10", "", false);
+      list = CassandraRepository.getInstance(ccServiceFactory.getDbHost(),
+          ccServiceFactory.getDbName()).getEventQueryFromDB("test_event", "test_rule_name");
+      if (list != null && !list.isEmpty()) {
+        if (list.get(0).getFields().equals("amount:double")) {
+          assertEquals(true, true);
+        }
+      }
+      
       service.deleteRule("test_event", "test_rule_name");
       list = CassandraRepository.getInstance(ccServiceFactory.getDbHost(),
           ccServiceFactory.getDbName()).getEventQueryFromDB("test_event", "test_rule_name");
