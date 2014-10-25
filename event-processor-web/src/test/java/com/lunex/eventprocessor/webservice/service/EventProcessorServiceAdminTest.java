@@ -55,7 +55,7 @@ public class EventProcessorServiceAdminTest {
   }
 
   @Test
-  public void testAddAndDeleteRule() {
+  public void testAddUpdateAndDeleteRule() {
     try {
       service.addRule("test_event", "test_rule_name", "test_event", "amount:int", "amount > 0", "", "", "1 minute", "", "amount > 10", "", EventQueryStatus.STOP);
       List<EventQuery> list = CassandraRepository.getInstance(ccServiceFactory.getDbHost(),
