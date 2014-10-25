@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.json.JSONObject;
 
+import com.google.common.base.Strings;
 import com.lunex.eventprocessor.core.EventQuery;
 import com.lunex.eventprocessor.core.EventQueryException;
 import com.lunex.eventprocessor.core.EventQuery.EventQueryStatus;
@@ -41,9 +42,11 @@ public class EventProcessorServiceAdmin {
   public void addRuleException(String eventName, String ruleName, String action, String datetinme,
       String filter) throws Exception {
     Map<String, Object> map = new HashMap<String, Object>();
-    map = JsonHelper.toMap(new JSONObject(filter));
+    if (!Strings.isNullOrEmpty(filter)) {
+      map = JsonHelper.toMap(new JSONObject(filter));
+    }
     EventQueryException eventQueyException =
-        new EventQueryException(eventName, ruleName, ExptionAction.valueOf(action),
+        new EventQueryException(eventName, ruleName, ExptionAction.getContentType(action),
             TimeUtil.convertStringToDate(datetinme, "dd/MM/yyyy HH:mm:ss"), map);
     cassandraRepository.insertEventQueryException(eventQueyException);
   }
