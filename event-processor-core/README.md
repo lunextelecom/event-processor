@@ -59,7 +59,7 @@ CREATE TABLE result_computation (
 	time bigint,// time of event create result of continuous query
 	hashkey text,// hashKey of event
     
-	result text,// result of continuous query, base on json format
+	result text,// result of continuous query, base on json format. Ex: {"acctNum": "PC01D001", "time": 140002040506, "hashKey":"H324jkd3k346klj346l", "sum(amount)": 120.0}
 	PRIMARY KEY (event_name, rule_name, time, hashkey) 
 ) WITH CLUSTERING ORDER BY (rule_name ASC, time DESC);
 ```
