@@ -158,10 +158,15 @@ Params:
 evtName: name of event
 ruleName: name of rule
 backfill: true/false
-backfillTime: time to backfill (N day, n hour, n minute, n second)
+backfillTime: time to backfill (N day, N hour, N minute, N second)
 
 6. Add rule exception config:
 POST /add-ruleexception?evtName=new_order&ruleName=rule1&action=verified&expiredDate=21/10/2014 15:00:00
+Params:
+evtName: name of event
+ruleName: name of rule
+action: currently ussing verified
+expiredDate: time to apply rule exception(dd/MM/mmmm HH:mm:ss)
 Body in json format
 {"acctNum": "PC01D001"} // fields of rule which need to be skipped
 
