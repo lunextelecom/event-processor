@@ -8,12 +8,12 @@ CREATE TABLE rules (
 
  	data text, // equal with event_name, using in "from" clause of rule
  	fields text, // using in "select" clause. Format: name:datatype, sum(name:datatype), max(name:datatype)... separate by ",". Ex: acctNum:string, sum(amount:double)
-	filters text, // using in "where" clause
- 	aggregate_field text, // using in "group by" clause
- 	having text, // using in "having" clause
+	filters text, // using in "where" clause. Format as fields column
+ 	aggregate_field text, // using in "group by" clause. Format as fields column
+ 	having text, // using in "having" clause. Format as fields column
  	small_bucket text, // bucket for every timeframe
  	big_bucket text, // bucket for last timeframe, base on small bucket
-	conditions text,// condition to check violation of result
+	conditions text,// condition to check violation of result. Format as expression: name > value && sum(name) > value || 1 == 1....  Ex: sum(amount) > 30.0 and count(txId) > 5
  	description text,// description for rule
  	status text,// status of rule, RUNNING or STOP
  	type int, // type of rule, 0: default and 1: day of week
