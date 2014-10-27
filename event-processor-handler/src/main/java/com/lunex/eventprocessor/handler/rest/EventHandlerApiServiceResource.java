@@ -121,7 +121,7 @@ public class EventHandlerApiServiceResource {
         }
         // if rule it not being stopped
         if (rule.getStatus() == EventQueryStatus.STOP) {
-          return new ServiceResponse("Rule is actually stoped", false);
+          return new ServiceResponse("Rule is actually stoped", true);
         }
         // else -> stop message event read and update rule
         EventHandlerLaunch.readerEsperProcessor.stop();
@@ -176,7 +176,7 @@ public class EventHandlerApiServiceResource {
         }
         // if rule is being stopped
         if (rule.getStatus() != EventQueryStatus.STOP) {
-          return new ServiceResponse("Rule is actually running", false);
+          return new ServiceResponse("Rule is actually running", true);
         }
         // else -> stop message event read and update rule
         EventHandlerLaunch.readerEsperProcessor.stop();
