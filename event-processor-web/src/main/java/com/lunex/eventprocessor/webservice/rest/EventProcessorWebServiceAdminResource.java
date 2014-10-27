@@ -250,6 +250,32 @@ public class EventProcessorWebServiceAdminResource {
     }
   }
 
+  /**
+   * Start a rule
+   * 
+   * @param eventName
+   * @param ruleName
+   * @return
+   */
+  @PUT
+  @Path("/start-rule")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Timed
+  public Response startRule(@QueryParam("evtName") String eventName,
+      @QueryParam("ruleName") String ruleName, @QueryParam("backfill") Boolean backfill,
+      @QueryParam("backfillTime") String backfillTime) {
+    try {
+      Map<String, Object> map = service.startRule(eventName, ruleName, backfill, backfillTime);
+      String startResponse = JsonHelper.toJSonString(map);
+      return Response.status(Response.Status.OK).entity(new ServiceResponse(startResponse, true))
+          .build();
+    } catch (Exception ex) {
+      logger.error(ex.getMessage(), ex);
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+          .entity(new ServiceResponse(ex.getMessage(), false)).build();
+    }
+  }
+
   @PUT
   @Path("/change-rule")
   @Produces(MediaType.APPLICATION_JSON)

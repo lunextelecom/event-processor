@@ -310,8 +310,8 @@ public class EsperProcessor implements Processor {
       // create EPL for big bucket and add listener for statement
       epl =
           " " + "select " + StringUtils.convertField2(select)
-              + ", hashKey as hashKey, time as time FROM " + smallBucketWindow + ".win:ext_timed(time, "
-              + bigBucket + ") " + group;
+              + ", hashKey as hashKey, time as time FROM " + smallBucketWindow
+              + ".win:ext_timed(time, " + bigBucket + ") " + group;
       epl = epl.replaceAll(" +", " ");
       EPStatement statement = admin.createEPL(epl, eventQuery.getRuleName());
       // Add listener, default listener is enable = false

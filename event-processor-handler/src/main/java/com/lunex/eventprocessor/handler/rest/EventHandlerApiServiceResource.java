@@ -132,15 +132,15 @@ public class EventHandlerApiServiceResource {
           rule.setStatus(EventQueryStatus.STOP);
           CassandraRepository.getInstance(Configurations.cassandraHost,
               Configurations.cassandraKeyspace).changeEventQueryStatus(rule);
-          return new ServiceResponse("Change successfully", true);
+          return new ServiceResponse("Stop successfully", true);
         } else {
-          return new ServiceResponse("Change unsuccessfully", false);
+          return new ServiceResponse("Stop unsuccessfully", false);
         }
       } else {
         return new ServiceResponse("No rule to process", false);
       }
     } catch (Exception e) {
-      return new ServiceResponse("Change unsuccessfully", false);
+      return new ServiceResponse("Stop unsuccessfully", false);
     }
   }
 
@@ -187,15 +187,15 @@ public class EventHandlerApiServiceResource {
           rule.setStatus(EventQueryStatus.RUNNING);
           CassandraRepository.getInstance(Configurations.cassandraHost,
               Configurations.cassandraKeyspace).changeEventQueryStatus(rule);
-          return new ServiceResponse("Change successfully", true);
+          return new ServiceResponse("Start successfully", true);
         } else {
-          return new ServiceResponse("Change unsuccessfully", false);
+          return new ServiceResponse("Start unsuccessfully", false);
         }
       } else {
         return new ServiceResponse("No rule to process", false);
       }
     } catch (Exception e) {
-      return new ServiceResponse("Change unsuccessfully", false);
+      return new ServiceResponse("Start unsuccessfully", false);
     }
   }
 

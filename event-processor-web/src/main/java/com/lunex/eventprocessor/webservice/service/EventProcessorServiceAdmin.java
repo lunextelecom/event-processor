@@ -129,7 +129,7 @@ public class EventProcessorServiceAdmin {
    * @return
    * @throws Exception
    */
-  public Map<String, Object> startRule(String eventName, String ruleName, boolean backfill,
+  public Map<String, Object> startRule(String eventName, String ruleName, Boolean backfill,
       String backfillTime) throws Exception {
     Map<String, Object> result = new HashMap<String, Object>();
     for (int i = 0; i < factory.getHandlerServiceUrl().length; i++) {
@@ -152,9 +152,9 @@ public class EventProcessorServiceAdmin {
       };
 
       NettyHttpSnoopClient client =
-          new NettyHttpSnoopClient(factory.getHandlerServiceUrl() + "/start/rule?evtName="
-              + eventName + "&ruleName=" + ruleName + "&backfill=" + backfillTime
-              + "&backfillTime=" + backfillTime, callback);
+          new NettyHttpSnoopClient(factory.getHandlerServiceUrl()[i] + "/start/rule?evtName="
+              + eventName + "&ruleName=" + ruleName + "&backfill=" + backfill + "&backfillTime="
+              + backfillTime, callback);
       client.postRequest(Constants.EMPTY_STRING, HttpMethod.POST);
       // Wait to get hashKey
       countdown.await(10000, TimeUnit.MILLISECONDS);
