@@ -175,9 +175,25 @@ Body in json format
 * App api to check, add event (proxy to handler)
 
 ```
-#add event to system, return a key that can be used to check data
+#add event to system, return a key that can be used to check data result
+POST /event?evtname=&result=
 function string addevent(event) 
-POST /event?evtname=&parm1=&param2=..
+- Params:
+evtName: name of event
+result: true/false(true: wait and get result, false: async)
+- Body in json format:
+{
+"evtName": "new_order", // name of event(required)
+"time" : 1435235124124, // time in ms(required)
+"acctNum": "PC01D001", // properties of event object
+"amount": 135.0, ....
+}
+- Response:
+In json format
+{
+"result": true/false,
+"message": "" // response message, return list violation if param result = true
+}
 
 # check data, either entire event can be pass in which or the key
 function bool check(event)
