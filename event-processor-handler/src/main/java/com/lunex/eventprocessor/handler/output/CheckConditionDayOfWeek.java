@@ -37,12 +37,13 @@ public class CheckConditionDayOfWeek implements CheckConditionHandler {
               eventQueryCondition.replace(newkey, String.valueOf(properties.get(key)));
         }
       }
+      long eventTime = (long) properties.get("time");
       long dateMiliseconds = 24*60*60*1000;
       double avgAmount = 0.0;
       double totalAmount = 0.0;
       int numWeek = 0;
       for(int i = 1; i <= 4; i++){
-        long passTime = dateMiliseconds*i*eventQuery.getWeight();
+        long passTime =  eventTime - dateMiliseconds*i*eventQuery.getWeight();
         long startTime = getBeginTime(passTime);
         long endTime = getEndTime(passTime);
         try {
@@ -104,9 +105,9 @@ public class CheckConditionDayOfWeek implements CheckConditionHandler {
   
     //Converting milliseconds to Date using Calendar
     Calendar cal = Calendar.getInstance();
-    cal.setTimeInMillis(currentDateTime);
+    cal.setTimeInMillis(1413738000085l);
     cal.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DATE), 0, 0, 0);
-    System.out.println(cal.getTime().getTime());
+    System.out.println(cal.getTime());
     
     System.out.println(currentDateTime);
     long t = 1414141281521l;
