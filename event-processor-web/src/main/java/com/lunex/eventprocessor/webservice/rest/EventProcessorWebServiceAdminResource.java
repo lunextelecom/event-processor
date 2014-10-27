@@ -99,7 +99,7 @@ public class EventProcessorWebServiceAdminResource {
    * @param bodyData: data of rule with json format
    * {
    * "evtName": "new_order", "ruleName": "rule1", "data":"new_order", "fields" : "sum(amount:double), acctNum:string", "filters":"acctNum:string='PC01D001'", "aggregateField": "acctNum:string".
-   * "having":"sum(amount:double) > 10.0", "smallBucket": "10 second", "bigBucket": "1 hour", "conditions":"sum(amount) > 50 && sum(amount) < 70", "description": "description", "autoStart": true, "backfill": true, "backfillTime": "1 day"
+   * "having":"sum(amount:double) > 10.0", "smallBucket": "10 second", "bigBucket": "1 hour", "conditions":"sum(amount) > 50 && sum(amount) < 70", "type": "0", "weight":"0", "description": "description", "autoStart": true, "backfill": true, "backfillTime": "1 day"
    * }
    * @return
    */
@@ -155,7 +155,15 @@ public class EventProcessorWebServiceAdminResource {
       if (json.has("backfillTime")) {
         backfillTime = json.getString("backfillTime");
       }
-
+      Integer type = 0;
+      if (json.has("type")) {
+        type = json.getInt("type");
+      }
+      Integer weight = 0;
+      if (json.has("weight")) {
+        weight = json.getInt("weight");
+      }
+      
       if (Strings.isNullOrEmpty(eventName) || Strings.isNullOrEmpty(ruleName)
           || Strings.isNullOrEmpty(data) || Strings.isNullOrEmpty(smallBucket)) {
         return Response.status(Response.Status.BAD_REQUEST).entity(new ServiceResponse("", false))
@@ -163,7 +171,7 @@ public class EventProcessorWebServiceAdminResource {
       }
 
       // Add rule to db
-      service.addRule(eventName, ruleName, data, fields, filters, aggregateField, having,
+      service.addRule(eventName, ruleName, data, fields, filters, aggregateField, having, type, weight,
           smallBucket, bigBucket, conditions, description, null);
       // Start rule
       if (autoStart != null && autoStart) {
@@ -295,7 +303,7 @@ public class EventProcessorWebServiceAdminResource {
    * @param bodyData : data of rule with json format
    * {
    * "evtName": "new_order", "ruleName": "rule1", "data":"new_order", "fields" : "sum(amount:double), acctNum:string", "filters":"acctNum:string='PC01D001'", "aggregateField": "acctNum:string".
-   * "having":"sum(amount:double) > 10.0", "smallBucket": "10 second", "bigBucket": "1 hour", "conditions":"sum(amount) > 50 && sum(amount) < 70", "description": "description", "autoStart": true, "backfill": true, "backfillTime": "1 day"
+   * "having":"sum(amount:double) > 10.0", "smallBucket": "10 second", "bigBucket": "1 hour", "conditions":"sum(amount) > 50 && sum(amount) < 70", "type": "0", "weight":"0", "description": "description", "autoStart": true, "backfill": true, "backfillTime": "1 day"
    * } 
    * @return
    */
@@ -353,9 +361,17 @@ public class EventProcessorWebServiceAdminResource {
       if (json.has("backfillTime")) {
         backfillTime = json.getString("backfillTime");
       }
+      Integer type = 0;
+      if (json.has("type")) {
+        type = json.getInt("type");
+      }
+      Integer weight = 0;
+      if (json.has("weight")) {
+        weight = json.getInt("weight");
+      }
 
-      service.updateRule(eventName, ruleName, data, fields, filters, aggregateField, having,
-          smallBucket, bigBucket, conditions, description, autoStart);
+      service.updateRule(eventName, ruleName, data, fields, filters, aggregateField, having, type,
+          weight, smallBucket, bigBucket, conditions, description, autoStart);
       if (autoStart != null && autoStart) {
         if (backfill == null) {
           backfill = false;

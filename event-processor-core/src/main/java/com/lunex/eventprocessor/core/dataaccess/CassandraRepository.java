@@ -245,11 +245,11 @@ public class CassandraRepository {
       eventQuery.setStatus(EventQueryStatus.valueOf(row.getString("status")));
       eventQuery.setType(EventQueryType.DEFAULT);
       Integer type = row.getInt("type");
-      if(type == 1){
+      if (type == 1) {
         eventQuery.setType(EventQueryType.DAY_OF_WEEK);
       }
       eventQuery.setWeight(row.getInt("weight"));
-      
+
       eventQuery.setDescription(row.getString("description"));
       results.add(eventQuery);
     }
@@ -270,7 +270,7 @@ public class CassandraRepository {
     String sql =
         "INSERT INTO "
             + keyspace
-            + ".rules (event_name, rule_name, data, fields, filters, aggregate_field, having, small_bucket, big_bucket, conditions, description, status) VALUES (?, ?, ?, ?, ?, ?, ? , ?, ? , ?, ?, ?);";
+            + ".rules (event_name, rule_name, data, fields, filters, aggregate_field, having, small_bucket, big_bucket, conditions, description, status, type, weight) VALUES (?, ?, ?, ?, ?, ?, ? , ?, ? , ?, ?, ?, ?, ?);";
     List<Object> params = new ArrayList<Object>();
     params.add(eventQuery.getEventName());
     params.add(eventQuery.getRuleName());
@@ -284,6 +284,21 @@ public class CassandraRepository {
     params.add(eventQuery.getConditions());
     params.add(eventQuery.getDescription());
     params.add(eventQuery.getStatus().toString());
+    if (eventQuery.getType() == null) {
+      params.add(0);
+    } else {
+      switch (eventQuery.getType()) {
+        case DEFAULT:
+          params.add(0);
+          break;
+        case DAY_OF_WEEK:
+          params.add(1);
+          break;
+        default:
+          break;
+      }
+    }
+    params.add(eventQuery.getWeight());
     execute(sql, params);
   }
 
@@ -575,9 +590,13 @@ public class CassandraRepository {
     }
     return results;
   }
-  
-  public List<ResultComputation> getResultComputation(String eventName, String ruleName, long startTime, long endTime, int limit) throws Exception {
-    String sql = "SELECT * FROM " + keyspace + ".result_computation where event_name = ? and rule_name = ? and time >= ? and time <=?  limit ?";
+
+  public List<ResultComputation> getResultComputation(String eventName, String ruleName,
+      long startTime, long endTime, int limit) throws Exception {
+    String sql =
+        "SELECT * FROM "
+            + keyspace
+            + ".result_computation where event_name = ? and rule_name = ? and time >= ? and time <=?  limit ?";
     List<Object> params = new ArrayList<Object>();
     params.add(eventName);
     params.add(ruleName);
@@ -591,10 +610,12 @@ public class CassandraRepository {
       if (results == null) {
         results = new ArrayList<ResultComputation>();
       }
-      tmp = new ResultComputation(row.getString("eventName"), row.getString("ruleName"), row.getLong("time"), row.getString("hashKey"), row.getString("payLoad"));
+      tmp =
+          new ResultComputation(row.getString("eventName"), row.getString("ruleName"),
+              row.getLong("time"), row.getString("hashKey"), row.getString("payLoad"));
       results.add(tmp);
     }
     return results;
   }
-  
+
 }
