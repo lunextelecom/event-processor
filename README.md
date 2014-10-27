@@ -154,7 +154,16 @@ PUT /admin/stop-rule?evtName=new_order&ruleName=rule1
 
 5. Start rule: 
 PUT /admin/start-rule?evtName=new_order&ruleName=rule1&backfill=true&backfillTime=1 day
+Params:
+evtName: name of event
+ruleName: name of rule
+backfill: true/false
+backfillTime: time to backfill (N day, n hour, n minute, n second)
 
+6. Add rule exception config:
+POST /add-ruleexception?evtName=new_order&ruleName=rule1&action=verified&expiredDate=21/10/2014 15:00:00
+Body in json format
+{"acctNum": "PC01D001"} // fields of rule which need to be skipped
 
 ```
 
