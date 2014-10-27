@@ -57,7 +57,7 @@ public class CheckConditionDayOfWeek implements CheckConditionHandler {
             ResultComputation resultComputation = lst.get(0);
             if (resultComputation.getResult().get("sum(amount)") != null
                 && Double.parseDouble(resultComputation.getResult().get("sum(amount)").toString()) > 0) {
-              totalAmount =
+              totalAmount += 
                   Double.parseDouble(resultComputation.getResult().get("sum(amount)").toString());
               numWeek++;
             }
