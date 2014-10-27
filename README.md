@@ -103,6 +103,59 @@ Dropwizard standalone web application.  Provide the following functionality
 
 ```
 Programmer TODO
+1. Add new rule:
+POST /admin/add-rule?evtName=new_order&ruleName=rule10
+Body in json format
+{"evtName":"new_order", //name of event
+"ruleName":"rule10", //name of rule
+"data":"new_order", //name of data, the same with name of event, which provide for esper processor, using in 'from' of rule
+"fields":"sum(amount:double), count(txId:long), acctNum:string", //selected fields of query rule
+"bigBucket":"5 minute", //big bucket is time for last timeframe
+"smallBucket":"10 second", //small bucket is time for every timeframe
+"conditions":"sum(amount)>120", //condition to check result
+"aggregateField":"acctNum:string", //'group by' clause in rule
+"filters":"amount:double > 10 and acctNum:string = 'PC01D005'", //using in 'where' clause
+"having":"sum(amount:double) > 20",//using in 'having' clause of query rule
+"type": 0, //type of rule, currently, nomarl:0 and day_of_week:1
+"weight": 0, //how far to check day_of_week
+"description": "description", 
+"autoStart": false, //auto start rule when add
+"backfill": false, //auto start backfill when start
+"backfillTime": "1 day" //how far to backfill
+}
+
+2. Delete rule:
+DELETE /admin/delete-rule?evtName=new_order&ruleName=rule10
+
+3. Update rule:
+PUT /admin/change-rule?evtName=new_order&ruleName=rule1
+Body in json format
+{"evtName":"new_order", //name of event
+"ruleName":"rule10", //name of rule
+"data":"new_order", //name of data, the same with name of event, which provide for esper processor, using in 'from' of rule
+"fields":"sum(amount:double), count(txId:long), acctNum:string", //selected fields of query rule
+"bigBucket":"5 minute", //big bucket is time for last timeframe
+"smallBucket":"10 second", //small bucket is time for every timeframe
+"conditions":"sum(amount)>120", //condition to check result
+"aggregateField":"acctNum:string", //'group by' clause in rule
+"filters":"amount:double > 10 and acctNum:string = 'PC01D005'", //using in 'where' clause
+"having":"sum(amount:double) > 20",//using in 'having' clause of query rule
+"type": 0, //type of rule, currently, nomarl:0 and day_of_week:1
+"weight": 0, //how far to check day_of_week
+"description": "description", 
+"autoStart": false, //auto start rule when add
+"backfill": false, //auto start backfill when start
+"backfillTime": "1 day" //how far to backfill
+}
+
+4. Stop rule:
+PUT /admin/stop-rule?evtName=new_order&ruleName=rule1
+
+
+5. Start rule: 
+PUT /admin/start-rule?evtName=new_order&ruleName=rule1&backfill=true&backfillTime=1 day
+
+
 ```
 
 * App api to check, add event (proxy to handler)
