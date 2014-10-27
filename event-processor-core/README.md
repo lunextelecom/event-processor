@@ -27,7 +27,7 @@ CREATE TABLE rules (
  	time bigint, // time of event, base on milisecond 
  	hashkey text, // hashkey of event, return for client when adding new event
     
- 	event text, // properties of event, base on json format
+ 	event text, // properties of event, base on json format. Ex: {"acctNum": "PC01D001", "amount": 120.0}
  	PRIMARY KEY (event_name, time, hashkey)
  ) WITH CLUSTERING ORDER BY (time ASC);
 
@@ -48,7 +48,7 @@ CREATE TABLE condition_exception (
 	rule_name text, // rule name
 	action text, // action apply for exception. Currently, 'verified'
 	expired_date timestamp,// time to apply this exception
-	condition_filter text,// list properties of evnt need to check exception, base on json format as event column in events table
+	condition_filter text,// list properties of evnt need to check exception, base on json format as event column in events table. Ex: {"acctNum":"PC01D001"}
 	PRIMARY KEY (id, event_name, rule_name, action, expired_date) 
 );
 
