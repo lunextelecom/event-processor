@@ -591,6 +591,16 @@ public class CassandraRepository {
     return results;
   }
 
+  /**
+   * Get result of continue query
+   * @param eventName
+   * @param ruleName
+   * @param startTime
+   * @param endTime
+   * @param limit
+   * @return
+   * @throws Exception
+   */
   public List<ResultComputation> getResultComputation(String eventName, String ruleName,
       long startTime, long endTime, int limit) throws Exception {
     String sql =
@@ -611,8 +621,8 @@ public class CassandraRepository {
         results = new ArrayList<ResultComputation>();
       }
       tmp =
-          new ResultComputation(row.getString("eventName"), row.getString("ruleName"),
-              row.getLong("time"), row.getString("hashKey"), row.getString("payLoad"));
+          new ResultComputation(eventName, ruleName,
+              row.getLong("time"), row.getString("hashkey"), row.getString("result"));
       results.add(tmp);
     }
     return results;

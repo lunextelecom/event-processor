@@ -28,4 +28,17 @@ public class TimeUtilTest {
     assertEquals("Mon Dec 29 14:00:00 ICT 1969", monday.toString());
   }
 
+  @Test
+  public void getBeginTime() {
+    Date date = new Date();
+    long time = date.getTime();
+    long startTime = TimeUtil.getBeginTime(time);
+    long endtime = TimeUtil.getEndTime(time);
+    Date startDate = new Date(startTime);
+    Date endDate = new Date(endtime);
+    assertEquals(TimeUtil.convertDateToString(date, "dd/MM/yyyy") + " 00:00:00",
+        TimeUtil.convertDateToString(startDate, "dd/MM/yyyy HH:mm:ss"));
+    assertEquals(TimeUtil.convertDateToString(date, "dd/MM/yyyy") + " 23:59:59",
+        TimeUtil.convertDateToString(endDate, "dd/MM/yyyy HH:mm:ss"));
+  }
 }

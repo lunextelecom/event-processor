@@ -36,4 +36,20 @@ public class TimeUtil {
     c.add(Calendar.DAY_OF_WEEK, -today + Calendar.MONDAY);
     return c.getTime();
   }
+  
+  public static long getBeginTime(long time) {
+    // Converting milliseconds to Date using Calendar
+    Calendar cal = Calendar.getInstance();
+    cal.setTimeInMillis(time);
+    cal.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DATE), 0, 0, 0);
+    return cal.getTime().getTime();
+  }
+
+  public static long getEndTime(long time) {
+    // Converting milliseconds to Date using Calendar
+    Calendar cal = Calendar.getInstance();
+    cal.setTimeInMillis(time);
+    cal.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DATE), 23, 59, 59);
+    return cal.getTime().getTime();
+  }
 }

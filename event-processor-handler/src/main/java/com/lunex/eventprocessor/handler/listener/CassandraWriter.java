@@ -36,6 +36,9 @@ public class CassandraWriter implements ResultListener {
     // *******************************//
     if (queryFuture != null) {
       final EventQuery eventQuery = queryFuture.getEventQuery();
+      if (eventQuery == null) {
+        return;
+      }
       final Object[] data = result;
       Thread cassandraWriter = new Thread(new Runnable() {
         public void run() {
@@ -43,9 +46,17 @@ public class CassandraWriter implements ResultListener {
             // Write result of computation
             DataAccessOutputHandler.writeResultComputation(data, eventQuery);
 
-            CheckConditionHandler checkConditionHandler = new CheckConditionDefault();
-            if (eventQuery != null && eventQuery.getType() == EventQueryType.DAY_OF_WEEK) {
-              checkConditionHandler = new CheckConditionDayOfWeek();
+            CheckConditionHandler checkConditionHandler = null;
+            switch (eventQuery.getType()) {
+              case DEFAULT:
+                checkConditionHandler = new CheckConditionDefault();
+                break;
+              case DAY_OF_WEEK:
+                checkConditionHandler = new CheckConditionDayOfWeek();
+                break;
+              default:
+                checkConditionHandler = new CheckConditionDefault();
+                break;
             }
             // Write checked condition
             EventResult eventResult =
