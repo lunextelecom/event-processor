@@ -94,15 +94,14 @@ public class EsperProcessor implements Processor {
     String eventName = eventQuery.getEventName();
     String ruleName = eventQuery.getRuleName();
 
-    // stop and destroy
+    // stop and destroy if this rule is existed in esper
     String serviceProviderURI = eventName + ":" + ruleName;
     EPServiceProvider serviceProvider = this.mapServiceProvider.get(serviceProviderURI);
-    if (serviceProvider == null) {
-      return false;
+    if (serviceProvider != null) {
+      this.mapServiceProvider.remove(serviceProviderURI);
+      this.queryHierarchy.removeQueryHierarchy(eventName, eventQuery);
+      serviceProvider.destroy();
     }
-    this.mapServiceProvider.remove(serviceProviderURI);
-    this.queryHierarchy.removeQueryHierarchy(eventName, eventQuery);
-    serviceProvider.destroy();
 
     try {
       // Create EPServiceProvider
@@ -151,7 +150,7 @@ public class EsperProcessor implements Processor {
     // Get EPServiceProvider from Map
     EPServiceProvider serviceProvider = this.mapServiceProvider.get(serviceProviderURI);
     if (serviceProvider == null) {
-      return false;
+      return true;
     }
     // Remove from Map
     this.mapServiceProvider.remove(serviceProviderURI);
