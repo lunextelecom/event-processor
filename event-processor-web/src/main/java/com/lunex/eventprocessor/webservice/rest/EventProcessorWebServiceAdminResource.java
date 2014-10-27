@@ -204,7 +204,7 @@ public class EventProcessorWebServiceAdminResource {
         String key = keys.next();
         String stopResultStr = (String) map.get(key);
         // check result after stop
-        if (!StringUtils.isJSONValid(stopResultStr)) {
+        if (StringUtils.isJSONValid(stopResultStr)) {
           JSONObject json = new JSONObject(stopResultStr);
           if (!json.getBoolean("result")) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)

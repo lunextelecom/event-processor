@@ -289,7 +289,7 @@ public class EsperProcessor implements Processor {
     if (bigBucket != null && smallBucket != null && !Constants.EMPTY_STRING.equals(bigBucket)
         && !Constants.EMPTY_STRING.equals(smallBucket)) {
 
-      String tempTable = StringUtils.md5Java(eventQuery.getRuleName() + eventQuery.getEventName());
+      String tempTable = StringUtils.randomString(10);
       String context = tempTable + "_Per_" + smallBucket.replace(" ", "_");
       String smallBucketWindow = tempTable + "_" + smallBucket.replace(" ", "_");
       // create EPL for context
