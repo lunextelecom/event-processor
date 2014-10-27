@@ -17,6 +17,7 @@ import org.json.JSONObject;
 
 import com.google.common.base.Strings;
 import com.lunex.eventprocessor.core.EventQuery;
+import com.lunex.eventprocessor.core.EventQuery.EventQueryType;
 import com.lunex.eventprocessor.core.EventQueryException;
 import com.lunex.eventprocessor.core.EventQuery.EventQueryStatus;
 import com.lunex.eventprocessor.core.EventQueryException.ExptionAction;
@@ -68,8 +69,9 @@ public class EventProcessorServiceAdmin {
    * @throws Exception
    */
   public void addRule(String eventName, String ruleName, String data, String fields,
-      String filters, String aggregateField, String having, String smallBucket, String bigBucket,
-      String conditions, String description, EventQueryStatus status) throws Exception {
+      String filters, String aggregateField, String having, Integer type, Integer weight,
+      String smallBucket, String bigBucket, String conditions, String description,
+      EventQueryStatus status) throws Exception {
     EventQuery eventQuery = new EventQuery();
     eventQuery.setEventName(eventName);
     eventQuery.setRuleName(ruleName);
@@ -82,6 +84,18 @@ public class EventProcessorServiceAdmin {
     eventQuery.setConditions(conditions);
     eventQuery.setHaving(having);
     eventQuery.setDescription(description);
+    switch (type) {
+      case 0:
+        eventQuery.setType(EventQueryType.DEFAULT);
+        break;
+      case 1:
+        eventQuery.setType(EventQueryType.DAY_OF_WEEK);
+        break;
+      default:
+        eventQuery.setType(EventQueryType.DEFAULT);
+        break;
+    }
+    eventQuery.setWeight(weight);
     if (status == null) {
       status = EventQueryStatus.STOP;
     }
@@ -90,8 +104,9 @@ public class EventProcessorServiceAdmin {
   }
 
   public void updateRule(String eventName, String ruleName, String data, String fields,
-      String filters, String aggregateField, String having, String smallBucket, String bigBucket,
-      String conditions, String description, Boolean autoStart) throws Exception {
+      String filters, String aggregateField, String having, Integer type, Integer weight,
+      String smallBucket, String bigBucket, String conditions, String description, Boolean autoStart)
+      throws Exception {
     List<EventQuery> rules = cassandraRepository.getEventQueryFromDB(eventName, ruleName);
     if (rules == null || rules.isEmpty()) {
       throw new Exception("Not exist rule");
@@ -101,8 +116,8 @@ public class EventProcessorServiceAdmin {
       status = EventQueryStatus.RUNNING;
     }
     // with cassandra, insert with the same key is update
-    addRule(eventName, ruleName, data, fields, filters, aggregateField, having, smallBucket,
-        bigBucket, conditions, description, status);
+    addRule(eventName, ruleName, data, fields, filters, aggregateField, having, type, weight,
+        smallBucket, bigBucket, conditions, description, status);
   }
 
   /**
