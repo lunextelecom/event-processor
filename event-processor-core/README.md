@@ -7,7 +7,7 @@ CREATE TABLE rules (
  	rule_name text, // name of rule
 
  	data text, // equal with event_name, using in "from" clause of rule
- 	fields text, // using in "select" clause
+ 	fields text, // using in "select" clause. Format: name:datatype, sum(name:datatype), max(name:datatype)... separate by ",". Ex: acctNum:string, sum(amount:double)
 	filters text, // using in "where" clause
  	aggregate_field text, // using in "group by" clause
  	having text, // using in "having" clause
