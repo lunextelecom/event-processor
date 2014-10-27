@@ -1,3 +1,6 @@
+event-processor-core
+=======================
+
 ###DB design:
 
 
@@ -78,3 +81,7 @@ CREATE TABLE result_computation (
 	PRIMARY KEY (event_name, rule_name, time, hashkey) 
 ) WITH CLUSTERING ORDER BY (rule_name ASC, time DESC);
 ```
+
+
+### Object
+Review in https://github.com/lunextelecom/event-processor/tree/master/event-processor-handler
