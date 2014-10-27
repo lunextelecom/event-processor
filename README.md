@@ -104,7 +104,7 @@ Dropwizard standalone web application.  Provide the following functionality
 ```
 Programmer TODO
 1. Add new rule:
-POST /admin/add-rule?evtName=new_order&ruleName=rule10
+POST /admin/rule?evtName=new_order&ruleName=rule10
 Body in json format
 {"evtName":"new_order", //name of event
 "ruleName":"rule10", //name of rule
@@ -125,10 +125,10 @@ Body in json format
 }
 
 2. Delete rule:
-DELETE /admin/delete-rule?evtName=new_order&ruleName=rule10
+DELETE /admin/rule?evtName=new_order&ruleName=rule10
 
 3. Update rule:
-PUT /admin/change-rule?evtName=new_order&ruleName=rule1
+PUT /admin/rule?evtName=new_order&ruleName=rule1
 Body in json format
 {"evtName":"new_order", //name of event
 "ruleName":"rule10", //name of rule
@@ -149,11 +149,11 @@ Body in json format
 }
 
 4. Stop rule:
-PUT /admin/stop-rule?evtName=new_order&ruleName=rule1
+PUT /admin/rule/stop?evtName=new_order&ruleName=rule1
 
 
 5. Start rule: 
-PUT /admin/start-rule?evtName=new_order&ruleName=rule1&backfill=true&backfillTime=1 day
+PUT /admin/rule/start?evtName=new_order&ruleName=rule1&backfill=true&backfillTime=1 day
 Params:
 evtName: name of event
 ruleName: name of rule
@@ -161,7 +161,7 @@ backfill: true/false
 backfillTime: time to backfill (N day, N hour, N minute, N second)
 
 6. Add rule exception config:
-POST /add-ruleexception?evtName=new_order&ruleName=rule1&action=verified&expiredDate=21/10/2014 15:00:00
+POST /rule-exception?evtName=new_order&ruleName=rule1&action=verified&expiredDate=21/10/2014 15:00:00
 Params:
 evtName: name of event
 ruleName: name of rule
