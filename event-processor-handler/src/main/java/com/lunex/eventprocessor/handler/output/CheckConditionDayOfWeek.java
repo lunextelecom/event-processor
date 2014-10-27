@@ -37,7 +37,7 @@ public class CheckConditionDayOfWeek implements CheckConditionHandler {
               eventQueryCondition.replace(newkey, String.valueOf(properties.get(key)));
         }
       }
-      long eventTime = (long) properties.get("time");
+      long eventTime = (Long) properties.get("time");
       long dateMiliseconds = 24*60*60*1000;
       double avgAmount = 0.0;
       double totalAmount = 0.0;
