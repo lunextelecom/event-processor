@@ -53,7 +53,7 @@ public class NettyHttpSnoopClient {
    * @throws SSLException
    */
   private boolean preProcessURL() throws URISyntaxException, SSLException {
-    this.uri = new URI(url);
+    this.uri = new URI(url.replace(" ", "%20"));
     this.scheme = uri.getScheme();
     this.host = uri.getHost();
     this.port = uri.getPort();
