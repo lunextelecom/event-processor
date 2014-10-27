@@ -1,12 +1,12 @@
 package com.lunex.eventprocessor.handler.output;
 
-import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +21,12 @@ import com.lunex.eventprocessor.core.utils.StringUtils;
 import com.lunex.eventprocessor.core.utils.TimeUtil;
 import com.lunex.eventprocessor.handler.utils.Configurations;
 
+/**
+ * Check for special case day_of_week
+ * 
+ * sum amount()
+ *
+ */
 public class CheckConditionDayOfWeek implements CheckConditionHandler {
 
   static final Logger logger = LoggerFactory.getLogger(CheckConditionDayOfWeek.class);
@@ -57,12 +63,14 @@ public class CheckConditionDayOfWeek implements CheckConditionHandler {
             ResultComputation resultComputation = lst.get(0);
             if (resultComputation.getResult().get("sum(amount)") != null
                 && Double.parseDouble(resultComputation.getResult().get("sum(amount)").toString()) > 0) {
-              totalAmount += 
+              totalAmount +=
                   Double.parseDouble(resultComputation.getResult().get("sum(amount)").toString());
               numWeek++;
             }
           }
         } catch (Exception e) {
+          logger.error(e.getMessage(), e);
+          return null;
         }
       }
       if (numWeek > 0) {

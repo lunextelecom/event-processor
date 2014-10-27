@@ -225,10 +225,12 @@ public class DataAccessOutputHandler {
    * @param result
    * @param eventQuery
    */
-  public static EventResult checkCondition(Object[] result, EventQuery eventQuery, CheckConditionHandler checkConditionHandler) {
+  public static List<EventResult> checkCondition(Object[] result, EventQuery eventQuery,
+      CheckConditionHandler checkConditionHandler) {
     if (result == null || result.length == 0) {
       return null;
     }
+    List<EventResult> listResult = new ArrayList<EventResult>();
     try {
       // get list condition excption
       List<EventQueryException> condtionExceptions =
@@ -292,17 +294,19 @@ public class DataAccessOutputHandler {
               new EventResult(eventQuery.getEventName(), hashKey, null,
                   "{\"result\": false, \"result-event\": {" + properties.toString()
                       + "}, \"rule\":\"" + eventQuery.getRuleName() + "\"}");
-          return eventResult;
+          listResult.add(eventResult);
         } else { // if not exception is exist
           // check condition to get final result. When this condition is met, check will return true
           // else false
-          return checkConditionHandler.checkCondition(properties, eventQuery, hashKey);
+          EventResult eventResult =
+              checkConditionHandler.checkCondition(properties, eventQuery, hashKey);
+          listResult.add(eventResult);
         }
       }
     } catch (Exception e) {
       logger.error(e.getMessage(), e);
     }
-    return null;
+    return listResult;
   }
 
 }

@@ -1,11 +1,12 @@
 package com.lunex.eventprocessor.handler.listener;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 import com.lunex.eventprocessor.core.EventQuery;
-import com.lunex.eventprocessor.core.EventQuery.EventQueryType;
 import com.lunex.eventprocessor.core.EventResult;
 import com.lunex.eventprocessor.core.QueryFuture;
 import com.lunex.eventprocessor.core.listener.ResultListener;
@@ -55,13 +56,16 @@ public class KafkaWriter implements ResultListener {
                 checkConditionHandler = new CheckConditionDefault();
                 break;
             }
-            EventResult eventResult =
+            List<EventResult> eventResults =
                 DataAccessOutputHandler.checkCondition(data, eventQuery, checkConditionHandler);
-
+            EventResult eventResult = null;
             Gson gson = new Gson();
-            String json = gson.toJson(eventResult);
-            EventHandlerLaunch.kafkaProducer.sendData(Configurations.kafkaTopicOutput,
-                eventQuery.getEventName(), json);
+            for (int i = 0; i < eventResults.size(); i++) {
+              eventResult = eventResults.get(i);
+              String json = gson.toJson(eventResult);
+              EventHandlerLaunch.kafkaProducer.sendData(Configurations.kafkaTopicOutput,
+                  eventQuery.getEventName(), json);
+            }
           } catch (Exception e) {
             logger.error(e.getMessage(), e);
           }

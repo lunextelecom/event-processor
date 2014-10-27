@@ -1,13 +1,14 @@
 package com.lunex.eventprocessor.handler.listener;
 
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.lunex.eventprocessor.core.EventQuery;
 import com.lunex.eventprocessor.core.EventResult;
 import com.lunex.eventprocessor.core.QueryFuture;
-import com.lunex.eventprocessor.core.EventQuery.EventQueryType;
 import com.lunex.eventprocessor.core.dataaccess.CassandraRepository;
 import com.lunex.eventprocessor.core.listener.ResultListener;
 import com.lunex.eventprocessor.handler.output.CheckConditionDayOfWeek;
@@ -59,10 +60,14 @@ public class CassandraWriter implements ResultListener {
                 break;
             }
             // Write checked condition
-            EventResult eventResult =
+            List<EventResult> eventResults =
                 DataAccessOutputHandler.checkCondition(data, eventQuery, checkConditionHandler);
-            CassandraRepository.getInstance(Configurations.cassandraHost,
-                Configurations.cassandraKeyspace).updateResults(eventResult);
+            EventResult eventResult = null;
+            for (int i = 0; i < eventResults.size(); i++) {
+              eventResult = eventResults.get(i);
+              CassandraRepository.getInstance(Configurations.cassandraHost,
+                  Configurations.cassandraKeyspace).updateResults(eventResult);
+            }
           } catch (Exception e) {
             logger.error(e.getMessage(), e);
           }
