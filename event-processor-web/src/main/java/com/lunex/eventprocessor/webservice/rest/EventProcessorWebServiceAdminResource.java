@@ -155,11 +155,11 @@ public class EventProcessorWebServiceAdminResource {
       if (json.has("backfillTime")) {
         backfillTime = json.getString("backfillTime");
       }
-      Integer type = null;
+      Integer type = 0;
       if (json.has("type")) {
         type = json.getInt("type");
       }
-      Integer weight = null;
+      Integer weight = 0;
       if (json.has("weight")) {
         weight = json.getInt("weight");
       }
@@ -361,11 +361,11 @@ public class EventProcessorWebServiceAdminResource {
       if (json.has("backfillTime")) {
         backfillTime = json.getString("backfillTime");
       }
-      Integer type = null;
+      Integer type = 0;
       if (json.has("type")) {
         type = json.getInt("type");
       }
-      Integer weight = null;
+      Integer weight = 0;
       if (json.has("weight")) {
         weight = json.getInt("weight");
       }
