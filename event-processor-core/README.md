@@ -1,5 +1,7 @@
 ###DB design:
 
+
+Rule
 ```
 // Column fammily for rule
 CREATE TABLE rules (
@@ -20,7 +22,11 @@ CREATE TABLE rules (
  	weight int, // using for case type = 1
 	PRIMARY KEY (event_name, rule_name) 
 );
+ ```
  
+ 
+Event 
+ ```
  // Column family for event
  CREATE TABLE events (
 	event_name text, // event name
@@ -30,7 +36,10 @@ CREATE TABLE rules (
  	event text, // properties of event, base on json format. Ex: {"acctNum": "PC01D001", "amount": 120.0}
  	PRIMARY KEY (event_name, time, hashkey)
  ) WITH CLUSTERING ORDER BY (time ASC);
-
+ ```
+ 
+ Result after check condition
+  ```
 // Column family for result of event after check condition 
  CREATE TABLE results (
 	event_name text, // name of event
@@ -40,7 +49,10 @@ CREATE TABLE rules (
 	filtered_result list<text>,// result of event after applying rule exception
 	PRIMARY KEY ( event_name, hashkey)
 );
-
+ ```
+ 
+ Rule Exception
+  ```
 // Column family for rule exception
 CREATE TABLE condition_exception (
 	id uuid, // unique key
@@ -51,7 +63,10 @@ CREATE TABLE condition_exception (
 	condition_filter text,// list properties of evnt need to check exception, base on json format as event column in events table. Ex: {"acctNum":"PC01D001"}
 	PRIMARY KEY (id, event_name, rule_name, action, expired_date) 
 );
-
+ ```
+ 
+ Result of continuous query 
+  ```
 // Column family for result of continuous query
 CREATE TABLE result_computation (
 	event_name text,// event name
