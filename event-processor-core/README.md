@@ -52,12 +52,14 @@ CREATE TABLE condition_exception (
 	PRIMARY KEY (id, event_name, rule_name, action, expired_date) 
 );
 
+// Column family for result of continuous query
 CREATE TABLE result_computation (
-	event_name text,
-	rule_name text,
-	time bigint,
-	hashkey text,
-	result text,
+	event_name text,// event name
+	rule_name text,// rule name
+	time bigint,// time of event create result of continuous query
+	hashkey text,// hashKey of event
+    
+	result text,// result of continuous query, base on json format
 	PRIMARY KEY (event_name, rule_name, time, hashkey) 
 ) WITH CLUSTERING ORDER BY (rule_name ASC, time DESC);
 ```
