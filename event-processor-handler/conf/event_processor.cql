@@ -22,6 +22,8 @@ CREATE TABLE rules (
 	conditions text,
  	description text,
  	status text,
+ 	type int,
+ 	weight int,
 	PRIMARY KEY (event_name, rule_name) 
 );
  
@@ -59,4 +61,4 @@ CREATE TABLE result_computation (
 	hashkey text,
 	result text,
 	PRIMARY KEY (event_name, rule_name, time, hashkey) 
-);
+) WITH CLUSTERING ORDER BY (rule_name ASC, time DESC);
