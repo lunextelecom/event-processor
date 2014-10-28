@@ -137,7 +137,7 @@ public class NettyHttpSnoopClient {
     }
 
     // Configure the client.
-    group = new NioEventLoopGroup(1000);
+    group = new NioEventLoopGroup(1);
     try {
       Bootstrap b = new Bootstrap();
       b.group(group).channel(NioSocketChannel.class)
