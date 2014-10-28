@@ -31,8 +31,8 @@ app:
   dbHost: 192.168.93.38
   dbUsername:
   dbPassword:
-  inputProcessorUrl: http://192.168.93.61:9038
-  handlerServiceUrl: ["http://192.168.93.61:8088/event-processor-handler"]
+  inputProcessorUrl: http://10.9.9.64:9038
+  handlerServiceUrl: ["http://10.9.9.64:8088/event-processor-handler"]
   cacheConfig:
   statsdHost:
   statsdAppPrefix:
