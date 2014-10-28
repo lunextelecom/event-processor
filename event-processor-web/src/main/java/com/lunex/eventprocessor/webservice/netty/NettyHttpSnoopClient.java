@@ -39,6 +39,7 @@ public class NettyHttpSnoopClient {
   private SslContext sslCtx;
   public Object msg;
   public Channel ch;
+  public EventLoopGroup group;
 
   public NettyHttpSnoopClient(String url, CallbackHTTPVisitor callback) {
     this.url = url;
@@ -92,7 +93,7 @@ public class NettyHttpSnoopClient {
     }
 
     // Configure the client.
-    EventLoopGroup group = new NioEventLoopGroup();
+    group = new NioEventLoopGroup(1000);
     try {
       Bootstrap b = new Bootstrap();
       b.group(group).channel(NioSocketChannel.class)
@@ -120,10 +121,6 @@ public class NettyHttpSnoopClient {
       ch.closeFuture().sync();
     } catch (Exception ex) {
       throw ex;
-    } finally {
-      ch.disconnect();
-      // Shut down executor threads to exit.
-      group.shutdownGracefully();
     }
     return true;
   }
@@ -140,7 +137,7 @@ public class NettyHttpSnoopClient {
     }
 
     // Configure the client.
-    EventLoopGroup group = new NioEventLoopGroup();
+    group = new NioEventLoopGroup(1000);
     try {
       Bootstrap b = new Bootstrap();
       b.group(group).channel(NioSocketChannel.class)
@@ -169,11 +166,12 @@ public class NettyHttpSnoopClient {
       ch.closeFuture().sync();
     } catch (Exception ex) {
       throw ex;
-    } finally {
-      ch.disconnect();
-      // Shut down executor threads to exit.
-      group.shutdownGracefully();
     }
     return true;
+  }
+
+  public void shutdown() {
+    ch.disconnect();
+    group.shutdownGracefully();
   }
 }

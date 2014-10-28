@@ -77,6 +77,7 @@ public class EventProcessorService {
         if (json.getBoolean("result"))
           return json.getString("hashKey");
       }
+      httpClient.shutdown();
     } catch (Exception e1) {
       throw e1;
     }
