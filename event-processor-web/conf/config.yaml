@@ -28,7 +28,7 @@ logging:
       timeZone: UTC
 app:
   dbName: event_processor
-  dbHost: 192.168.93.38
+  dbHost: 10.9.9.133
   dbUsername:
   dbPassword:
   inputProcessorUrl: http://10.9.9.64:9038
