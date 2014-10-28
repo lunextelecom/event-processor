@@ -75,7 +75,7 @@ public class EsperProcessor implements Processor {
       EPServiceProvider sericeProvider = mapServiceProvider.get(key);
       sericeProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(event.getTime()));
       // send event
-      System.out.println("Send event " + event.getEvent() + " - " + new Date());
+      logger.info("Send event " + event.getEvent() + " - " + new Date());
       sericeProvider.getEPRuntime().sendEvent(event.getEvent(), event.getEvtName());
       // forward time
       sericeProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(event.getTime() + 1001));
