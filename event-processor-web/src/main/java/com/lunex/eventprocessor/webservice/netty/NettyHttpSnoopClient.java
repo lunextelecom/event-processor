@@ -99,7 +99,7 @@ public class NettyHttpSnoopClient {
           .handler(new NettyHttpSnoopClientInitializer(sslCtx, callback));
 
       // Make the connection attempt.
-      Channel ch = b.connect(host, port).sync().channel();
+      ch = b.connect(host, port).sync().channel();
 
       // Prepare the HTTP request.
       ByteBuf content = Unpooled.copiedBuffer(event.getPayLoadStr(), CharsetUtil.UTF_8);
