@@ -8,10 +8,10 @@ public class CallbackHTTPVisitor {
 
   public void doJob(ChannelHandlerContext ctx, Object msg) {};
 
-  public String getResponseContent()  {
+  public String getResponseContent() {
     return this.responseContent;
   }
-  
+
   public void setResponseContent(String content) {
     this.responseContent = content;
   }

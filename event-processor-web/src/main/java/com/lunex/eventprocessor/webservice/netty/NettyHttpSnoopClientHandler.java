@@ -9,25 +9,24 @@ import io.netty.handler.codec.http.HttpObject;
 
 public class NettyHttpSnoopClientHandler extends SimpleChannelInboundHandler<HttpObject> {
 
-	static final Logger logger = LoggerFactory.getLogger(NettyHttpSnoopClientHandler.class);
-	
-	private CallbackHTTPVisitor callback;
+  static final Logger logger = LoggerFactory.getLogger(NettyHttpSnoopClientHandler.class);
 
-	public NettyHttpSnoopClientHandler(CallbackHTTPVisitor callback) {
-		this.callback = callback;
-	}
+  private CallbackHTTPVisitor callback;
 
-	@Override
-	public void channelRead0(ChannelHandlerContext ctx, HttpObject msg)
-			throws Exception {
-		if (callback != null) {
-			callback.doJob(ctx, msg);
-		}
-	}
+  public NettyHttpSnoopClientHandler(CallbackHTTPVisitor callback) {
+    this.callback = callback;
+  }
 
-	@Override
-	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-		cause.printStackTrace();
-		ctx.close();
-	}
+  @Override
+  public void channelRead0(ChannelHandlerContext ctx, HttpObject msg) throws Exception {
+    if (callback != null) {
+      callback.doJob(ctx, msg);
+    }
+  }
+
+  @Override
+  public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+    // cause.printStackTrace();
+    ctx.close();
+  }
 }
