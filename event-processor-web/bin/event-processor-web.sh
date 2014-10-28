@@ -5,14 +5,6 @@ do
 key="$1"
 shift
 case $key in
--a)
-APP="$1"
-shift
-;;
--p)
-PROXY="$1"
-shift
-;;
 -c)
 CONF="$1"
 shift
