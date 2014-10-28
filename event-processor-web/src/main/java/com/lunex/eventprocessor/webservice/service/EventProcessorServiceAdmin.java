@@ -174,7 +174,6 @@ public class EventProcessorServiceAdmin {
       // Wait to get hashKey
       countdown.await(10000, TimeUnit.MILLISECONDS);
       result.put(factory.getHandlerServiceUrl()[i], callback.getResponseContent());
-      client.shutdown();
     }
     return result;
   }
@@ -214,7 +213,6 @@ public class EventProcessorServiceAdmin {
       // Wait to get hashKey
       countdown.await(10000, TimeUnit.MILLISECONDS);
       result.put(factory.getHandlerServiceUrl()[i], callback.getResponseContent());
-      client.shutdown();
     }
     return result;
   }
@@ -251,7 +249,6 @@ public class EventProcessorServiceAdmin {
       // Wait to get hashKey
       countdown.await(10000, TimeUnit.MILLISECONDS);
       result.put(factory.getHandlerServiceUrl()[i], callback.getResponseContent());
-      client.shutdown();
     }
     return result;
   }

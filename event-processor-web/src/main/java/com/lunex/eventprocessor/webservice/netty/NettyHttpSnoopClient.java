@@ -39,7 +39,6 @@ public class NettyHttpSnoopClient {
   private SslContext sslCtx;
   public Object msg;
   public Channel ch;
-  public EventLoopGroup group;
 
   public NettyHttpSnoopClient(String url, CallbackHTTPVisitor callback) {
     this.url = url;
@@ -93,14 +92,14 @@ public class NettyHttpSnoopClient {
     }
 
     // Configure the client.
-    group = new NioEventLoopGroup();
+    EventLoopGroup group = new NioEventLoopGroup(1);
     try {
       Bootstrap b = new Bootstrap();
       b.group(group).channel(NioSocketChannel.class)
           .handler(new NettyHttpSnoopClientInitializer(sslCtx, callback));
 
       // Make the connection attempt.
-      ch = b.connect(host, port).sync().channel();
+      Channel ch = b.connect(host, port).sync().channel();
 
       // Prepare the HTTP request.
       ByteBuf content = Unpooled.copiedBuffer(event.getPayLoadStr(), CharsetUtil.UTF_8);
@@ -121,6 +120,9 @@ public class NettyHttpSnoopClient {
       ch.closeFuture().sync();
     } catch (Exception ex) {
       throw ex;
+    } finally {
+      ch.disconnect();
+      group.shutdownGracefully();
     }
     return true;
   }
@@ -137,7 +139,7 @@ public class NettyHttpSnoopClient {
     }
 
     // Configure the client.
-    group = new NioEventLoopGroup();
+    EventLoopGroup group = new NioEventLoopGroup();
     try {
       Bootstrap b = new Bootstrap();
       b.group(group).channel(NioSocketChannel.class)
@@ -166,12 +168,10 @@ public class NettyHttpSnoopClient {
       ch.closeFuture().sync();
     } catch (Exception ex) {
       throw ex;
+    } finally {
+      ch.disconnect();
+      group.shutdownGracefully();
     }
     return true;
-  }
-
-  public void shutdown() {
-    ch.disconnect();
-    group.shutdownGracefully();
   }
 }
