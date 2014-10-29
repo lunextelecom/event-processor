@@ -238,7 +238,7 @@ public class DataAccessOutputHandler {
               Configurations.cassandraKeyspace).getEventQueyExceptionNotExpired(eventQuery,
               ExptionAction.VERIFIED.toString());
 
-      String eventQueryCondition = eventQuery.getConditions();
+      // String eventQueryCondition = eventQuery.getConditions();
       Map<String, Object> properties = null;
       String hashKey = null;
       for (int i = 0; i < result.length; i++) {

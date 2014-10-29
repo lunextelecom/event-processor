@@ -85,9 +85,10 @@ public class EventProcessorWebServiceResource {
         while (resultCheck == null && numRetry > 0) {// check result and
           // retry
           resultCheck = service.checkEvent(hashKey);
-          Thread.sleep(50);
+          Thread.sleep(100);
           numRetry--;
         }
+        logger.info(resultCheck);
         return Response.status(Response.Status.OK).entity(new ServiceResponse(resultCheck, true))
             .build();
       }
