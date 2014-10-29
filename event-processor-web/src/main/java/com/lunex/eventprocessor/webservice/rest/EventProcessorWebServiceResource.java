@@ -1,6 +1,7 @@
 package com.lunex.eventprocessor.webservice.rest;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.GET;
@@ -16,8 +17,19 @@ import org.slf4j.LoggerFactory;
 import com.codahale.metrics.annotation.Timed;
 import com.google.common.base.Strings;
 import com.lunex.eventprocessor.core.Event;
+import com.lunex.eventprocessor.core.EventProperty;
+import com.lunex.eventprocessor.core.EventQuery;
+import com.lunex.eventprocessor.core.QueryHierarchy;
+import com.lunex.eventprocessor.core.dataaccess.CassandraRepository;
+import com.lunex.eventprocessor.core.dataaccess.KairosDBClient;
+import com.lunex.eventprocessor.core.listener.ResultListener;
+import com.lunex.eventprocessor.core.utils.EventQueryProcessor;
 import com.lunex.eventprocessor.core.utils.JsonHelper;
 import com.lunex.eventprocessor.core.utils.StringUtils;
+import com.lunex.eventprocessor.handler.listener.CassandraWriter;
+import com.lunex.eventprocessor.handler.processor.EsperProcessor;
+import com.lunex.eventprocessor.handler.processor.Processor;
+import com.lunex.eventprocessor.handler.utils.Configurations;
 import com.lunex.eventprocessor.webservice.service.EventProcessorService;
 
 @Path("/")
@@ -29,7 +41,15 @@ public class EventProcessorWebServiceResource {
   private static long seq = 0;
   private EventProcessorService service;
 
+
+  public static List<EventProperty> listEventProperty;
+  public static QueryHierarchy hierarchy;
+  public static KairosDBClient kairosDB;
+  public static Processor esperProcessor;
+
+
   public EventProcessorWebServiceResource(EventProcessorService service) {
+    initLoadTest();
     this.service = service;
   }
 
@@ -152,12 +172,76 @@ public class EventProcessorWebServiceResource {
             .build();
       }
       String eventResult = service.checkEvent(StringUtils.md5Java(bodyData));
-      return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-          .entity(new ServiceResponse(eventResult, true)).build();
+      return Response.status(Response.Status.OK).entity(new ServiceResponse(eventResult, true))
+          .build();
     } catch (Exception e) {
       logger.error(e.getMessage(), e);
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
           .entity(new ServiceResponse(null, false)).build();
+    }
+  }
+
+  @POST
+  @Path("/loadtest")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Timed
+  public Response loadTest(@QueryParam("evtName") String eventName,
+      @QueryParam("result") Boolean result, String bodyData) {
+    try {
+      Event event = new Event(bodyData);
+      event.setEvtName(eventName);
+      esperProcessor.consume(event);
+      String hashKey = StringUtils.md5Java(bodyData);
+      int numRetry = 10;
+      String resultCheck = null;
+      while (resultCheck == null && numRetry > 0) {// check result and
+        // retry
+        resultCheck = service.checkEvent(hashKey);
+        Thread.sleep(100);
+        numRetry--;
+      }
+      return Response.status(Response.Status.OK).entity(new ServiceResponse(resultCheck, true)).build();
+    } catch (Exception ex) {
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+          .entity(new ServiceResponse(null, false)).build();
+    }
+  }
+
+  public void initLoadTest() {
+    try {
+
+      // get EventQuery
+      hierarchy = new QueryHierarchy();
+      List<EventQuery> listEventQuery =
+          CassandraRepository.getInstance("10.9.9.133", "event_processor").getEventQueryFromDB("",
+              "");
+      if (listEventQuery != null && !listEventQuery.isEmpty()) {
+        List<List<EventQuery>> grouping =
+            EventQueryProcessor.groupEventQueryByEventName(listEventQuery);
+        // get Eventproperties
+        listEventProperty = EventQueryProcessor.processEventProperyForEventQuery(listEventQuery);
+
+        // Create QueryHierarchy
+        for (int i = 0; i < grouping.size(); i++) {
+          List<EventQuery> subList = grouping.get(i);
+          for (int j = 0; j < subList.size(); j++) {
+            EventQuery query = subList.get(j);
+            if (Configurations.ruleList != null && !Configurations.ruleList.isEmpty()
+                && !Configurations.ruleList.contains(query.getRuleName())) {
+              continue;
+            }
+            hierarchy.addQuery(query.getEventName(), query,
+                new ResultListener[] {new CassandraWriter()});
+          }
+        }
+      } else {
+        logger.info("No rule in DB, please check again!");
+      }
+
+      // create esper processor
+      esperProcessor = new EsperProcessor(hierarchy, listEventProperty, listEventQuery, false, 0L);
+    } catch (Exception ex) {
+      logger.error(ex.getMessage(), ex);
     }
   }
 }
