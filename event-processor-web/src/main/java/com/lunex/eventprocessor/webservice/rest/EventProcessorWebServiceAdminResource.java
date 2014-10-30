@@ -20,8 +20,10 @@ import com.google.common.base.Strings;
 import com.lunex.eventprocessor.core.utils.JsonHelper;
 import com.lunex.eventprocessor.core.utils.StringUtils;
 import com.lunex.eventprocessor.webservice.service.EventProcessorServiceAdmin;
+import com.wordnik.swagger.annotations.*;
 
 @Path("/admin")
+@Api(value = "/admin", description = "Operations about admin")
 public class EventProcessorWebServiceAdminResource {
 
   final static org.slf4j.Logger logger = LoggerFactory
@@ -45,6 +47,15 @@ public class EventProcessorWebServiceAdminResource {
    */
   @POST
   @Path("/rule-exception")
+  @ApiOperation(value = "Add rule exception for rule", notes = "Add rule exception for rule",
+      response = Response.class)
+  @ApiImplicitParams(value = {@ApiImplicitParam(name = "evtName", required = true),
+      @ApiImplicitParam(name = "ruleName", required = true),
+      @ApiImplicitParam(name = "action", required = true),
+      @ApiImplicitParam(name = "datetinme", required = true),
+      @ApiImplicitParam(name = "filter", required = true)})
+  @ApiResponses(value = {@ApiResponse(code = 500, message = "INTERNAL_SERVER_ERROR"),
+      @ApiResponse(code = 200, message = "OK")})
   @Produces(MediaType.APPLICATION_JSON)
   @Timed
   public Response addRuleException(@QueryParam("evtName") String eventName,
@@ -82,23 +93,26 @@ public class EventProcessorWebServiceAdminResource {
    */
   @POST
   @Path("/rule")
+  @ApiOperation(value = "Add new rule", notes = "", response = Response.class)
+  @ApiImplicitParams(
+      value = {
+          @ApiImplicitParam(name = "evtName", required = true),
+          @ApiImplicitParam(name = "ruleName", required = true),
+          @ApiImplicitParam(
+              name = "bodyData",
+              value = "{\"evtName\": \"new_order\", \"ruleName\": \"rule1\", \"data\":\"new_order\", \"fields\" : \"sum(amount:double), acctNum:string\", \"filters\":\"acctNum:string='PC01D001'\", \"aggregateField\": \"acctNum:string\",\"having\":\"sum(amount:double) > 10.0\", \"smallBucket\": \"10 second\", \"bigBucket\": \"1 hour\", \"conditions\":\"sum(amount) > 50 && sum(amount) < 70\", \"type\": \"0\", \"weight\":\"0\", \"description\": \"description\", \"autoStart\": true, \"backfill\": true, \"backfillTime\": \"1 day\"}",
+              required = true)})
+  @ApiResponses(value = {@ApiResponse(code = 500, message = "INTERNAL_SERVER_ERROR"),
+      @ApiResponse(code = 200, message = "OK")})
   @Produces(MediaType.APPLICATION_JSON)
   @Timed
-  // public Response addRule(@QueryParam("evtName") String eventName,
-  // @QueryParam("ruleName") String ruleName, @QueryParam("data") String data,
-  // @QueryParam("fields") String fields, @QueryParam("filters") String filters,
-  // @QueryParam("aggregateField") String aggregateField, @QueryParam("having") String having,
-  // @QueryParam("smallBucket") String smallBucket, @QueryParam("bigBucket") String bigBucket,
-  // @QueryParam("conditions") String conditions, @QueryParam("description") String description,
-  // @QueryParam("autoStart") Boolean autoStart, @QueryParam("backfill") Boolean backfill,
-  // @QueryParam("backfillTime") String backfillTime) {
   /**
    * 
    * @param eventName: name of event
    * @param ruleName : name of rule
    * @param bodyData: data of rule with json format
    * {
-   * "evtName": "new_order", "ruleName": "rule1", "data":"new_order", "fields" : "sum(amount:double), acctNum:string", "filters":"acctNum:string='PC01D001'", "aggregateField": "acctNum:string".
+   * "evtName": "new_order", "ruleName": "rule1", "data":"new_order", "fields" : "sum(amount:double), acctNum:string", "filters":"acctNum:string='PC01D001'", "aggregateField": "acctNum:string",
    * "having":"sum(amount:double) > 10.0", "smallBucket": "10 second", "bigBucket": "1 hour", "conditions":"sum(amount) > 50 && sum(amount) < 70", "type": "0", "weight":"0", "description": "description", "autoStart": true, "backfill": true, "backfillTime": "1 day"
    * }
    * @return
@@ -163,7 +177,7 @@ public class EventProcessorWebServiceAdminResource {
       if (json.has("weight")) {
         weight = json.getInt("weight");
       }
-      
+
       if (Strings.isNullOrEmpty(eventName) || Strings.isNullOrEmpty(ruleName)
           || Strings.isNullOrEmpty(data) || Strings.isNullOrEmpty(smallBucket)) {
         return Response.status(Response.Status.BAD_REQUEST).entity(new ServiceResponse("", false))
@@ -171,8 +185,8 @@ public class EventProcessorWebServiceAdminResource {
       }
 
       // Add rule to db
-      service.addRule(eventName, ruleName, data, fields, filters, aggregateField, having, type, weight,
-          smallBucket, bigBucket, conditions, description, null);
+      service.addRule(eventName, ruleName, data, fields, filters, aggregateField, having, type,
+          weight, smallBucket, bigBucket, conditions, description, null);
       // Start rule
       if (autoStart != null && autoStart) {
         Map<String, Object> map = service.startRule(eventName, ruleName, backfill, backfillTime);
@@ -199,6 +213,12 @@ public class EventProcessorWebServiceAdminResource {
    */
   @DELETE
   @Path("/rule")
+  @ApiOperation(value = "Delete rule", notes = "Delete rule",
+      response = Response.class)
+  @ApiImplicitParams(value = {@ApiImplicitParam(name = "evtName", required = true),
+      @ApiImplicitParam(name = "ruleName", required = true)})
+  @ApiResponses(value = {@ApiResponse(code = 500, message = "INTERNAL_SERVER_ERROR"),
+      @ApiResponse(code = 200, message = "OK")})
   @Produces(MediaType.APPLICATION_JSON)
   @Timed
   public Response deleteRule(@QueryParam("evtName") String eventName,
@@ -242,6 +262,12 @@ public class EventProcessorWebServiceAdminResource {
    */
   @PUT
   @Path("/rule/stop")
+  @ApiOperation(value = "Stop rule", notes = "Stop rule",
+      response = Response.class)
+  @ApiImplicitParams(value = {@ApiImplicitParam(name = "evtName", required = true),
+      @ApiImplicitParam(name = "ruleName", required = true)})
+  @ApiResponses(value = {@ApiResponse(code = 500, message = "INTERNAL_SERVER_ERROR"),
+      @ApiResponse(code = 200, message = "OK")})
   @Produces(MediaType.APPLICATION_JSON)
   @Timed
   public Response stopRule(@QueryParam("evtName") String eventName,
@@ -267,6 +293,12 @@ public class EventProcessorWebServiceAdminResource {
    */
   @PUT
   @Path("/rule/start")
+  @ApiOperation(value = "Start rule", notes = "Start rule",
+  response = Response.class)
+@ApiImplicitParams(value = {@ApiImplicitParam(name = "evtName", required = true),
+  @ApiImplicitParam(name = "ruleName", required = true)})
+@ApiResponses(value = {@ApiResponse(code = 500, message = "INTERNAL_SERVER_ERROR"),
+  @ApiResponse(code = 200, message = "OK")})
   @Produces(MediaType.APPLICATION_JSON)
   @Timed
   public Response startRule(@QueryParam("evtName") String eventName,
@@ -286,16 +318,19 @@ public class EventProcessorWebServiceAdminResource {
 
   @PUT
   @Path("/rule")
+  @ApiOperation(value = "Update rule", notes = "", response = Response.class)
+  @ApiImplicitParams(
+      value = {
+          @ApiImplicitParam(name = "evtName", required = true),
+          @ApiImplicitParam(name = "ruleName", required = true),
+          @ApiImplicitParam(
+              name = "bodyData",
+              value = "{\"evtName\": \"new_order\", \"ruleName\": \"rule1\", \"data\":\"new_order\", \"fields\" : \"sum(amount:double), acctNum:string\", \"filters\":\"acctNum:string='PC01D001'\", \"aggregateField\": \"acctNum:string\",\"having\":\"sum(amount:double) > 10.0\", \"smallBucket\": \"10 second\", \"bigBucket\": \"1 hour\", \"conditions\":\"sum(amount) > 50 && sum(amount) < 70\", \"type\": \"0\", \"weight\":\"0\", \"description\": \"description\", \"autoStart\": true, \"backfill\": true, \"backfillTime\": \"1 day\"}",
+              required = true)})
+  @ApiResponses(value = {@ApiResponse(code = 500, message = "INTERNAL_SERVER_ERROR"),
+      @ApiResponse(code = 200, message = "OK")})
   @Produces(MediaType.APPLICATION_JSON)
   @Timed
-  // public Response updateRule(@QueryParam("evtName") String eventName,
-  // @QueryParam("ruleName") String ruleName, @QueryParam("data") String data,
-  // @QueryParam("fields") String fields, @QueryParam("filters") String filters,
-  // @QueryParam("aggregateField") String aggregateField, @QueryParam("having") String having,
-  // @QueryParam("smallBucket") String smallBucket, @QueryParam("bigBucket") String bigBucket,
-  // @QueryParam("conditions") String conditions, @QueryParam("description") String description,
-  // @QueryParam("autoStart") Boolean autoStart, @QueryParam("backfill") Boolean backfill,
-  // @QueryParam("backfillTime") String backfillTime) {
   /**
    * Update rule
    * @param eventName : name of event
