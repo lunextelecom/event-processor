@@ -45,8 +45,9 @@ public class CassandraWriter implements ResultListener {
         public void run() {
           try {
             // Write result of computation
-            DataAccessOutputHandler.writeResultComputation(data, eventQuery);
+            //DataAccessOutputHandler.writeResultComputation(data, eventQuery);
 
+            // Write checked condition
             CheckConditionHandler checkConditionHandler = null;
             switch (eventQuery.getType()) {
               case DEFAULT:
@@ -59,7 +60,6 @@ public class CassandraWriter implements ResultListener {
                 checkConditionHandler = new CheckConditionDefault();
                 break;
             }
-            // Write checked condition
             List<EventResult> eventResults =
                 DataAccessOutputHandler.checkCondition(data, eventQuery, checkConditionHandler);
             EventResult eventResult = null;
