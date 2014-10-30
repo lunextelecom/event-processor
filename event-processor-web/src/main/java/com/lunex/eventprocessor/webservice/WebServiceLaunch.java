@@ -1,6 +1,10 @@
 package com.lunex.eventprocessor.webservice;
 
 import java.util.Arrays;
+import java.util.EnumSet;
+
+import javax.servlet.DispatcherType;
+import javax.servlet.FilterRegistration;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -9,6 +13,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.cli.UnrecognizedOptionException;
+import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,6 +104,17 @@ public class WebServiceLaunch extends Application<WebConfiguration> {
     final EventProcessorWebServiceAdminResource serviceAdminResource =
         new EventProcessorWebServiceAdminResource(serviceAdmin);
 
+    FilterRegistration.Dynamic filter =
+        environment.servlets().addFilter("CORS", CrossOriginFilter.class);
+    filter.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
+    filter.setInitParameter("allowedOrigins", "*"); // allowed origins comma separated
+    filter.setInitParameter("allowedHeaders",
+        "Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin");
+    filter.setInitParameter("allowedMethods", "GET,PUT,POST,DELETE,OPTIONS,HEAD");
+    filter.setInitParameter("preflightMaxAge", "5184000"); // 2 months
+    filter.setInitParameter("allowCredentials", "true");
+
+
     environment.jersey().register(new ApiListingResourceJSON());
     environment.jersey().register(serviceAdminResource);
     environment.jersey().register(serviceResource);
@@ -107,7 +123,7 @@ public class WebServiceLaunch extends Application<WebConfiguration> {
     ScannerFactory.setScanner(new DefaultJaxrsScanner());
     ClassReaders.setReader(new DefaultJaxrsApiReader());
     SwaggerConfig config = ConfigFactory.config();
-    config.setApiVersion("1.0.1");
+    config.setApiVersion("1.0.0");
     config.setBasePath("http://localhost:9085");
   }
 }

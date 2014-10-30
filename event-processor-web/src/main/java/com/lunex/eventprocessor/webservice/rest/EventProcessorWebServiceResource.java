@@ -33,7 +33,7 @@ import com.lunex.eventprocessor.core.utils.StringUtils;
 import com.lunex.eventprocessor.webservice.service.EventProcessorService;
 import com.wordnik.swagger.annotations.*;
 
-@Path("/")
+@Path("/event")
 @Api(value = "/", description = "Operations about event")
 public class EventProcessorWebServiceResource {
 
@@ -64,13 +64,8 @@ public class EventProcessorWebServiceResource {
    * @return
    */
   @POST
-  @Path("/event")
+  @Path("/")
   @ApiOperation(value = "Add new event", notes = "Add new evemt", response = Response.class)
-  @ApiImplicitParams(value = {
-      @ApiImplicitParam(name = "evtName", dataType = "String", required = true),
-      @ApiImplicitParam(name = "result", dataType = "Boolean", defaultValue = "false",
-          required = true),
-      @ApiImplicitParam(name = "bodyData", dataType = "String", required = true)})
   @ApiResponses(value = {@ApiResponse(code = 500, message = "INTERNAL_SERVER_ERROR"),
       @ApiResponse(code = 200, message = "OK")})
   @Produces(MediaType.APPLICATION_JSON)
@@ -137,11 +132,8 @@ public class EventProcessorWebServiceResource {
    * @return
    */
   @GET
-  @Path("/event")
+  @Path("/")
   @ApiOperation(value = "Check event by hashKey", notes = "Check event", response = Response.class)
-  @ApiImplicitParams(value = {
-      @ApiImplicitParam(name = "evtName", dataType = "String", required = true),
-      @ApiImplicitParam(name = "hashKey", dataType = "String", required = true)})
   @ApiResponses(value = {@ApiResponse(code = 500, message = "INTERNAL_SERVER_ERROR"),
       @ApiResponse(code = 200, message = "OK")})
   @Produces(MediaType.APPLICATION_JSON)
@@ -180,11 +172,9 @@ public class EventProcessorWebServiceResource {
    * @return
    */
   @POST
-  @Path("/event/check")
-  @ApiOperation(value = "Check event by event data", notes = "Check event", response = Response.class)
-  @ApiImplicitParams(value = {
-      @ApiImplicitParam(name = "evtName", dataType = "String", required = true),
-      @ApiImplicitParam(name = "hashKey", dataType = "String", required = true)})
+  @Path("/check")
+  @ApiOperation(value = "Check event by event data", notes = "Check event",
+      response = Response.class)
   @ApiResponses(value = {@ApiResponse(code = 500, message = "INTERNAL_SERVER_ERROR"),
       @ApiResponse(code = 200, message = "OK")})
   @Produces(MediaType.APPLICATION_JSON)
