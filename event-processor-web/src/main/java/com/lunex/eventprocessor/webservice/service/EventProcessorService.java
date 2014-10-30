@@ -90,9 +90,9 @@ public class EventProcessorService {
    * @return
    * @throws Exception
    */
-  public String checkEvent(String hashKey) throws Exception {
+  public String checkEvent(String eventName, String hashKey) throws Exception {
     // TODO
-    List<EventResult> eventResults = cassandraRepository.getEventResult(hashKey);
+    List<EventResult> eventResults = cassandraRepository.getEventResult(eventName, hashKey);
     if (eventResults != null && !eventResults.isEmpty()) {
       EventResult eventResult = eventResults.get(0);
       Gson gson = new Gson();

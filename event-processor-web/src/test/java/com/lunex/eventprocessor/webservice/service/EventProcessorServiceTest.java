@@ -58,7 +58,7 @@ public class EventProcessorServiceTest {
       String result = null;
       int retry = 10;
       while (result == null && retry > 0) {
-        result = service.checkEvent(hashKey);
+        result = service.checkEvent("new_order", hashKey);
         Thread.sleep(1000);
         retry--;
       }

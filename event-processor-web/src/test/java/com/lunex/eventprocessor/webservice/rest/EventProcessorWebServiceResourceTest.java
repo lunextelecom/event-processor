@@ -63,7 +63,7 @@ public class EventProcessorWebServiceResourceTest {
       Response response = null;
       int retry = 10;
       while (response == null && retry > 0) {
-        response = resource.check(StringUtils.md5Java(payload));
+        response = resource.check("new_order", StringUtils.md5Java(payload));
         Thread.sleep(1000);
         retry--;
       }
