@@ -120,7 +120,7 @@ public class WebServiceLaunch extends Application<WebConfiguration> {
     filter.setInitParameter("preflightMaxAge", "5184000"); // 2 months
     filter.setInitParameter("allowCredentials", "true");
 
-
+    // config for swagger and add resource webservice for dropwizad
     environment.jersey().register(new ApiListingResourceJSON());
     environment.jersey().register(serviceAdminResource);
     environment.jersey().register(serviceResource);
@@ -130,6 +130,6 @@ public class WebServiceLaunch extends Application<WebConfiguration> {
     ClassReaders.setReader(new DefaultJaxrsApiReader());
     SwaggerConfig config = ConfigFactory.config();
     config.setApiVersion("1.0.0");
-    config.setBasePath("http://localhost:9085");
+    config.setBasePath("/");
   }
 }
