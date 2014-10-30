@@ -44,8 +44,8 @@ public class EventProcessorService {
    * @throws Exception
    */
   public String addEvent(Event event, long seq) throws Exception {
-    // Create Netty http client
     final CountDownLatch countdown = new CountDownLatch(1);
+    // Create callback to get response from event-processor-input
     CallbackHTTPVisitor callback = new CallbackHTTPVisitor() {
       @Override
       public void doJob(ChannelHandlerContext ctx, Object msg) {
@@ -62,6 +62,7 @@ public class EventProcessorService {
         }
       }
     };
+    // Create http client
     NettyHttpSnoopClient httpClient =
         new NettyHttpSnoopClient(factory.getInputProcessorUrl() + "?evtName=" + event.getEvtName()
             + "&seq=" + seq, callback);
@@ -69,7 +70,7 @@ public class EventProcessorService {
     try {
       // Call event input processor
       httpClient.postEvent(event);
-      // Wait to get hashKey
+      // Wait with timeout 10s to get hashKey
       countdown.await(10000, TimeUnit.MILLISECONDS);
       String httpResponseContent = callback.getResponseContent();
       if (StringUtils.isJSONValid(httpResponseContent)) {
@@ -91,11 +92,12 @@ public class EventProcessorService {
    * @throws Exception
    */
   public String checkEvent(String eventName, String hashKey) throws Exception {
-    // TODO
+    // Get result from cassandra
     List<EventResult> eventResults = cassandraRepository.getEventResult(eventName, hashKey);
     if (eventResults != null && !eventResults.isEmpty()) {
       EventResult eventResult = eventResults.get(0);
       Gson gson = new Gson();
+      // Convert to json string
       return gson.toJson(eventResult).toString();
     }
     return null;

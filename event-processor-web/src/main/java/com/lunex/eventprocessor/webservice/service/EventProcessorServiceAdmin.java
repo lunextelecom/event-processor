@@ -40,6 +40,16 @@ public class EventProcessorServiceAdmin {
     this.factory = factory;
   }
 
+  /**
+   * Add new rule exception
+   * 
+   * @param eventName
+   * @param ruleName
+   * @param action
+   * @param datetinme
+   * @param filter
+   * @throws Exception
+   */
   public void addRuleException(String eventName, String ruleName, String action, String datetinme,
       String filter) throws Exception {
     Map<String, Object> map = new HashMap<String, Object>();
@@ -103,16 +113,37 @@ public class EventProcessorServiceAdmin {
     cassandraRepository.insertEventQuery(eventQuery);
   }
 
+  /**
+   * Update rule in db
+   * 
+   * @param eventName
+   * @param ruleName
+   * @param data
+   * @param fields
+   * @param filters
+   * @param aggregateField
+   * @param having
+   * @param type
+   * @param weight
+   * @param smallBucket
+   * @param bigBucket
+   * @param conditions
+   * @param description
+   * @param autoStart
+   * @throws Exception
+   */
   public void updateRule(String eventName, String ruleName, String data, String fields,
       String filters, String aggregateField, String having, Integer type, Integer weight,
       String smallBucket, String bigBucket, String conditions, String description, Boolean autoStart)
       throws Exception {
+    // Check rule is existing in db
     List<EventQuery> rules = cassandraRepository.getEventQueryFromDB(eventName, ruleName);
     if (rules == null || rules.isEmpty()) {
       throw new Exception("Not exist rule");
     }
+    // Default rule is stop
     EventQueryStatus status = EventQueryStatus.STOP;
-    if (autoStart != null && autoStart) {
+    if (autoStart != null && autoStart) { // if auto start = true
       status = EventQueryStatus.RUNNING;
     }
     // with cassandra, insert with the same key is update
@@ -121,7 +152,7 @@ public class EventProcessorServiceAdmin {
   }
 
   /**
-   * Delete rule from db
+   * Delete rule from db. need stop rule before delete
    * 
    * @param eventName
    * @param ruleName
@@ -147,8 +178,10 @@ public class EventProcessorServiceAdmin {
   public Map<String, Object> startRule(String eventName, String ruleName, Boolean backfill,
       String backfillTime) throws Exception {
     Map<String, Object> result = new HashMap<String, Object>();
+    // loop with multi event handler nodes
     for (int i = 0; i < factory.getHandlerServiceUrl().length; i++) {
       final CountDownLatch countdown = new CountDownLatch(1);
+      // create callback
       CallbackHTTPVisitor callback = new CallbackHTTPVisitor() {
         @Override
         public void doJob(ChannelHandlerContext ctx, Object msg) {
@@ -166,12 +199,13 @@ public class EventProcessorServiceAdmin {
         }
       };
 
+      // request to event handler service
       NettyHttpSnoopClient client =
           new NettyHttpSnoopClient(factory.getHandlerServiceUrl()[i] + "/start/rule?evtName="
               + eventName + "&ruleName=" + ruleName + "&backfill=" + backfill + "&backfillTime="
               + backfillTime, callback);
       client.postRequest(Constants.EMPTY_STRING, HttpMethod.POST);
-      // Wait to get hashKey
+      // Wait to get result
       countdown.await(10000, TimeUnit.MILLISECONDS);
       result.put(factory.getHandlerServiceUrl()[i], callback.getResponseContent());
     }
@@ -188,6 +222,7 @@ public class EventProcessorServiceAdmin {
    */
   public Map<String, Object> stopRule(String eventName, String ruleName) throws Exception {
     Map<String, Object> result = new HashMap<String, Object>();
+    // loop with multi event handler nodes
     for (int i = 0; i < factory.getHandlerServiceUrl().length; i++) {
       final CountDownLatch countdown = new CountDownLatch(1);
       CallbackHTTPVisitor callback = new CallbackHTTPVisitor() {
@@ -206,20 +241,33 @@ public class EventProcessorServiceAdmin {
           }
         }
       };
+      // request to event handler service
       NettyHttpSnoopClient client =
           new NettyHttpSnoopClient(factory.getHandlerServiceUrl()[i] + "/stop/rule?evtName="
               + eventName + "&ruleName=" + ruleName, callback);
       client.postRequest(Constants.EMPTY_STRING, HttpMethod.POST);
-      // Wait to get hashKey
+      // Wait to get result
       countdown.await(10000, TimeUnit.MILLISECONDS);
       result.put(factory.getHandlerServiceUrl()[i], callback.getResponseContent());
     }
     return result;
   }
 
+  /**
+   * Update rule in event handler
+   * 
+   * @param eventName
+   * @param ruleName
+   * @param backfill
+   * @param backfillTime
+   * @param autoStart
+   * @return
+   * @throws Exception
+   */
   public Map<String, Object> changeRule(String eventName, String ruleName, Boolean backfill,
       String backfillTime, Boolean autoStart) throws Exception {
     Map<String, Object> result = new HashMap<String, Object>();
+    // loop with multi event handler nodes
     for (int i = 0; i < factory.getHandlerServiceUrl().length; i++) {
       final CountDownLatch countdown = new CountDownLatch(1);
       CallbackHTTPVisitor callback = new CallbackHTTPVisitor() {
@@ -241,12 +289,13 @@ public class EventProcessorServiceAdmin {
       if (backfill == null) {
         backfill = false;
       }
+      // request to event handler service
       NettyHttpSnoopClient client =
           new NettyHttpSnoopClient(factory.getHandlerServiceUrl()[i] + "/update/rule?evtName="
               + eventName + "&ruleName=" + ruleName + "&backfill=" + backfill + "&backfillTime="
               + backfillTime + "&autoStart=" + autoStart, callback);
       client.postRequest(Constants.EMPTY_STRING, HttpMethod.POST);
-      // Wait to get hashKey
+      // Wait to get result
       countdown.await(10000, TimeUnit.MILLISECONDS);
       result.put(factory.getHandlerServiceUrl()[i], callback.getResponseContent());
     }
