@@ -111,7 +111,7 @@ public class CassandraRepositoryTest {
       EventResult result =
           new EventResult("test_event_result", StringUtils.md5Java("test_event_result"), null, null);
       instance.insertResults(result);
-      List<EventResult> list = instance.getEventResult(StringUtils.md5Java("test_event_result"));
+      List<EventResult> list = instance.getEventResult("test_event_result", StringUtils.md5Java("test_event_result"));
       if (list != null && list.size() == 1
           && list.get(0).getEventName().equals("test_event_result")) {
         assertEquals(true, true);
@@ -119,7 +119,7 @@ public class CassandraRepositoryTest {
         assertEquals(true, false);
       }
       instance.execute("DELETE FROM results WHERE event_name = 'test_event_result'", null);
-      list = instance.getEventResult(StringUtils.md5Java("test_event_result"));
+      list = instance.getEventResult("test_event_result", StringUtils.md5Java("test_event_result"));
       if (list == null) {
         assertEquals(true, true);
       } else {
