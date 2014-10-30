@@ -189,12 +189,12 @@ public class StringUtils {
               break;
             case "hours":
             case "hour":
-              startTime = "*, */" + time + ", *, *, *";
+              startTime = "0, */" + time + ", *, *, *";
               endTime = "0, */" + time + ", *, * , *, 0";
               break;
             case "days":
             case "day":
-              startTime = "*, *, */" + time + ", *, *";
+              startTime = "0, 0, */" + time + ", *, *";
               endTime = "0, 0, */" + time + ", * , *, 0";
               break;
             case "week":
