@@ -145,6 +145,12 @@ public class CassandraRepository {
     execute(sql, params);
   }
 
+  /**
+   * Get event by time
+   * @param startTime
+   * @return
+   * @throws Exception
+   */
   public List<Event> getEvent(long startTime) throws Exception {
     String sql = "SELECT * FROM " + keyspace + ".events where time > ? ALLOW FILTERING;";
     List<Object> params = new ArrayList<Object>();
@@ -162,6 +168,13 @@ public class CassandraRepository {
     return results;
   }
 
+  /**
+   * Get event by event name and time
+   * @param startTime
+   * @param eventName
+   * @return
+   * @throws Exception
+   */
   public List<Event> getEvent(long startTime, String eventName) throws Exception {
     String sql = "SELECT * FROM " + keyspace + ".events where event_name = ? and time > ?;";
     List<Object> params = new ArrayList<Object>();
@@ -178,25 +191,7 @@ public class CassandraRepository {
       results.add(event);
     }
     return results;
-  }
-
-  // No use thi function
-  // public List<Event> getEvent(String hashkey) throws Exception {
-  // String sql = "SELECT * FROM " + keyspace + ".events where hashkey = ? ALLOW FILTERING;";
-  // List<Object> params = new ArrayList<Object>();
-  // params.add(hashkey);
-  // ResultSet rows = execute(sql, params);
-  // List<Event> results = null;
-  // Event event = null;
-  // for (Row row : rows) {
-  // if (results == null) {
-  // results = new ArrayList<Event>();
-  // }
-  // event = new Event(row.getLong("time"), row.getString("event"));
-  // results.add(event);
-  // }
-  // return results;
-  // }
+  }  
 
   /**
    * Get event query (rule) from DB
@@ -535,6 +530,12 @@ public class CassandraRepository {
     return res;
   }
 
+  /**
+   * Get rule from list event name
+   * @param lstEventName
+   * @return
+   * @throws Exception
+   */
   public List<EventQuery> getEventQueryFromDB(List<String> lstEventName) throws Exception {
     StringBuilder sql = new StringBuilder("SELECT * FROM " + keyspace + ".rules");
     List<Object> params = new ArrayList<Object>();
