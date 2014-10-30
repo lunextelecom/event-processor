@@ -88,7 +88,10 @@ public class EventProcessorWebServiceAdminResource {
    */
   @POST
   @Path("/rule")
-  @ApiOperation(value = "Add new rule", notes = "", response = Response.class)
+  @ApiOperation(
+      value = "Add new rule",
+      notes = "bodyData={\"evtName\": \"new_order\", \"ruleName\": \"rule1\", \"data\":\"new_order\", \"fields\" : \"sum(amount:double), acctNum:string\", \"filters\":\"acctNum:string='PC01D001'\", \"aggregateField\": \"acctNum:string\", \"having\":\"sum(amount:double) > 10.0\", \"smallBucket\": \"10 second\", \"bigBucket\": \"1 hour\", \"conditions\":\"sum(amount) > 50 && sum(amount) < 70\", \"type\": \"0\", \"weight\":\"0\", \"description\": \"description\", \"autoStart\": true, \"backfill\": true, \"backfillTime\": \"1 day\"}",
+      response = Response.class)
   @ApiResponses(value = {@ApiResponse(code = 500, message = "INTERNAL_SERVER_ERROR"),
       @ApiResponse(code = 200, message = "OK")})
   @Produces(MediaType.APPLICATION_JSON)
@@ -296,7 +299,10 @@ public class EventProcessorWebServiceAdminResource {
 
   @PUT
   @Path("/rule")
-  @ApiOperation(value = "Update rule", notes = "", response = Response.class)
+  @ApiOperation(
+      value = "Update rule",
+      notes = "bodyData={\"evtName\": \"new_order\", \"ruleName\": \"rule1\", \"data\":\"new_order\", \"fields\" : \"sum(amount:double), acctNum:string\", \"filters\":\"acctNum:string='PC01D001'\", \"aggregateField\": \"acctNum:string\", \"having\":\"sum(amount:double) > 10.0\", \"smallBucket\": \"10 second\", \"bigBucket\": \"1 hour\", \"conditions\":\"sum(amount) > 50 && sum(amount) < 70\", \"type\": \"0\", \"weight\":\"0\", \"description\": \"description\", \"autoStart\": true, \"backfill\": true, \"backfillTime\": \"1 day\"}",
+      response = Response.class)
   @ApiResponses(value = {@ApiResponse(code = 500, message = "INTERNAL_SERVER_ERROR"),
       @ApiResponse(code = 200, message = "OK")})
   @Produces(MediaType.APPLICATION_JSON)
