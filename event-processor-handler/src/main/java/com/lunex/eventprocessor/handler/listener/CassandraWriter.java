@@ -41,11 +41,11 @@ public class CassandraWriter implements ResultListener {
         return;
       }
       final Object[] data = result;
-      Thread cassandraWriter = new Thread(new Runnable() {
-        public void run() {
+//      Thread cassandraWriter = new Thread(new Runnable() {
+//        public void run() {
           try {
             // Write result of computation
-            //DataAccessOutputHandler.writeResultComputation(data, eventQuery);
+            DataAccessOutputHandler.writeResultComputation(data, eventQuery);
 
             // Write checked condition
             CheckConditionHandler checkConditionHandler = null;
@@ -71,9 +71,9 @@ public class CassandraWriter implements ResultListener {
           } catch (Exception e) {
             logger.error(e.getMessage(), e);
           }
-        }
-      });
-      cassandraWriter.start();
+//        }
+//      });
+//      cassandraWriter.start();
     }
   }
 
