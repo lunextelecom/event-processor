@@ -26,6 +26,10 @@ import org.slf4j.LoggerFactory;
 
 import com.lunex.eventprocessor.core.Event;
 
+/**
+ * Netty http client
+ *
+ */
 public class NettyHttpSnoopClient {
 
   static final Logger logger = LoggerFactory.getLogger(NettyHttpSnoopClient.class);
@@ -80,6 +84,13 @@ public class NettyHttpSnoopClient {
     return true;
   }
 
+  /**
+   * Post event to event processor input
+   * 
+   * @param event
+   * @return
+   * @throws Exception
+   */
   public boolean postEvent(Event event) throws Exception {
     try {
       if (!this.preProcessURL()) {
@@ -127,6 +138,14 @@ public class NettyHttpSnoopClient {
     return true;
   }
 
+  /**
+   * Post request with content to a http server
+   * 
+   * @param content
+   * @param method
+   * @return
+   * @throws Exception
+   */
   public boolean postRequest(String content, HttpMethod method) throws Exception {
     try {
       if (!this.preProcessURL()) {

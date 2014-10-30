@@ -2,6 +2,10 @@ package com.lunex.eventprocessor.webservice.netty;
 
 import io.netty.channel.ChannelHandlerContext;
 
+/**
+ * Call back for netty http client
+ *
+ */
 public class CallbackHTTPVisitor {
 
   private String responseContent;

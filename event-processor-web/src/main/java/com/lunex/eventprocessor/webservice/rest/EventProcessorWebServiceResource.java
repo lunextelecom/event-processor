@@ -33,6 +33,12 @@ import com.lunex.eventprocessor.core.utils.StringUtils;
 import com.lunex.eventprocessor.webservice.service.EventProcessorService;
 import com.wordnik.swagger.annotations.*;
 
+/**
+ * Dropwizard resource for event processor web api
+ * 
+ * @author My PC
+ *
+ */
 @Path("/event")
 @Api(value = "/event", description = "Operations about event")
 public class EventProcessorWebServiceResource {
@@ -49,7 +55,11 @@ public class EventProcessorWebServiceResource {
   // public static KairosDBClient kairosDB;
   // public static Processor esperProcessor;
 
-
+  /**
+   * Constructor
+   * 
+   * @param service
+   */
   public EventProcessorWebServiceResource(EventProcessorService service) {
     // initLoadTest();
     this.service = service;
@@ -105,6 +115,7 @@ public class EventProcessorWebServiceResource {
 
         // Else If client want to check result
       } else {
+        // TODO maybe change to get result from kafka?
         int numRetry = 10;
         String resultCheck = null;
         while (resultCheck == null && numRetry > 0) {// check result and
@@ -145,7 +156,8 @@ public class EventProcessorWebServiceResource {
           .build();
     }
     try {
-      String eventResult = service.checkEvent(eventName, hashKey);
+      // Check result by hashKey
+      String eventResult = this.service.checkEvent(eventName, hashKey);
       // JSONObject eventResultJSon = new JSONObject(eventResult);
       // JSONArray resultArray = eventResultJSon.getJSONArray("result");
       // String temp = (String) resultArray.get(0);
@@ -185,7 +197,10 @@ public class EventProcessorWebServiceResource {
         return Response.status(Response.Status.BAD_REQUEST).entity(new ServiceResponse("", false))
             .build();
       }
-      String eventResult = service.checkEvent(eventName, StringUtils.md5Java(bodyData));
+      // Create hashkey
+      String hashKey = StringUtils.md5Java(bodyData);
+      // Check result
+      String eventResult = service.checkEvent(eventName, hashKey);
       return Response.status(Response.Status.OK).entity(new ServiceResponse(eventResult, true))
           .build();
     } catch (Exception e) {

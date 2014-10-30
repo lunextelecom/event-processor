@@ -7,6 +7,12 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.HttpObject;
 
+/**
+ * Netty http client handler
+ * 
+ * @author My PC
+ *
+ */
 public class NettyHttpSnoopClientHandler extends SimpleChannelInboundHandler<HttpObject> {
 
   static final Logger logger = LoggerFactory.getLogger(NettyHttpSnoopClientHandler.class);

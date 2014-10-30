@@ -78,12 +78,18 @@ public class WebServiceLaunch extends Application<WebConfiguration> {
     }
   }
 
+  /**
+   * Print help command line
+   * 
+   * @param options
+   * @param errorMessage
+   */
   private static void printHelp(final Options options, final String errorMessage) {
     if (!Strings.isNullOrEmpty(errorMessage)) {
       System.err.println(errorMessage);
     }
     final HelpFormatter formatter = new HelpFormatter();
-    formatter.printHelp("event-processor-handler", options);
+    formatter.printHelp("event-processor-web", options);
   }
 
   @Override

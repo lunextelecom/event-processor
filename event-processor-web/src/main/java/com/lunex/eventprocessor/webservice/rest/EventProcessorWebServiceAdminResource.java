@@ -22,6 +22,10 @@ import com.lunex.eventprocessor.core.utils.StringUtils;
 import com.lunex.eventprocessor.webservice.service.EventProcessorServiceAdmin;
 import com.wordnik.swagger.annotations.*;
 
+/**
+ * Dropwizard resource for admin job: rule, rule exception
+ *
+ */
 @Path("/admin")
 @Api(value = "/admin", description = "Operations about admin")
 public class EventProcessorWebServiceAdminResource {
@@ -381,18 +385,21 @@ public class EventProcessorWebServiceAdminResource {
         weight = json.getInt("weight");
       }
 
-      service.updateRule(eventName, ruleName, data, fields, filters, aggregateField, having, type,
-          weight, smallBucket, bigBucket, conditions, description, autoStart);
+      // Call update rule in db
+      this.service.updateRule(eventName, ruleName, data, fields, filters, aggregateField, having,
+          type, weight, smallBucket, bigBucket, conditions, description, autoStart);
+      // Check auto start
       if (autoStart != null && autoStart) {
-        if (backfill == null) {
+        if (backfill == null) {// default backfill is false
           backfill = false;
         }
+        // Call update rule in event handler to restart run time the rule is processing
         Map<String, Object> map =
             service.changeRule(eventName, ruleName, backfill, backfillTime, autoStart);
         String response = JsonHelper.toJSonString(map);
         return Response.status(Response.Status.OK).entity(new ServiceResponse(response, true))
             .build();
-      } else {
+      } else {// if not auto start
         return Response.status(Response.Status.OK)
             .entity(new ServiceResponse("Update rule is success", true)).build();
       }

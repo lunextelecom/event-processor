@@ -8,7 +8,11 @@ import com.lunex.eventprocessor.core.dataaccess.CassandraRepository;
 import com.lunex.eventprocessor.webservice.service.EventProcessorService;
 import com.lunex.eventprocessor.webservice.service.EventProcessorServiceAdmin;
 
-
+/**
+ * Factory for web service
+ * 
+ *
+ */
 public class EventProcessorWebServiceFactory {
   private String dbName;
   private String dbHost;
@@ -89,12 +93,12 @@ public class EventProcessorWebServiceFactory {
   public void setStatsdAppPrefix(String statsdAppPrefix) {
     this.statsdAppPrefix = statsdAppPrefix;
   }
-  
+
   @JsonProperty
   public void setInputProcessorUrl(String inputProcessorUrl) {
     this.inputProcessorUrl = inputProcessorUrl;
   }
-  
+
   @JsonProperty
   public String getInputProcessorUrl() {
     return this.inputProcessorUrl;
@@ -109,7 +113,14 @@ public class EventProcessorWebServiceFactory {
   public void setHandlerServiceUrl(String[] handlerServiceUrl) {
     this.handlerServiceUrl = handlerServiceUrl;
   }
-  
+
+  /**
+   * Create Event Processor service
+   * 
+   * @param environment
+   * @return
+   * @throws Exception
+   */
   public EventProcessorService buildEventProcessorService(Environment environment) throws Exception {
     CassandraRepository cassandra = CassandraRepository.getInstance(getDbHost(), getDbName());
     EventProcessorService service = new EventProcessorService(cassandra, this);
@@ -122,8 +133,16 @@ public class EventProcessorWebServiceFactory {
     });
     return service;
   }
-  
-  public EventProcessorServiceAdmin buildEventProcessorServiceAdmin(Environment environment) throws Exception {
+
+  /**
+   * Create Event processor admin service
+   * 
+   * @param environment
+   * @return
+   * @throws Exception
+   */
+  public EventProcessorServiceAdmin buildEventProcessorServiceAdmin(Environment environment)
+      throws Exception {
     CassandraRepository cassandra = CassandraRepository.getInstance(getDbHost(), getDbName());
     EventProcessorServiceAdmin service = new EventProcessorServiceAdmin(cassandra, this);
     environment.lifecycle().manage(new Managed() {
@@ -134,5 +153,5 @@ public class EventProcessorWebServiceFactory {
       public void start() throws Exception {}
     });
     return service;
-  }  
+  }
 }
