@@ -163,8 +163,7 @@ public class CassandraRepository {
   }
 
   public List<Event> getEvent(long startTime, String eventName) throws Exception {
-    String sql =
-        "SELECT * FROM " + keyspace + ".events where event_name = ? and time > ? ALLOW FILTERING;";
+    String sql = "SELECT * FROM " + keyspace + ".events where event_name = ? and time > ?;";
     List<Object> params = new ArrayList<Object>();
     params.add(eventName);
     params.add(startTime);
@@ -573,6 +572,7 @@ public class CassandraRepository {
 
   /**
    * Get result of continue query
+   * 
    * @param eventName
    * @param ruleName
    * @param startTime
@@ -601,8 +601,8 @@ public class CassandraRepository {
         results = new ArrayList<ResultComputation>();
       }
       tmp =
-          new ResultComputation(eventName, ruleName,
-              row.getLong("time"), row.getString("hashkey"), row.getString("result"));
+          new ResultComputation(eventName, ruleName, row.getLong("time"), row.getString("hashkey"),
+              row.getString("result"));
       results.add(tmp);
     }
     return results;
