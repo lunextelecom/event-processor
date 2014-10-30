@@ -199,8 +199,8 @@ public class StringUtils {
               break;
             case "week":
             case "weeks":
-              startTime = "0, 0, *, *, mon/" + time + "";
-              endTime = "0, 0, *, * , mon/" + time + ", 0";
+              startTime = "0, 0, *, *, 1/" + time + "";
+              endTime = "0, 0, *, * , 1/" + time + ", 0";
               break;
             default:
               break;
