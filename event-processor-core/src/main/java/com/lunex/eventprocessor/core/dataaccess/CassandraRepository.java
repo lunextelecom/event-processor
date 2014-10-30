@@ -180,22 +180,23 @@ public class CassandraRepository {
     return results;
   }
 
-  public List<Event> getEvent(String hashkey) throws Exception {
-    String sql = "SELECT * FROM " + keyspace + ".events where hashkey = ? ALLOW FILTERING;";
-    List<Object> params = new ArrayList<Object>();
-    params.add(hashkey);
-    ResultSet rows = execute(sql, params);
-    List<Event> results = null;
-    Event event = null;
-    for (Row row : rows) {
-      if (results == null) {
-        results = new ArrayList<Event>();
-      }
-      event = new Event(row.getLong("time"), row.getString("event"));
-      results.add(event);
-    }
-    return results;
-  }
+  // No use thi function
+  // public List<Event> getEvent(String hashkey) throws Exception {
+  // String sql = "SELECT * FROM " + keyspace + ".events where hashkey = ? ALLOW FILTERING;";
+  // List<Object> params = new ArrayList<Object>();
+  // params.add(hashkey);
+  // ResultSet rows = execute(sql, params);
+  // List<Event> results = null;
+  // Event event = null;
+  // for (Row row : rows) {
+  // if (results == null) {
+  // results = new ArrayList<Event>();
+  // }
+  // event = new Event(row.getLong("time"), row.getString("event"));
+  // results.add(event);
+  // }
+  // return results;
+  // }
 
   /**
    * Get event query (rule) from DB
