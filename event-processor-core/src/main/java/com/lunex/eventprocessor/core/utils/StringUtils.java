@@ -197,9 +197,9 @@ public class StringUtils {
               startTime = "0, 0, */" + time + ", *, *";
               endTime = "0, 0, */" + time + ", * , *, 0";
               break;
-            case "week":
+            case "week":// maybe esper no support
             case "weeks":
-              startTime = "*, *, *, *, */" + time + "";
+              startTime = "0, 0, *, *, 1/" + time + "";
               endTime = "0, 0, *, * , 1/" + time + ", 0";
               break;
             default:
