@@ -34,7 +34,7 @@ import com.lunex.eventprocessor.webservice.service.EventProcessorService;
 import com.wordnik.swagger.annotations.*;
 
 @Path("/event")
-@Api(value = "/", description = "Operations about event")
+@Api(value = "/event", description = "Operations about event")
 public class EventProcessorWebServiceResource {
 
   final static org.slf4j.Logger logger = LoggerFactory
