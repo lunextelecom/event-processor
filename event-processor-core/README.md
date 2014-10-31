@@ -57,14 +57,14 @@ Event
  Rule Exception
   ```
 // Column family for rule exception
-CREATE TABLE condition_exception (
-	id uuid, // unique key
+CREATE TABLE condition_exception (	
 	event_name text, // event name
 	rule_name text, // rule name
 	action text, // action apply for exception. Currently, 'verified'
 	expired_date timestamp,// time to apply this exception
+    id uuid, // unique key
 	condition_filter text,// list properties of evnt need to check exception, base on json format as event column in events table. Ex: {"acctNum":"PC01D001"}
-	PRIMARY KEY (id, event_name, rule_name, action, expired_date) 
+	PRIMARY KEY (event_name, rule_name, action, expired_date, id) 
 );
  ```
  
