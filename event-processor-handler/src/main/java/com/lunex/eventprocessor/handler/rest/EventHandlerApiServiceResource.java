@@ -2,7 +2,6 @@ package com.lunex.eventprocessor.handler.rest;
 
 import java.util.List;
 
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -20,8 +19,10 @@ import com.lunex.eventprocessor.core.dataaccess.CassandraRepository;
 import com.lunex.eventprocessor.core.utils.StringUtils;
 import com.lunex.eventprocessor.handler.EventHandlerLaunch;
 import com.lunex.eventprocessor.handler.utils.Configurations;
+import com.wordnik.swagger.annotations.*;
 
 @Path("/event-processor-handler")
+@Api(value = "/event-processor-handler", description = "Operations about rule")
 public class EventHandlerApiServiceResource {
 
   final static org.slf4j.Logger logger = LoggerFactory
@@ -30,15 +31,6 @@ public class EventHandlerApiServiceResource {
   public EventHandlerApiServiceResource() {
 
   }
-
-  @GET
-  @Path("/resetEPL")
-  @Produces(MediaType.APPLICATION_JSON)
-  @Timed
-  public ServiceResponse resetEPL() {
-    return new ServiceResponse("test", true);
-  }
-
 
   /**
    * Update rule when it is running
@@ -51,6 +43,8 @@ public class EventHandlerApiServiceResource {
    */
   @POST
   @Path("/update/rule")
+  @ApiOperation(value = "Update rule", notes = "Update rule", response = ServiceResponse.class)
+  @ApiResponses(value = {@ApiResponse(code = 200, message = "OK")})
   @Produces(MediaType.APPLICATION_JSON)
   @Timed
   public ServiceResponse updateRule(@QueryParam("evtName") String eventName,
@@ -102,6 +96,8 @@ public class EventHandlerApiServiceResource {
    */
   @POST
   @Path("/stop/rule")
+  @ApiOperation(value = "Stop rule", notes = "Stop rule", response = ServiceResponse.class)
+  @ApiResponses(value = {@ApiResponse(code = 200, message = "OK")})
   @Produces(MediaType.APPLICATION_JSON)
   @Timed
   public ServiceResponse stopRule(@QueryParam("evtName") String eventName,
@@ -155,6 +151,8 @@ public class EventHandlerApiServiceResource {
    */
   @POST
   @Path("/start/rule")
+  @ApiOperation(value = "Start rule", notes = "Start rule", response = ServiceResponse.class)
+  @ApiResponses(value = {@ApiResponse(code = 200, message = "OK")})
   @Produces(MediaType.APPLICATION_JSON)
   @Timed
   public ServiceResponse startRule(@QueryParam("evtName") String eventName,
@@ -201,6 +199,9 @@ public class EventHandlerApiServiceResource {
 
   @POST
   @Path("/reprocess")
+  @ApiOperation(value = "Reprocess rule with backfill", notes = "Reprocess rule with backfill",
+      response = ServiceResponse.class)
+  @ApiResponses(value = {@ApiResponse(code = 200, message = "OK")})
   @Produces(MediaType.APPLICATION_JSON)
   @Timed
   // # N day, n month, n year, n hour, n minute, n second
@@ -236,6 +237,9 @@ public class EventHandlerApiServiceResource {
 
   @POST
   @Path("/reprocessAll")
+  @ApiOperation(value = "Reprocessess all rule with backfile",
+      notes = "Reprocessess all rule with backfile", response = ServiceResponse.class)
+  @ApiResponses(value = {@ApiResponse(code = 200, message = "OK")})
   @Produces(MediaType.APPLICATION_JSON)
   @Timed
   // # N day, n month, n year, n hour, n minute, n second

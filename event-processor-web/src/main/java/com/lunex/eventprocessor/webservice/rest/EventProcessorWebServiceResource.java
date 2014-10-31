@@ -75,7 +75,7 @@ public class EventProcessorWebServiceResource {
    */
   @POST
   @Path("/")
-  @ApiOperation(value = "Add new event", notes = "Add new evemt", response = Response.class)
+  @ApiOperation(value = "Add new event", notes = "Add new event", response = Response.class)
   @ApiResponses(value = {@ApiResponse(code = 500, message = "INTERNAL_SERVER_ERROR"),
       @ApiResponse(code = 200, message = "OK")})
   @Produces(MediaType.APPLICATION_JSON)

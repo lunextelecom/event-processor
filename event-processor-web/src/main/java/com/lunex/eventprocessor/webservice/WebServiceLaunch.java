@@ -110,6 +110,7 @@ public class WebServiceLaunch extends Application<WebConfiguration> {
     final EventProcessorWebServiceAdminResource serviceAdminResource =
         new EventProcessorWebServiceAdminResource(serviceAdmin);
 
+    // Config CORS
     FilterRegistration.Dynamic filter =
         environment.servlets().addFilter("CORS", CrossOriginFilter.class);
     filter.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
