@@ -1,7 +1,7 @@
 DROP KEYSPACE event_processor;
 
 CREATE KEYSPACE event_processor
-WITH REPLICATION = { 'class' : 'NetworkTopologyStrategy', 'dc1' : 2 };
+WITH REPLICATION = { 'class' : 'NetworkTopologyStrategy', 'dc2' : 2 };
 
 //CREATE KEYSPACE event_processor
 //WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
@@ -45,13 +45,13 @@ CREATE TABLE rules (
 );
 
 CREATE TABLE condition_exception (
-	id uuid, 
 	event_name text, 
 	rule_name text,
 	action text,
 	expired_date timestamp,
+	id uuid, 
 	condition_filter text,
-	PRIMARY KEY (id, event_name, rule_name, action, expired_date) 
+	PRIMARY KEY (event_name, rule_name, action, expired_date, id) 
 );
 
 CREATE TABLE result_computation (
