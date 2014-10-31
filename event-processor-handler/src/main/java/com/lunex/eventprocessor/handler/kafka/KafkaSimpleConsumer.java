@@ -170,9 +170,10 @@ public class KafkaSimpleConsumer {
         maxReads--;
       }
 
+      // If no anything to read from kafka
       if (numRead == 0) {
         try {
-          Thread.sleep(1000);
+          Thread.sleep(1000); // waiting 1000ms before read again
         } catch (InterruptedException ie) {
           logger.error(ie.getMessage(), ie);
         }

@@ -455,9 +455,6 @@ public class EsperProcessor implements Processor {
     }
 
     public void update(EventBean[] newEvents, EventBean[] oldEvents) {
-      // System.out.println("test:" + new Date() + " rule:" + eventQuery.getRuleName() +
-      // "-newEvents:"
-      // + newEvents[0].getUnderlying());
       if (newEvents == null || newEvents.length == 0 || !enable) {
         return;
       }

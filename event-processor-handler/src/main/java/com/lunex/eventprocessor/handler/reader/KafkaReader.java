@@ -61,11 +61,7 @@ public class KafkaReader implements EventReader {
       formatTime = "dd-MM-yyyy HH:mm:ss z";
     }
     Date date = TimeUtil.convertStringToDate(dateTime, formatTime);
-    // System.out.println("Kafka reader start: _____________________" + date
-    // + "________________________");
     this.whichTime = TimeUtil.convertDateMilisecond(date);
-    // System.out.println("Kafka reader start whichTime: _____________________" + whichTime
-    // + "________________________");
     this.listKafkaConsumers = new ArrayList<KafkaSimpleConsumer>();
   }
 
@@ -86,9 +82,7 @@ public class KafkaReader implements EventReader {
   }
 
   public void start() {
-    // listKafkaConsumers.clear();
-    // readKafkaMessage(consumer);
-    for (int i = 0; i < listKafkaConsumers.size(); i++) {
+    for (int i = 0, size = listKafkaConsumers.size(); i < size; i++) {
       listKafkaConsumers.get(i).stoped = false;
       final KafkaSimpleConsumer kafkaConsumer = listKafkaConsumers.get(i);
       try {
@@ -108,17 +102,26 @@ public class KafkaReader implements EventReader {
     }
   }
 
+  /**
+   * Read kafka message
+   * 
+   * @param consumer
+   */
   private void readKafkaMessage(final EventConsumer consumer) {
-    for (int i = 0; i < Configurations.kafkaTopicPartitionList.size(); i++) {
+    for (int i = 0, size = Configurations.kafkaTopicPartitionList.size(); i < size; i++) {
+      // Create a kakka simple consumer
       final KafkaSimpleConsumer kafkaConsumer =
           new KafkaSimpleConsumer(Configurations.kafkaCluster, Configurations.kafkaTopic,
               Configurations.kafkaTopicPartitionList.get(i), -1, new KafkaMessageProcessor() {
+                // implement KafkaMessageProcessor to process read message from kafka
                 public Object processMessage(byte[] message) {
                   sendEventToConsumer(message, consumer);
                   return null;
                 }
               });
+      // Add to list to manage
       listKafkaConsumers.add(kafkaConsumer);
+      // Create thread to consumer read message from kafka
       try {
         Thread thread = new Thread(new Runnable() {
           public void run() {
@@ -166,6 +169,7 @@ public class KafkaReader implements EventReader {
         logger.error("Content-type is invalid");
         break;
     }
+    // Check message event from kafka
     if (Configurations.kafkaEventReaderList != null
         && !Configurations.kafkaEventReaderList.isEmpty()
         && !Configurations.kafkaEventReaderList.contains(event.getEvtName())) {
@@ -175,6 +179,7 @@ public class KafkaReader implements EventReader {
     if (event != null && event.getTime() != -1
         && !Constants.EMPTY_STRING.equals(event.getEvtName())
         && !Constants.EMPTY_STRING.equals(event.getEvent())) {
+      // Send to Event consumer
       consumer.consume(event);
     }
   }
