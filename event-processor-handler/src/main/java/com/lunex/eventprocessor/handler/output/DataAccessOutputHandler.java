@@ -20,6 +20,7 @@ import com.lunex.eventprocessor.core.EventQuery;
 import com.lunex.eventprocessor.core.EventQueryException;
 import com.lunex.eventprocessor.core.EventResult;
 import com.lunex.eventprocessor.core.QueryHierarchy;
+import com.lunex.eventprocessor.core.ResultComputation;
 import com.lunex.eventprocessor.core.EventQueryException.ExptionAction;
 import com.lunex.eventprocessor.core.dataaccess.CassandraRepository;
 import com.lunex.eventprocessor.core.dataaccess.KairosDBClient;
@@ -199,6 +200,7 @@ public class DataAccessOutputHandler {
       throws PropertyAccessException, Exception {
     Map<String, Object> item = null;
     String hashKey = null;
+    ResultComputation temp = null;
     for (int i = 0; i < result.length; i++) {
       item = (Map<String, Object>) result[i];
       if (item == null || item.isEmpty()) {
@@ -212,10 +214,11 @@ public class DataAccessOutputHandler {
       }
       item = StringUtils.revertHashMapField(item);
       String jsonStr = JsonHelper.toJSonString(item);
+      temp =
+          new ResultComputation(eventQuery.getEventName(), eventQuery.getRuleName(),
+              (Long) item.get("time"), hashKey, jsonStr);
       CassandraRepository.getInstance(Configurations.cassandraHost,
-          Configurations.cassandraKeyspace).insertResultComputation(eventQuery.getEventName(),
-          eventQuery.getRuleName(), (Long) item.get("time"), String.valueOf(item.get("hashKey")),
-          jsonStr);
+          Configurations.cassandraKeyspace).insertResultComputation(temp);
     }
   }
 

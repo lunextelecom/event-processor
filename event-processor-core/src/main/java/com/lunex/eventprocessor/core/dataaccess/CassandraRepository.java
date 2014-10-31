@@ -147,6 +147,7 @@ public class CassandraRepository {
 
   /**
    * Get event by time
+   * 
    * @param startTime
    * @return
    * @throws Exception
@@ -170,6 +171,7 @@ public class CassandraRepository {
 
   /**
    * Get event by event name and time
+   * 
    * @param startTime
    * @param eventName
    * @return
@@ -191,7 +193,7 @@ public class CassandraRepository {
       results.add(event);
     }
     return results;
-  }  
+  }
 
   /**
    * Get event query (rule) from DB
@@ -367,7 +369,7 @@ public class CassandraRepository {
   }
 
   /**
-   * Insert result computation
+   * Insert result computation from continuous query
    * 
    * @param eventName
    * @param rule
@@ -388,6 +390,26 @@ public class CassandraRepository {
     params.add(time);
     params.add(hashKey);
     params.add(result);
+    execute(sql, params);
+  }
+
+  /**
+   * Insert result computation from continuous query
+   * 
+   * @param result
+   * @throws Exception
+   */
+  public void insertResultComputation(ResultComputation result) throws Exception {
+    String sql =
+        "INSERT INTO "
+            + keyspace
+            + ".result_computation (event_name, rule_name, time, hashkey, result) VALUES (?,?,?,?,?);";
+    List<Object> params = new ArrayList<Object>();
+    params.add(result.getEventName());
+    params.add(result.getRuleName());
+    params.add(result.getTime());
+    params.add(result.getHashKey());
+    params.add(JsonHelper.toJSonString(result.getResult()));
     execute(sql, params);
   }
 
@@ -532,6 +554,7 @@ public class CassandraRepository {
 
   /**
    * Get rule from list event name
+   * 
    * @param lstEventName
    * @return
    * @throws Exception
