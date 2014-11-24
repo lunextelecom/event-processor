@@ -1,5 +1,6 @@
 package com.lunex.eventprocessor.core.dataaccess;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Cluster.Builder;
+import com.datastax.driver.core.ConsistencyLevel;
 import com.datastax.driver.core.HostDistance;
 import com.datastax.driver.core.KeyspaceMetadata;
 import com.datastax.driver.core.Metadata;
@@ -22,8 +24,10 @@ import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
+import com.datastax.driver.core.Statement;
 import com.datastax.driver.core.policies.ConstantReconnectionPolicy;
 import com.datastax.driver.core.policies.DowngradingConsistencyRetryPolicy;
+import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.google.common.base.Strings;
 import com.lunex.eventprocessor.core.Event;
 import com.lunex.eventprocessor.core.EventQuery;
@@ -46,6 +50,14 @@ public class CassandraRepository {
   private String keyspace;
   private Map<String, PreparedStatement> listPreparedStatements;
 
+  public static class ColumnValueList {
+    public String[] columns;
+    public Object[] values;
+  }
+
+  private static final String TABLE_EVENT = "events";
+  private static final String TABLE_RULES = "rules";
+
   /**
    * Get instance
    * 
@@ -55,6 +67,10 @@ public class CassandraRepository {
     if (instance == null) {
       instance = init(host, keyspace);
     }
+    return instance;
+  }
+
+  public static CassandraRepository getInstance() {
     return instance;
   }
 
@@ -133,16 +149,16 @@ public class CassandraRepository {
    * @param event
    * @throws Exception
    */
-  public void insertEventToDB(Event event) throws Exception {
-    String sql =
-        "INSERT INTO " + keyspace
-            + ".events (event_name, time, hashkey, event) VALUES (?, ?, ?, ?);";
-    List<Object> params = new ArrayList<Object>();
-    params.add(event.getEvtName());
-    params.add(event.getTime());
-    params.add(event.getHashKey());
-    params.add(event.getPayLoadStr());
-    execute(sql, params);
+  public Statement insertEventToDB(Event event, boolean isExecute) throws Exception {
+    ColumnValueList columnValueList = convertToColumnValueList(event);
+    Statement insert =
+        QueryBuilder.insertInto(keyspace, TABLE_EVENT)
+            .values(columnValueList.columns, columnValueList.values)
+            .setConsistencyLevel(ConsistencyLevel.LOCAL_QUORUM);
+    if (isExecute) {
+      this.execute(insert);
+    }
+    return insert;
   }
 
   /**
@@ -253,18 +269,22 @@ public class CassandraRepository {
     return results;
   }
 
-  public void changeEventQueryStatus(EventQuery eventQuery) throws Exception {
-    String sql =
-        "UPDATE " + keyspace + ".rules set status = ? where event_name = ? AND rule_name = ?";
-    List<Object> params = new ArrayList<Object>();
-    params.add(eventQuery.getStatus().toString());
-    params.add(eventQuery.getEventName());
-    params.add(eventQuery.getRuleName());
-    execute(sql, params);
+  public Statement changeEventQueryStatus(EventQuery eventQuery, boolean isExecute)
+      throws Exception {
+    Statement updateStatement =
+        QueryBuilder.update(keyspace, TABLE_RULES)
+            .with(QueryBuilder.set("status", eventQuery.getStatus().toString()))
+            .where(QueryBuilder.eq("event_name", eventQuery.getEventName()))
+            .and(QueryBuilder.eq("rule_name", eventQuery.getRuleName()))
+            .setConsistencyLevel(ConsistencyLevel.LOCAL_QUORUM);
+    if (isExecute) {
+      this.execute(updateStatement);
+    }
+    return updateStatement;
   }
 
-  public void insertEventQuery(EventQuery eventQuery) throws Exception {
-    String sql =
+  public Statement insertEventQuery(EventQuery eventQuery, boolean isExecute) throws Exception {
+    /*String sql =
         "INSERT INTO "
             + keyspace
             + ".rules (event_name, rule_name, data, fields, filters, aggregate_field, having, small_bucket, big_bucket, conditions, description, status, type, weight) VALUES (?, ?, ?, ?, ?, ?, ? , ?, ? , ?, ?, ?, ?, ?);";
@@ -296,7 +316,16 @@ public class CassandraRepository {
       }
     }
     params.add(eventQuery.getWeight());
-    execute(sql, params);
+    execute(sql, params);*/
+    ColumnValueList columnValueList = convertToColumnValueList(eventQuery);
+    Statement insert =
+        QueryBuilder.insertInto(keyspace, TABLE_RULES)
+            .values(columnValueList.columns, columnValueList.values)
+            .setConsistencyLevel(ConsistencyLevel.LOCAL_QUORUM);
+    if (isExecute) {
+      this.execute(insert);
+    }
+    return insert;
   }
 
   public void deleteEventQuery(EventQuery eventQuery) throws Exception {
@@ -553,6 +582,15 @@ public class CassandraRepository {
   }
 
   /**
+   * Execute statement
+   * 
+   * @param statement
+   */
+  public void execute(Statement statement) {
+    session.execute(statement);
+  }
+
+  /**
    * Get rule from list event name
    * 
    * @param lstEventName
@@ -631,6 +669,35 @@ public class CassandraRepository {
       results.add(tmp);
     }
     return results;
+  }
+
+  public static ColumnValueList convertToColumnValueList(Object obj) {
+    List<String> columns = new ArrayList<String>();
+    List<Object> values = new ArrayList<Object>();
+    ColumnValueList result = new ColumnValueList();
+    for (Field field : obj.getClass().getDeclaredFields()) {
+      try {
+        Object value = field.get(obj);
+        if (value != null) {
+          CassandraDbColumn dbCol = field.getAnnotation(CassandraDbColumn.class);
+          if (dbCol != null) {
+            String colName = field.getName();
+            if (dbCol.name() != null) {
+              colName = dbCol.name();
+            }
+            columns.add(colName);
+            values.add(value);
+          }
+        }
+      } catch (IllegalArgumentException e) {
+      } catch (IllegalAccessException e) {
+      }
+    }
+
+    result.columns = columns.toArray(new String[0]);
+    result.values = values.toArray(new Object[0]);
+
+    return result;
   }
 
 }

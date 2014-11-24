@@ -59,7 +59,7 @@ public class CassandraRepositoryTest {
   public void insertAndGetEventToDB() {
     Event event = new Event("{'evtName': 'test_event', 'time': 1}");
     try {
-      instance.insertEventToDB(event);
+      instance.insertEventToDB(event, true);
       List<Event> listEvents = instance.getEvent(0);
       int size = listEvents.size();
       if (listEvents != null && listEvents.size() > 0) {
@@ -86,7 +86,7 @@ public class CassandraRepositoryTest {
     eventQuery.setRuleName("unit_test_event");
     eventQuery.setStatus(EventQueryStatus.STOP);
     try {
-      instance.insertEventQuery(eventQuery);
+      instance.insertEventQuery(eventQuery, true);
       List<EventQuery> list = instance.getEventQueryFromDB("unit_test_event", "unit_test_event");
       if (list != null && list.size() == 1 && list.get(0).getEventName().equals("unit_test_event")) {
         assertEquals(true, true);

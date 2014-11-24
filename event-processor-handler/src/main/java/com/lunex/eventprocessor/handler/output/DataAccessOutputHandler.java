@@ -51,7 +51,7 @@ public class DataAccessOutputHandler {
       public void run() {
         try {
           // insert new event
-          CassandraRepository.getInstance().insertEventToDB(insertEvent);
+          CassandraRepository.getInstance().insertEventToDB(insertEvent, true);
           // insert event result --> default no violate
           CassandraRepository.getInstance().insertResults(insertEvent.getEvtName(),
               insertEvent.getHashKey(), null, null);

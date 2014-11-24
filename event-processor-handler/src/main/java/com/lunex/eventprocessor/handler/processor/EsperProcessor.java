@@ -240,7 +240,7 @@ public class EsperProcessor implements Processor {
           this.createEPServiceProvider(config, eventQuery, backFill, startTime);
       mapServiceProvider.put(serviceProviderURI, serviceProvider);
       eventQuery.setStatus(EventQueryStatus.RUNNING);
-      CassandraRepository.getInstance().changeEventQueryStatus(eventQuery);
+      CassandraRepository.getInstance().changeEventQueryStatus(eventQuery, true);
     }
   }
 

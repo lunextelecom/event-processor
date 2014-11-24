@@ -124,7 +124,7 @@ public class EventHandlerApiServiceResource {
         EventHandlerLaunch.readerEsperProcessor.start();
         if (result) {
           rule.setStatus(EventQueryStatus.STOP);
-          CassandraRepository.getInstance().changeEventQueryStatus(rule);
+          CassandraRepository.getInstance().changeEventQueryStatus(rule, true);
           return new ServiceResponse("Stop successfully", true);
         } else {
           return new ServiceResponse("Stop unsuccessfully", false);
@@ -179,7 +179,7 @@ public class EventHandlerApiServiceResource {
         EventHandlerLaunch.readerEsperProcessor.start();
         if (result) {
           rule.setStatus(EventQueryStatus.RUNNING);
-          CassandraRepository.getInstance().changeEventQueryStatus(rule);
+          CassandraRepository.getInstance().changeEventQueryStatus(rule, true);
           return new ServiceResponse("Start successfully", true);
         } else {
           return new ServiceResponse("Start unsuccessfully", false);

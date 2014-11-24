@@ -110,7 +110,7 @@ public class EventProcessorServiceAdmin {
       status = EventQueryStatus.STOP;
     }
     eventQuery.setStatus(status);
-    cassandraRepository.insertEventQuery(eventQuery);
+    cassandraRepository.insertEventQuery(eventQuery, true);
   }
 
   /**
