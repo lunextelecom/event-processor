@@ -240,8 +240,7 @@ public class EsperProcessor implements Processor {
           this.createEPServiceProvider(config, eventQuery, backFill, startTime);
       mapServiceProvider.put(serviceProviderURI, serviceProvider);
       eventQuery.setStatus(EventQueryStatus.RUNNING);
-      CassandraRepository.getInstance(Configurations.cassandraHost,
-          Configurations.cassandraKeyspace).changeEventQueryStatus(eventQuery);
+      CassandraRepository.getInstance().changeEventQueryStatus(eventQuery);
     }
   }
 
@@ -415,8 +414,7 @@ public class EsperProcessor implements Processor {
       EPRuntime epRunTime) throws Exception {
     // get historical event from DB
     List<Event> listEvent =
-        CassandraRepository.getInstance(Configurations.cassandraHost,
-            Configurations.cassandraKeyspace).getEvent(startTime);
+        CassandraRepository.getInstance().getEvent(startTime);
     if (listEvent != null) {
       Event historicalEvent = null;
       for (int i = 0, size = listEvent.size(); i < size; i++) {

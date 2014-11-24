@@ -56,8 +56,7 @@ public class CheckConditionDayOfWeek implements CheckConditionHandler {
         long endTime = TimeUtil.getEndTime(passTime);
         try {
           List<ResultComputation> lst =
-              CassandraRepository.getInstance(Configurations.cassandraHost,
-                  Configurations.cassandraKeyspace).getResultComputation(eventQuery.getEventName(),
+              CassandraRepository.getInstance().getResultComputation(eventQuery.getEventName(),
                   eventQuery.getRuleName(), startTime, endTime, 1);
           if (lst != null && lst.size() > 0) {
             ResultComputation resultComputation = lst.get(0);

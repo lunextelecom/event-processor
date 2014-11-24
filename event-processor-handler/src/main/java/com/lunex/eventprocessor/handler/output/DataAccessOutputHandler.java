@@ -51,11 +51,9 @@ public class DataAccessOutputHandler {
       public void run() {
         try {
           // insert new event
-          CassandraRepository.getInstance(Configurations.cassandraHost,
-              Configurations.cassandraKeyspace).insertEventToDB(insertEvent);
+          CassandraRepository.getInstance().insertEventToDB(insertEvent);
           // insert event result --> default no violate
-          CassandraRepository.getInstance(Configurations.cassandraHost,
-              Configurations.cassandraKeyspace).insertResults(insertEvent.getEvtName(),
+          CassandraRepository.getInstance().insertResults(insertEvent.getEvtName(),
               insertEvent.getHashKey(), null, null);
         } catch (Exception e) {
           logger.error(e.getMessage(), e);
@@ -217,8 +215,7 @@ public class DataAccessOutputHandler {
       temp =
           new ResultComputation(eventQuery.getEventName(), eventQuery.getRuleName(),
               (Long) item.get("time"), hashKey, jsonStr);
-      CassandraRepository.getInstance(Configurations.cassandraHost,
-          Configurations.cassandraKeyspace).insertResultComputation(temp);
+      CassandraRepository.getInstance().insertResultComputation(temp);
     }
   }
 
@@ -237,8 +234,7 @@ public class DataAccessOutputHandler {
     try {
       // get list condition excption
       List<EventQueryException> condtionExceptions =
-          CassandraRepository.getInstance(Configurations.cassandraHost,
-              Configurations.cassandraKeyspace).getEventQueyExceptionNotExpired(eventQuery,
+          CassandraRepository.getInstance().getEventQueyExceptionNotExpired(eventQuery,
               ExptionAction.VERIFIED.toString());
 
       // String eventQueryCondition = eventQuery.getConditions();

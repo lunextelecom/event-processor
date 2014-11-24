@@ -53,8 +53,7 @@ public class EventHandlerApiServiceResource {
     try {
       long timeBackfill = StringUtils.getBackFillTime(backfillTime);
       List<EventQuery> rules =
-          CassandraRepository.getInstance(Configurations.cassandraHost,
-              Configurations.cassandraKeyspace).getEventQueryFromDB(eventName, ruleName);
+          CassandraRepository.getInstance().getEventQueryFromDB(eventName, ruleName);
       if (rules != null && !rules.isEmpty()) {
         EventQuery rule = rules.get(0);
         // if rule is not in list config
@@ -104,8 +103,7 @@ public class EventHandlerApiServiceResource {
       @QueryParam("ruleName") String ruleName) {
     try {
       List<EventQuery> rules =
-          CassandraRepository.getInstance(Configurations.cassandraHost,
-              Configurations.cassandraKeyspace).getEventQueryFromDB(eventName, ruleName);
+          CassandraRepository.getInstance().getEventQueryFromDB(eventName, ruleName);
       if (rules != null && !rules.isEmpty()) {
         EventQuery rule = rules.get(0);
         // if rule is not in list config
@@ -126,8 +124,7 @@ public class EventHandlerApiServiceResource {
         EventHandlerLaunch.readerEsperProcessor.start();
         if (result) {
           rule.setStatus(EventQueryStatus.STOP);
-          CassandraRepository.getInstance(Configurations.cassandraHost,
-              Configurations.cassandraKeyspace).changeEventQueryStatus(rule);
+          CassandraRepository.getInstance().changeEventQueryStatus(rule);
           return new ServiceResponse("Stop successfully", true);
         } else {
           return new ServiceResponse("Stop unsuccessfully", false);
@@ -161,8 +158,7 @@ public class EventHandlerApiServiceResource {
     try {
       long timeBackfill = StringUtils.getBackFillTime(backfillTime);
       List<EventQuery> rules =
-          CassandraRepository.getInstance(Configurations.cassandraHost,
-              Configurations.cassandraKeyspace).getEventQueryFromDB(eventName, ruleName);
+          CassandraRepository.getInstance().getEventQueryFromDB(eventName, ruleName);
       if (rules != null && !rules.isEmpty()) {
         EventQuery rule = rules.get(0);
         // if rule is not in list config
@@ -183,8 +179,7 @@ public class EventHandlerApiServiceResource {
         EventHandlerLaunch.readerEsperProcessor.start();
         if (result) {
           rule.setStatus(EventQueryStatus.RUNNING);
-          CassandraRepository.getInstance(Configurations.cassandraHost,
-              Configurations.cassandraKeyspace).changeEventQueryStatus(rule);
+          CassandraRepository.getInstance().changeEventQueryStatus(rule);
           return new ServiceResponse("Start successfully", true);
         } else {
           return new ServiceResponse("Start unsuccessfully", false);
@@ -214,8 +209,7 @@ public class EventHandlerApiServiceResource {
     }
     try {
       List<EventQuery> rules =
-          CassandraRepository.getInstance(Configurations.cassandraHost,
-              Configurations.cassandraKeyspace).getEventQueryFromDB(eventName, ruleName);
+          CassandraRepository.getInstance().getEventQueryFromDB(eventName, ruleName);
       if (rules != null && !rules.isEmpty()) {
         EventQuery rule = rules.get(0);
         EventHandlerLaunch.readerEsperProcessor.stop();
@@ -251,9 +245,8 @@ public class EventHandlerApiServiceResource {
     }
     try {
       List<EventQuery> rules =
-          CassandraRepository.getInstance(Configurations.cassandraHost,
-              Configurations.cassandraKeyspace).getEventQueryFromDB(
-              Configurations.kafkaEventReaderList);
+          CassandraRepository.getInstance()
+              .getEventQueryFromDB(Configurations.kafkaEventReaderList);
       StringBuilder res = new StringBuilder();
       if (rules != null && !rules.isEmpty()) {
         EventHandlerLaunch.readerEsperProcessor.stop();

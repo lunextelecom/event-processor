@@ -110,14 +110,17 @@ public class EventHandlerLaunch extends Application<WebConfiguration> {
       String appConfig = cmd.getOptionValue(OPTION_APP);
       Configurations.getPropertiesValues(appConfig);
 
+      // Load cassandra respository
+      CassandraRepository repository =
+          CassandraRepository.getInstance(Configurations.cassandraHost,
+              Configurations.cassandraKeyspace);
+
       // kairosdb
       kairosDB = new KairosDBClient(Configurations.kairosDBUrl);
 
       // get EventQuery
       hierarchy = new QueryHierarchy();
-      List<EventQuery> listEventQuery =
-          CassandraRepository.getInstance(Configurations.cassandraHost,
-              Configurations.cassandraKeyspace).getEventQueryFromDB("", "");
+      List<EventQuery> listEventQuery = repository.getEventQueryFromDB("", "");
       if (listEventQuery != null && !listEventQuery.isEmpty()) {
         List<List<EventQuery>> grouping =
             EventQueryProcessor.groupEventQueryByEventName(listEventQuery);
